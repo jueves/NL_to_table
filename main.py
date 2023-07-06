@@ -1,12 +1,27 @@
 import telebot
 import json
 import datetime
+import openai
 
+# Load keys
 with open(".keys.json", "r") as f:
     keys_dic = json.load(f)
 
+# Setup chatGPT
+openai.my_api_key = keys_dic["chatGPT"]
+messages = [ {"role": "system", "content": "You are a intelligent assistant."} ]
+
 def text_to_table(text):
-    
+	messages.append({"role": "user", "content": text},)
+	
+    chat = openai.ChatCompletion.create(
+	        model="gpt-3.5-turbo", messages=messages
+		)
+	
+	reply = chat.choices[0].message.content
+	return(reply)
+
+
 
 
 
