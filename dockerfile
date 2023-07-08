@@ -1,4 +1,4 @@
-FROM python:alpine
+FROM python
 
 RUN pip install pyTelegramBotAPI pandas openai
 

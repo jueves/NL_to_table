@@ -6,7 +6,7 @@ from io import StringIO
 import openai
 
 # Load keys
-with open(".keys.json", "r") as f:
+with open("keys.json", "r") as f:
     keys_dic = json.load(f)
 
 # Load prompt header
