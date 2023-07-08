@@ -7,3 +7,4 @@ Natural language to table converter.
 - [x] Convert table data to markdown
 - [ ] Ask for confirmation.
 - [ ] Store permantent data
+- [ ] Add sanity check.

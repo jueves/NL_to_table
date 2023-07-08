@@ -37,12 +37,24 @@ def sanitazion_check(csv_data):
 openai.api_key = keys_dic["chatGPT"]
 messages = [ {"role": "system", "content": "You are a intelligent assistant."} ]
 
-def text_to_table(text):
+def just_chat(text):
     messages.append({"role": "user", "content": text})
     chat = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=messages)
     
     reply = chat.choices[0].message.content
     return(reply)
+
+def message_to_csv(message):
+    message_time = datetime.utcfromtimestamp(message.date)
+    timestr = message_time.strftime("%d.%m.%Y %H:%M:%S  ")
+    txt_input = prompt_header + timestr + message.text
+
+    messages.append({"role": "user", "content": txt_input})
+    chat = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=messages)
+    
+    reply = chat.choices[0].message.content
+    return(reply)
+
 
 
 bot = telebot.TeleBot(keys_dic["telegram"])
@@ -50,19 +62,13 @@ bot = telebot.TeleBot(keys_dic["telegram"])
 @bot.message_handler(func=lambda msg: True)
 def echo_all(message):
     if (message.text[:4] == "chat"):
-        answer = text_to_table(message.text[5:])
+        answer = just_chat(message.text[5:])
     elif (message.text == "hora"):
         answer = str(datetime.now())
-    else:
-        message_time = datetime.utcfromtimestamp(message.date)
-        timestr = message_time.strftime("%d.%m.%Y %H:%M:%S  ")
-        
-        csv_data = text_to_table(prompt_header + timestr + message.text)
+    else:       
+        csv_data = message_to_csv(message)
         answer = sanitazion_check(csv_data)
 
     bot.reply_to(message, answer)
 
-#Launches the bot in infinite loop mode with additional
-#...exception handling, which allows the bot
-#...to work even in case of errors. 
 bot.infinity_polling()
