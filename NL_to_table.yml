@@ -1,0 +1,6 @@
+version: '3.1'
+services:
+  app:
+    image: nl_to_table:0.1
+    volumes:
+      - ./keys.json:/NL_to_table/keys.json
