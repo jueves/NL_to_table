@@ -5,7 +5,7 @@ Natural language to table converter.
 - [x] Create dummy tables from Telegram.
 - [x] Store temporary table data
 - [x] Convert table data to markdown
-- [ ] Containerize app
+- [X] Containerize app
 - [ ] Ask for confirmation.
 - [ ] Store permantent data
 - [ ] Add sanity check.
