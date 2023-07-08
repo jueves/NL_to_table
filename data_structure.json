@@ -1,0 +1,22 @@
+{
+    "weight": {
+        "description":"A person's weight in kilograms.",
+        "type":"Numeric",
+        "range": [20, 200]
+    },
+    "asthma": {
+        "description":"Asthma crisis severity in a 0 to 5 scale.",
+        "type":"Numeric",
+        "range":[0, 5]
+    },
+    "alergy": {
+        "description":"Alergy crisis severity in a 0 to 5 scale.",
+        "type":"Numeric",
+        "range":[0, 5]
+    },
+    "datetime": {
+        "description":"The date and time in which data was collected. The date will be formated as DD.MM.YYYY and the time as HH:mm:ss",
+        "type":"String",
+        "range":""
+    }
+}

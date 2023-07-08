@@ -4,6 +4,7 @@ from datetime import datetime
 import pandas as pd
 from io import StringIO
 import openai
+from sanity_check import sanity_check
 
 # Load keys
 with open("keys.json", "r") as f:
@@ -14,29 +15,11 @@ with open("prompt_header.txt", "r") as f:
     prompt_header = f.read()
 
 
-# Functions
-def sanitazion_check(csv_data):
-    data = pd.read_csv(StringIO(csv_data))
-    
-    problems = ""
-
-    '''
-    Include here several sanitation check functions and append
-    problems found to the problems variable.
-    '''
-
-    if (len(problems) == 0):
-        problems = "\n\n No problems found during sanitazion check."
-
-    answer = data.to_markdown()
-    answer += problems
-    
-    return(answer)
-
 # Setup chatGPT
 openai.api_key = keys_dic["chatGPT"]
 messages = [ {"role": "system", "content": "You are a intelligent assistant."} ]
 
+# chatGPT functions
 def just_chat(text):
     messages.append({"role": "user", "content": text})
     chat = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=messages)
@@ -56,7 +39,7 @@ def message_to_csv(message):
     return(reply)
 
 
-
+# Telegram bot
 bot = telebot.TeleBot(keys_dic["telegram"])
 
 @bot.message_handler(func=lambda msg: True)
@@ -67,7 +50,8 @@ def echo_all(message):
         answer = str(datetime.now())
     else:       
         csv_data = message_to_csv(message)
-        answer = sanitazion_check(csv_data)
+        data = pd.read_csv(StringIO(csv_data))
+        answer = sanity_check(data)
 
     bot.reply_to(message, answer)
 
