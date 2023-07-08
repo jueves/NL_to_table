@@ -1,6 +1,8 @@
 import telebot
 import json
 from datetime import datetime
+import pandas as pd
+from io import StringIO
 import openai
 
 # Load keys
@@ -35,8 +37,9 @@ def echo_all(message):
         message_time = datetime.utcfromtimestamp(message.date)
         timestr = message_time.strftime("%d.%m.%Y %H:%M:%S  ")
         
-        answer = text_to_table(prompt_header + timestr + message.text)
-
+        csv_table = text_to_table(prompt_header + timestr + message.text)
+        answer = pd.read_csv(StringIO(csv_table)).to_markdown()
+        
     bot.reply_to(message, answer)
 
 #Launches the bot in infinite loop mode with additional
