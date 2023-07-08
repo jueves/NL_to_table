@@ -1,11 +1,15 @@
 import telebot
 import json
-import datetime
+from datetime import datetime
 import openai
 
 # Load keys
 with open(".keys.json", "r") as f:
     keys_dic = json.load(f)
+
+# Load prompt header
+with open("prompt_header.txt", "r") as f:
+    prompt_header = f.read()
 
 # Setup chatGPT
 openai.api_key = keys_dic["chatGPT"]
@@ -19,24 +23,23 @@ def text_to_table(text):
     return(reply)
 
 
-print(text_to_table("who was Charles Darwin?"))
-print("Was it printed?")
-
 bot = telebot.TeleBot(keys_dic["telegram"])
 
-'''
 @bot.message_handler(func=lambda msg: True)
 def echo_all(message):
-    if (message.text == "Hola"):
-        answer = "¡Hola!"
+    if (message.text[:4] == "chat"):
+        answer = text_to_table(message.text[5:])
     elif (message.text == "hora"):
-        answer = str(datetime.datetime.now())
+        answer = str(datetime.now())
     else:
-         answer = "prueba de respuesta" #text_to_table(message.txt)
+        message_time = datetime.utcfromtimestamp(message.date)
+        timestr = message_time.strftime("%d.%m.%Y %H:%M:%S  ")
+        
+        answer = text_to_table(prompt_header + timestr + message.text)
+
     bot.reply_to(message, answer)
 
 #Launches the bot in infinite loop mode with additional
 #...exception handling, which allows the bot
 #...to work even in case of errors. 
 bot.infinity_polling()
-'''
