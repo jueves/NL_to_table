@@ -13,6 +13,26 @@ with open(".keys.json", "r") as f:
 with open("prompt_header.txt", "r") as f:
     prompt_header = f.read()
 
+
+# Functions
+def sanitazion_check(csv_data):
+    data = pd.read_csv(StringIO(csv_data))
+    
+    problems = ""
+
+    '''
+    Include here several sanitation check functions and append
+    problems found to the problems variable.
+    '''
+
+    if (len(problems) == 0):
+        problems = "\n\n No problems found during sanitazion check."
+
+    answer = data.to_markdown()
+    answer += problems
+    
+    return(answer)
+
 # Setup chatGPT
 openai.api_key = keys_dic["chatGPT"]
 messages = [ {"role": "system", "content": "You are a intelligent assistant."} ]
@@ -37,9 +57,9 @@ def echo_all(message):
         message_time = datetime.utcfromtimestamp(message.date)
         timestr = message_time.strftime("%d.%m.%Y %H:%M:%S  ")
         
-        csv_table = text_to_table(prompt_header + timestr + message.text)
-        answer = pd.read_csv(StringIO(csv_table)).to_markdown()
-        
+        csv_data = text_to_table(prompt_header + timestr + message.text)
+        answer = sanitazion_check(csv_data)
+
     bot.reply_to(message, answer)
 
 #Launches the bot in infinite loop mode with additional
