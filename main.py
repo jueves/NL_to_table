@@ -10,9 +10,18 @@ from sanity_check import sanity_check
 with open("keys.json", "r") as f:
     keys_dic = json.load(f)
 
-# Load prompt header
+# Load text messages
 with open("prompt_header.txt", "r") as f:
     prompt_header = f.read()
+
+with open("data_structure.json", "r") as f:
+    data_structure = json.load(f)
+
+with open("start.txt", "r") as f:
+    start_message = f.read()
+
+with open("help.txt", "r") as f:
+    help_message = f.read()
 
 
 # Setup chatGPT
@@ -44,9 +53,15 @@ bot = telebot.TeleBot(keys_dic["telegram"])
 
 @bot.message_handler(func=lambda msg: True)
 def echo_all(message):
-    if (message.text[:4] == "chat"):
-        answer = just_chat(message.text[5:])
-    elif (message.text == "hora"):
+    if (message.text == "/start"):
+        answer = start_message + help_message
+    elif (message.text == "/help"):
+        answer = help_message
+    elif (message.text == "/metadata"):
+        answer = json.dumps(data_structure, indent=4)
+    elif (message.text[:5] == "/chat"):
+        answer = just_chat(message.text[6:])
+    elif (message.text == "/hora"):
         answer = str(datetime.now())
     else:       
         csv_data = message_to_csv(message)
