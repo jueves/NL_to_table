@@ -1,4 +1,5 @@
 import telebot
+from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 import json
 from datetime import datetime
 import pandas as pd
@@ -47,12 +48,28 @@ def message_to_csv(message):
     reply = chat.choices[0].message.content
     return(reply)
 
+def gen_markup(add_buttons=False):
+    markup = InlineKeyboardMarkup()
+    if add_buttons:
+        markup.row_width = 2
+        markup.add(InlineKeyboardButton("Todo correcto", callback_data="cb_correct"),
+                                InlineKeyboardButton("Hay errores", callback_data="cb_errors"))
+    return markup
+
 
 # Telegram bot
 bot = telebot.TeleBot(keys_dic["telegram"])
 
+@bot.callback_query_handler(func=lambda call: True)
+def callback_query(call):
+    if call.data == "cb_correct":
+        bot.answer_callback_query(call.id, "Has confirmado la tabla propuesta.")
+    elif call.data == "cb_errors":
+        bot.answer_callback_query(call.id, "Has marcado la tabla propuesta como erronea.")
+
 @bot.message_handler(func=lambda msg: True)
 def echo_all(message):
+    add_buttons = False
     if (message.text == "/start"):
         answer = start_message + help_message
     elif (message.text == "/help"):
@@ -63,11 +80,13 @@ def echo_all(message):
         answer = just_chat(message.text[6:])
     elif (message.text == "/hora"):
         answer = str(datetime.now())
-    else:       
+    else:
+        add_buttons = True
         csv_data = message_to_csv(message)
         data = pd.read_csv(StringIO(csv_data))
         answer = sanity_check(data)
 
-    bot.reply_to(message, answer)
+    #bot.reply_to(message, answer)
+    bot.send_message(message.chat.id, answer, reply_markup=gen_markup(add_buttons))
 
 bot.infinity_polling()
