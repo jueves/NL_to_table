@@ -7,7 +7,7 @@ Natural language to table converter.
 - [x] Convert table data to markdown
 - [X] Containerize app
 - [X] Ask for confirmation.
-- [ ] On chat, show a one row transposed table.
+- [X] On chat, show a one row transposed table.
 - [X] Store permantent data.
 - [X] Add sanity check.
 - [ ] Add Whisper support.

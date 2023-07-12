@@ -1,10 +1,11 @@
-import telebot
-from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
+from io import StringIO
 import json
 from datetime import datetime
 import pandas as pd
-from io import StringIO
+import telebot
+from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 import openai
+import whisper
 from sanity_check import sanity_check
 
 DATA_FILENAME = "data.csv"
@@ -94,7 +95,10 @@ def get_table(message):
 openai.api_key = keys_dic["chatGPT"]
 messages = [ {"role": "system", "content": "You are a intelligent assistant."} ]
 
-# Telegram bot
+# Setup Whisper
+whisper_model = whisper.load_model("base")
+
+# Setup Telegram bot
 bot = telebot.TeleBot(keys_dic["telegram"])
 
 @bot.callback_query_handler(func=lambda call: True)
@@ -114,6 +118,16 @@ def callback_query(call):
     
     elif call.data == "cb_errors":
         bot.answer_callback_query(call.id, "Has marcado la tabla propuesta como erronea.")
+
+@bot.message_handler(content_types=['voice'])
+def voice_processing(message):
+    file_info = bot.get_file(message.voice.file_id)
+    downloaded_file = bot.download_file(file_info.file_path)
+    with open('voice_note.ogg', 'wb') as new_file:
+        new_file.write(downloaded_file)
+    result = whisper_model.transcribe("voice_note.ogg")
+    bot.reply_to(message, result["text"])
+
 
 @bot.message_handler(func=lambda msg: True)
 def echo_all(message):
