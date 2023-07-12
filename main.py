@@ -66,6 +66,20 @@ def update_dataset(data_file_name=data_file_name):
     data = pd.concat([data, new_data], ignore_index=True) # FIX THIS: Needs to be merged on left columns.
     data.to_csv(data_file_name)
 
+def get_table_answer(message):
+    add_buttons = True
+    csv_data = message_to_csv(message)
+
+    print("THIS IS CHATGPT ANSWER:")
+    print(csv_data)
+    
+    new_data = pd.read_csv(StringIO(csv_data))
+    new_data.to_csv("tmp.csv")
+    
+    print("len(new_data) " + str(len(new_data)))
+    answer = sanity_check(new_data)
+    return(answer, add_buttons)
+
 # Telegram bot
 bot = telebot.TeleBot(keys_dic["telegram"])
 
@@ -80,6 +94,7 @@ def callback_query(call):
 @bot.message_handler(func=lambda msg: True)
 def echo_all(message):
     add_buttons = False
+    
     if (message.text == "/start"):
         answer = start_message + help_message
     elif (message.text == "/help"):
@@ -91,14 +106,7 @@ def echo_all(message):
     elif (message.text == "/hora"):
         answer = str(datetime.now())
     else:
-        add_buttons = True
-        csv_data = message_to_csv(message)
-        print("THIS IS CHATGPT ANSWER:")
-        print(csv_data)
-        new_data = pd.read_csv(StringIO(csv_data))       
-        new_data.to_csv("tmp.csv")
-        print("len(new_data) " + str(len(new_data)))
-        answer = sanity_check(new_data)
+        answer, add_buttons = get_table_answer(message)
 
     bot.send_message(message.chat.id, answer, reply_markup=gen_markup(add_buttons))
 
