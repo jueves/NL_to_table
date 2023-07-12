@@ -2,25 +2,32 @@ import json
 import pandas as pd
 import numbers
 
-with open("data_structure.json", "r") as f:
+with open("data_structure.json", "r", ) as f:
     data_structure = json.load(f)
 
-def sanity_check(data): 
+def sanity_check(data):
+    '''
+    Checks variables names, ranges, and types.
+    Returns report as string.
+    '''
     problems_header = "\n\nSANITY CHECK SUMMARY:\n"
     problems = ""
 
     problems += check_variables(data)
     problems += check_ranges(data)
+    problems += check_types(data)
 
     if (len(problems) == 0):
         problems += "No problems found during sanitazion check."
 
-    answer = data.to_markdown()
-    answer += problems_header + problems
+    answer = problems_header + problems
     
-    return(answer)
+    return(data, answer)
 
 def check_variables(data):
+    '''
+    Checks if the variables are the expected ones, returns report as string.
+    '''
     given_set = set(data.columns)
     expected_set = set(data_structure.keys())
 
@@ -37,6 +44,10 @@ def check_variables(data):
     return(veredict)
 
 def check_ranges(data):
+    '''
+    Checks if the values are in range.
+    Returns report as string.
+    '''
     veredict = ""
     for variable in data_structure.keys():
         var_range = data_structure[variable]["range"]
@@ -47,9 +58,20 @@ def check_ranges(data):
                     veredict += "Variable " + variable + " is out of range.\n"
     return(veredict)
 
-'''
-# Testing
-data = pd.DataFrame(data={'alergy': [11, 2], 'asthma': [13, 4]})
+def check_types(data):
+    '''
+    Checks data types, returns report as string.
+    '''
+    veredict = ""
 
-print(check_ranges(data))
-'''
+    for variable in data_structure.keys():
+        var_type = data_structure[variable]["type"]
+        value = data[variable][0]
+        if (var_type == "Numeric"):
+            if not (isinstance(value, numbers.Number)):
+                veredict += "El valor de " + variable + " no es numérico.\n"
+        if (var_type == "String"):
+            if not (isinstance(value, str)):
+                veredict += "El valor de " + variable + " no es texto.\n"
+
+    return(veredict)
