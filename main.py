@@ -77,13 +77,18 @@ def update_dataset(data_filename=DATA_FILENAME):
     data = data[list(data_structure.keys())]
     data.to_csv(data_filename)
 
-def get_table_answer(message):
-    add_buttons = True
+def get_table(message):
+    '''
+    Gets a message whose text describes data values, transforms, checks and
+    saves the data.
+    Returns answer text with information about the process.
+    '''
     csv_data = message_to_csv(message)
     new_data = pd.read_csv(StringIO(csv_data))
     new_data.to_csv(str(message.from_user.id) + "_tmp.csv")
-    answer = sanity_check(new_data)
-    return(answer, add_buttons)
+    data, answer = sanity_check(new_data)
+    answer = data.T.to_markdown() + answer
+    return(answer)
 
 # Setup chatGPT
 openai.api_key = keys_dic["chatGPT"]
@@ -94,6 +99,9 @@ bot = telebot.TeleBot(keys_dic["telegram"])
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback_query(call):
+    '''
+    Manages callback for data validation buttons
+    '''
     if call.data == "cb_correct":
         user_id = keys_dic["telegram_user_id"]
         if (str(call.from_user.id) == user_id):
@@ -109,6 +117,9 @@ def callback_query(call):
 
 @bot.message_handler(func=lambda msg: True)
 def echo_all(message):
+    '''
+    Takes all incoming messages and returns answers.
+    '''
     add_buttons = False
     if (message.text == "/start"):
         answer = start_message + help_message
@@ -120,9 +131,9 @@ def echo_all(message):
         answer = just_chat(message.text[6:])
     elif (message.text == "/hora"):
         answer = str(datetime.now())
-        print(message.from_user.id)
     else:
-        answer, add_buttons = get_table_answer(message)
+        add_buttons = True
+        answer = get_table(message)
 
     bot.send_message(message.chat.id, answer, reply_markup=gen_markup(add_buttons))
 
