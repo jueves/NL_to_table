@@ -9,6 +9,5 @@ Natural language to table converter.
 - [X] Ask for confirmation.
 - [ ] On chat, show a one row transposed table.
 - [X] Store permantent data.
-- [ ] Add sanity check.
-- [ ] Add sanity check loop (gives sanity feedback to chatGPT)
+- [X] Add sanity check.
 - [ ] Add Whisper support.
