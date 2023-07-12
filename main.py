@@ -8,10 +8,9 @@ import openai
 from sanity_check import sanity_check
 
 DATA_FILENAME = "data.csv"
-NEW_DATA_FILENAME = "tmp.csv"
 
 # Load keys
-with open("keys.json", "r") as f:
+with open("keys.json", "r", encoding="utf-8") as f:
     keys_dic = json.load(f)
 
 # Load text messages
@@ -27,12 +26,6 @@ with open("start.txt", "r", encoding="utf-8") as f:
 with open("help.txt", "r", encoding="utf-8") as f:
     help_message = f.read()
 
-
-# Setup chatGPT
-openai.api_key = keys_dic["chatGPT"]
-messages = [ {"role": "system", "content": "You are a intelligent assistant."} ]
-
-# chatGPT functions
 def just_chat(text):
     '''
     Takes a string with a message to chatGPT and returns the answer.
@@ -71,32 +64,30 @@ def gen_markup(add_buttons=False):
                                 InlineKeyboardButton("Hay errores", callback_data="cb_errors"))
     return markup
 
-def update_dataset(data_filename=DATA_FILENAME, new_data_filename=NEW_DATA_FILENAME):
+def update_dataset(data_filename=DATA_FILENAME):
     '''
     Takes the names of the whole dataset file and the new data file.
     Performs an update attaching all new data to the whole dataset.
     Writes changes to disk.
     '''
+    user_id = keys_dic["telegram_user_id"]
     data = pd.read_csv(data_filename)
-    new_data = pd.read_csv(new_data_filename)
-    print("len(data) en update_dataset() " + str(len(data)))
-    print("len(new_data) en update_dataset() " + str(len(new_data)))
-    data = pd.concat([data, new_data], ignore_index=True) # FIX THIS: Needs to be merged on left columns.
+    new_data = pd.read_csv(str(user_id) + "_tmp.csv")
+    data = pd.concat([data, new_data], ignore_index=True)
+    data = data[list(data_structure.keys())]
     data.to_csv(data_filename)
 
 def get_table_answer(message):
     add_buttons = True
     csv_data = message_to_csv(message)
-
-    print("THIS IS CHATGPT ANSWER:")
-    print(csv_data)
-    
     new_data = pd.read_csv(StringIO(csv_data))
-    new_data.to_csv("tmp.csv")
-    
-    print("len(new_data) " + str(len(new_data)))
+    new_data.to_csv(str(message.from_user.id) + "_tmp.csv")
     answer = sanity_check(new_data)
     return(answer, add_buttons)
+
+# Setup chatGPT
+openai.api_key = keys_dic["chatGPT"]
+messages = [ {"role": "system", "content": "You are a intelligent assistant."} ]
 
 # Telegram bot
 bot = telebot.TeleBot(keys_dic["telegram"])
@@ -104,15 +95,21 @@ bot = telebot.TeleBot(keys_dic["telegram"])
 @bot.callback_query_handler(func=lambda call: True)
 def callback_query(call):
     if call.data == "cb_correct":
-        bot.answer_callback_query(call.id, "Has confirmado la tabla propuesta.")
-        update_dataset(DATA_FILENAME)
+        user_id = keys_dic["telegram_user_id"]
+        if (str(call.from_user.id) == user_id):
+            # Only saves data for user_id
+            update_dataset(DATA_FILENAME)
+            bot.answer_callback_query(call.id, "Datos guardados.")
+
+        else:
+            bot.answer_callback_query(call.id, "Has confirmado la tabla propuesta.")
+    
     elif call.data == "cb_errors":
         bot.answer_callback_query(call.id, "Has marcado la tabla propuesta como erronea.")
 
 @bot.message_handler(func=lambda msg: True)
 def echo_all(message):
     add_buttons = False
-    
     if (message.text == "/start"):
         answer = start_message + help_message
     elif (message.text == "/help"):
@@ -123,6 +120,7 @@ def echo_all(message):
         answer = just_chat(message.text[6:])
     elif (message.text == "/hora"):
         answer = str(datetime.now())
+        print(message.from_user.id)
     else:
         answer, add_buttons = get_table_answer(message)
 

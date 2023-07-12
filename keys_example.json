@@ -1,4 +1,5 @@
 {
     "telegram": "your_telegram_bot_key",
-    "chatGPT": "your_chatGPT_api_key"
+    "chatGPT": "your_chatGPT_api_key",
+    "telegram_user_id": "your_Telegram_user_id"
 }

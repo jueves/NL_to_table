@@ -163,4 +163,4 @@ cython_debug/
 .keys.json
 keys.json
 data.csv
-tmp.csv
+*_tmp.csv
