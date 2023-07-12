@@ -4,3 +4,4 @@ services:
     image: nl_to_table:0.1
     volumes:
       - ./keys.json:/NL_to_table/keys.json
+      - ./data.csv:/NL_to_table/data.csv
