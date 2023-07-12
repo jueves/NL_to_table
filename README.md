@@ -6,8 +6,9 @@ Natural language to table converter.
 - [x] Store temporary table data
 - [x] Convert table data to markdown
 - [X] Containerize app
-- [ ] Ask for confirmation.
-- [ ] Store permantent data
+- [X] Ask for confirmation.
+- [ ] On chat, show a one row transposed table.
+- [ ] Store permantent data.
 - [ ] Add sanity check.
 - [ ] Add sanity check loop (gives sanity feedback to chatGPT)
 - [ ] Add Whisper support.

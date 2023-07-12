@@ -7,6 +7,8 @@ from io import StringIO
 import openai
 from sanity_check import sanity_check
 
+data_file_name = "data.csv"
+
 # Load keys
 with open("keys.json", "r") as f:
     keys_dic = json.load(f)
@@ -56,6 +58,13 @@ def gen_markup(add_buttons=False):
                                 InlineKeyboardButton("Hay errores", callback_data="cb_errors"))
     return markup
 
+def update_dataset(data_file_name=data_file_name):
+    data = pd.read_csv(data_file_name)
+    new_data = pd.read_csv("tmp.csv")
+    print("len(data) en update_dataset() " + str(len(data)))
+    print("len(new_data) en update_dataset() " + str(len(new_data)))
+    data = pd.concat([data, new_data], ignore_index=True) # FIX THIS: Needs to be merged on left columns.
+    data.to_csv(data_file_name)
 
 # Telegram bot
 bot = telebot.TeleBot(keys_dic["telegram"])
@@ -64,6 +73,7 @@ bot = telebot.TeleBot(keys_dic["telegram"])
 def callback_query(call):
     if call.data == "cb_correct":
         bot.answer_callback_query(call.id, "Has confirmado la tabla propuesta.")
+        update_dataset(data_file_name)
     elif call.data == "cb_errors":
         bot.answer_callback_query(call.id, "Has marcado la tabla propuesta como erronea.")
 
@@ -76,17 +86,20 @@ def echo_all(message):
         answer = help_message
     elif (message.text == "/metadata"):
         answer = json.dumps(data_structure, indent=4)
-    elif (message.text[:5] == "/chat"):
+    elif (message.text[:5] == "/chat" or message.text[:2] == ". "):
         answer = just_chat(message.text[6:])
     elif (message.text == "/hora"):
         answer = str(datetime.now())
     else:
         add_buttons = True
         csv_data = message_to_csv(message)
-        data = pd.read_csv(StringIO(csv_data))
-        answer = sanity_check(data)
+        print("THIS IS CHATGPT ANSWER:")
+        print(csv_data)
+        new_data = pd.read_csv(StringIO(csv_data))       
+        new_data.to_csv("tmp.csv")
+        print("len(new_data) " + str(len(new_data)))
+        answer = sanity_check(new_data)
 
-    #bot.reply_to(message, answer)
     bot.send_message(message.chat.id, answer, reply_markup=gen_markup(add_buttons))
 
 bot.infinity_polling()
