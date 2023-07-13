@@ -164,3 +164,4 @@ cython_debug/
 keys.json
 data.csv
 *_tmp.csv
+voice_note.ogg
