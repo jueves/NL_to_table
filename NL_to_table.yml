@@ -1,6 +1,6 @@
 version: '3.1'
 services:
   app:
-    image: nl_to_table:latest
+    image: bro3jo2/nltotable:latest
     volumes:
       - ./user_data:/NL_to_table/user_data
