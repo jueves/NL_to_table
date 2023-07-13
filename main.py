@@ -73,7 +73,7 @@ def update_dataset(data_filename=DATA_FILENAME):
     '''
     user_id = keys_dic["telegram_user_id"]
     data = pd.read_csv(data_filename)
-    new_data = pd.read_csv(str(user_id) + "_tmp.csv")
+    new_data = pd.read_csv("user_data/" + str(user_id) + "_tmp.csv")
     data = pd.concat([data, new_data], ignore_index=True)
     data = data[list(data_structure.keys())]
     data.to_csv(data_filename)
@@ -86,7 +86,7 @@ def get_table(message):
     '''
     csv_data = message_to_csv(message)
     new_data = pd.read_csv(StringIO(csv_data))
-    new_data.to_csv(str(message.from_user.id) + "_tmp.csv")
+    new_data.to_csv("user_data/" + str(message.from_user.id) + "_tmp.csv")
     data, answer = sanity_check(new_data)
     answer = data.T.to_markdown() + answer
     return(answer)
@@ -123,9 +123,9 @@ def callback_query(call):
 def voice_processing(message):
     file_info = bot.get_file(message.voice.file_id)
     downloaded_file = bot.download_file(file_info.file_path)
-    with open('voice_note.ogg', 'wb') as new_file:
+    with open('user_data/voice_note.ogg', 'wb') as new_file:
         new_file.write(downloaded_file)
-    result = whisper_model.transcribe("voice_note.ogg")
+    result = whisper_model.transcribe("user_data/voice_note.ogg")
     bot.reply_to(message, result["text"])
 
 
