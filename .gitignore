@@ -161,7 +161,7 @@ cython_debug/
 
 # Other
 .keys.json
-keys.json
-data.csv
+user_data/keys.json
+user_data/data.csv
 *_tmp.csv
 voice_note.ogg

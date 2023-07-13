@@ -8,10 +8,10 @@ import openai
 import whisper
 from sanity_check import sanity_check
 
-DATA_FILENAME = "data.csv"
+DATA_FILENAME = "user_data/data.csv"
 
 # Load keys
-with open("keys.json", "r", encoding="utf-8") as f:
+with open("user_data/keys.json", "r", encoding="utf-8") as f:
     keys_dic = json.load(f)
 
 # Load text messages

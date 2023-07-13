@@ -3,5 +3,4 @@ services:
   app:
     image: nl_to_table:latest
     volumes:
-      - ./keys.json:/NL_to_table/keys.json
-      - ./data.csv:/NL_to_table/data.csv
+      - ./user_data:/NL_to_table/user_data
