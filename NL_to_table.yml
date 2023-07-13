@@ -1,7 +1,7 @@
 version: '3.1'
 services:
   app:
-    image: nl_to_table:0.1
+    image: nl_to_table:latest
     volumes:
       - ./keys.json:/NL_to_table/keys.json
       - ./data.csv:/NL_to_table/data.csv
