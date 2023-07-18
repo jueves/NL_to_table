@@ -2,21 +2,25 @@
     "weight": {
         "description":"A person's weight in kilograms.",
         "type":"Numeric",
-        "range": [20, 200]
+        "range": [20, 200],
+        "example": [65.2, 65, 65.8, 66]
     },
     "asthma": {
         "description":"Asthma crisis severity in a 0 to 5 scale.",
         "type":"Numeric",
-        "range":[0, 5]
+        "range":[0, 5],
+        "example": [0, 0, 4, 0]
     },
     "alergy": {
         "description":"Alergy crisis severity in a 0 to 5 scale.",
         "type":"Numeric",
-        "range":[0, 5]
+        "range":[0, 5],
+        "example": [0, 1, 0, 5]
     },
     "datetime": {
         "description":"The date and time in which data was collected. The date will be formated as DD.MM.YYYY and the time as HH:mm:ss",
         "type":"String",
-        "range":""
+        "range":"",
+        "example": ["10/08/2023 10:01:23", "10/08/2023 10:55:45", "11/08/2023 12:11:17", "12/08/2023 17:44:01"]
     }
 }

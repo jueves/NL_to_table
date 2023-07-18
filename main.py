@@ -15,8 +15,11 @@ with open("user_data/keys.json", "r", encoding="utf-8") as f:
     keys_dic = json.load(f)
 
 # Load text messages
-with open("prompt_header.txt", "r", encoding="utf-8") as f:
-    prompt_header = f.read()
+with open("prompt_A1.txt", "r", encoding="utf-8") as f:
+    prompt_A1 = f.read()
+
+with open("prompt_B1.txt", "r", encoding="utf-8") as f:
+    prompt_B1 = f.read()
 
 with open("data_structure.json", "r", encoding="utf-8") as f:
     data_structure = json.load(f)
@@ -37,16 +40,23 @@ def just_chat(text):
     reply = chat.choices[0].message.content
     return(reply)
 
+def get_prompt(message, data_structure=data_structure):
+    message_time = datetime.utcfromtimestamp(message.date)
+    timestr = message_time.strftime("%d.%m.%Y %H:%M:%S, ")
+    example_dic = {}
+    for var_name in data_structure.keys():
+        example_dic[var_name] = data_structure[var_name]["example"]
+    example_csv = pd.DataFrame.from_dict(example_dic).to_csv(index=False)
+    prompt = prompt_A1 + example_csv + prompt_B1 + timestr + message.text
+    return(prompt)
+
 def message_to_csv(message):
     '''
     Takes a telebot message object whose text describes a table and converts
     it to csv using chatGPT.
     The prompt sent to GPT includes a fixed header describing the table structure.
     '''
-    message_time = datetime.utcfromtimestamp(message.date)
-    timestr = message_time.strftime("%d.%m.%Y %H:%M:%S  ")
-    txt_input = prompt_header + timestr + message.text
-
+    txt_input = get_prompt(message)
     messages.append({"role": "user", "content": txt_input})
     chat = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=messages)
     
@@ -88,7 +98,7 @@ def get_table(message):
     new_data = pd.read_csv(StringIO(csv_data))
     new_data.to_csv("user_data/" + str(message.from_user.id) + "_tmp.csv")
     data, answer = sanity_check(new_data)
-    answer = data.T.to_markdown() + answer
+    answer = data.T.to_markdown() + answer # Maybe try data.T.to_string()
     return(answer)
 
 # Setup chatGPT
