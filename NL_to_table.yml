@@ -4,3 +4,7 @@ services:
     image: bro3jo2/nltotable:latest
     volumes:
       - ./user_data:/NL_to_table/user_data
+    environment:
+      - TELEGRAM_KEY=${TELEGRAM_KEY}
+      - CHATGPT_KEY=${CHATGPT_KEY}
+      - TELEGRAM_USER_ID=${TELEGRAM_USER_ID}

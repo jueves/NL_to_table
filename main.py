@@ -1,4 +1,5 @@
 from io import StringIO
+import os
 import json
 from datetime import datetime
 import pandas as pd
@@ -9,10 +10,9 @@ import whisper
 from sanity_check import sanity_check
 
 DATA_FILENAME = "user_data/data.csv"
-
-# Load keys
-with open("user_data/keys.json", "r", encoding="utf-8") as f:
-    keys_dic = json.load(f)
+telegram_key = os.environ.get("TELEGRAM_KEY")
+chatGPT_key = os.environ.get("CHATGPT_KEY")
+telegram_user_id = os.environ.get("TELEGRAM_USER_ID")
 
 # Load text messages
 with open("prompt_A1.txt", "r", encoding="utf-8") as f:
@@ -50,6 +50,16 @@ def get_prompt(message, data_structure=data_structure):
     prompt = prompt_A1 + example_csv + prompt_B1 + timestr + message.text
     return(prompt)
 
+def get_prompt_new(text, message_date, data_structure=data_structure):
+    message_time = datetime.utcfromtimestamp(message_date)
+    timestr = message_time.strftime("%d.%m.%Y %H:%M:%S, ")
+    example_dic = {}
+    for var_name in data_structure.keys():
+        example_dic[var_name] = data_structure[var_name]["example"]
+    example_csv = pd.DataFrame.from_dict(example_dic).to_csv(index=False)
+    prompt = prompt_A1 + example_csv + prompt_B1 + timestr + text
+    return(prompt)
+
 def message_to_csv(message):
     '''
     Takes a telebot message object whose text describes a table and converts
@@ -62,6 +72,21 @@ def message_to_csv(message):
     
     reply = chat.choices[0].message.content
     return(reply)
+
+
+def text_to_csv(text, time, user_id):
+    '''
+    Takes telebot metada whose text describes a table and converts
+    it to csv using chatGPT.
+    The prompt sent to GPT includes a fixed header describing the table structure.
+    '''
+    txt_input = get_prompt(text, time)
+    messages.append({"role": "user", "content": txt_input})
+    chat = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=messages)
+    
+    reply = chat.choices[0].message.content
+    return(reply)
+
 
 def gen_markup(add_buttons=False):
     '''
@@ -81,9 +106,8 @@ def update_dataset(data_filename=DATA_FILENAME):
     Performs an update attaching all new data to the whole dataset.
     Writes changes to disk.
     '''
-    user_id = keys_dic["telegram_user_id"]
     data = pd.read_csv(data_filename)
-    new_data = pd.read_csv("user_data/" + str(user_id) + "_tmp.csv")
+    new_data = pd.read_csv("user_data/" + str(telegram_user_id) + "_tmp.csv")
     data = pd.concat([data, new_data], ignore_index=True)
     data = data[list(data_structure.keys())]
     data.to_csv(data_filename)
@@ -101,15 +125,29 @@ def get_table(message):
     answer = data.T.to_markdown() + answer # Maybe try data.T.to_string()
     return(answer)
 
+def get_table_new(text, time, user_id):
+    '''
+    Gets a message whose text describes data values, transforms, checks and
+    saves the data.
+    Returns answer text with information about the process.
+    '''
+    csv_data = text_to_csv(text, time)
+    new_data = pd.read_csv(StringIO(csv_data))
+    new_data.to_csv("user_data/" + str(user_id) + "_tmp.csv")
+    data, answer = sanity_check(new_data)
+    answer = data.T.to_markdown() + answer # Maybe try data.T.to_string()
+    return(answer)
+
+
 # Setup chatGPT
-openai.api_key = keys_dic["chatGPT"]
+openai.api_key = chatGPT_key
 messages = [ {"role": "system", "content": "You are a intelligent assistant."} ]
 
 # Setup Whisper
 whisper_model = whisper.load_model("base")
 
 # Setup Telegram bot
-bot = telebot.TeleBot(keys_dic["telegram"])
+bot = telebot.TeleBot(telegram_key)
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback_query(call):
@@ -117,8 +155,7 @@ def callback_query(call):
     Manages callback for data validation buttons
     '''
     if call.data == "cb_correct":
-        user_id = keys_dic["telegram_user_id"]
-        if (str(call.from_user.id) == user_id):
+        if (str(call.from_user.id) == telegram_user_id):
             # Only saves data for user_id
             update_dataset(DATA_FILENAME)
             bot.answer_callback_query(call.id, "Datos guardados.")

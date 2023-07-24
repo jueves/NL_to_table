@@ -160,7 +160,7 @@ cython_debug/
 #.idea/
 
 # Other
-user_data/keys.json
 user_data/data.csv
 user_data/*_tmp.csv
 user_data/voice_note.ogg
+test.yml
