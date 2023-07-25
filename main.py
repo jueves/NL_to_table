@@ -40,17 +40,8 @@ def just_chat(text):
     reply = chat.choices[0].message.content
     return(reply)
 
-def get_prompt(message, data_structure=data_structure):
-    message_time = datetime.utcfromtimestamp(message.date)
-    timestr = message_time.strftime("%d.%m.%Y %H:%M:%S, ")
-    example_dic = {}
-    for var_name in data_structure.keys():
-        example_dic[var_name] = data_structure[var_name]["example"]
-    example_csv = pd.DataFrame.from_dict(example_dic).to_csv(index=False)
-    prompt = prompt_A1 + example_csv + prompt_B1 + timestr + message.text
-    return(prompt)
-
-def get_prompt_new(text, message_date, data_structure=data_structure):
+   
+def get_prompt(text, message_date, data_structure=data_structure):
     message_time = datetime.utcfromtimestamp(message_date)
     timestr = message_time.strftime("%d.%m.%Y %H:%M:%S, ")
     example_dic = {}
@@ -60,27 +51,13 @@ def get_prompt_new(text, message_date, data_structure=data_structure):
     prompt = prompt_A1 + example_csv + prompt_B1 + timestr + text
     return(prompt)
 
-def message_to_csv(message):
-    '''
-    Takes a telebot message object whose text describes a table and converts
-    it to csv using chatGPT.
-    The prompt sent to GPT includes a fixed header describing the table structure.
-    '''
-    txt_input = get_prompt(message)
-    messages.append({"role": "user", "content": txt_input})
-    chat = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=messages)
-    
-    reply = chat.choices[0].message.content
-    return(reply)
-
-
-def text_to_csv(text, time, user_id):
+def text_to_csv(text, message_date):
     '''
     Takes telebot metada whose text describes a table and converts
     it to csv using chatGPT.
     The prompt sent to GPT includes a fixed header describing the table structure.
     '''
-    txt_input = get_prompt(text, time)
+    txt_input = get_prompt(text, message_date)
     messages.append({"role": "user", "content": txt_input})
     chat = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=messages)
     
@@ -112,20 +89,7 @@ def update_dataset(data_filename=DATA_FILENAME):
     data = data[list(data_structure.keys())]
     data.to_csv(data_filename)
 
-def get_table(message):
-    '''
-    Gets a message whose text describes data values, transforms, checks and
-    saves the data.
-    Returns answer text with information about the process.
-    '''
-    csv_data = message_to_csv(message)
-    new_data = pd.read_csv(StringIO(csv_data))
-    new_data.to_csv("user_data/" + str(message.from_user.id) + "_tmp.csv")
-    data, answer = sanity_check(new_data)
-    answer = data.T.to_markdown() + answer # Maybe try data.T.to_string()
-    return(answer)
-
-def get_table_new(text, time, user_id):
+def get_table(text, time, user_id):
     '''
     Gets a message whose text describes data values, transforms, checks and
     saves the data.
@@ -135,7 +99,7 @@ def get_table_new(text, time, user_id):
     new_data = pd.read_csv(StringIO(csv_data))
     new_data.to_csv("user_data/" + str(user_id) + "_tmp.csv")
     data, answer = sanity_check(new_data)
-    answer = data.T.to_markdown() + answer # Maybe try data.T.to_string()
+    answer = data.T.to_markdown() + answer
     return(answer)
 
 
@@ -188,13 +152,13 @@ def echo_all(message):
         answer = help_message
     elif (message.text == "/metadata"):
         answer = json.dumps(data_structure, indent=4)
-    elif (message.text[:5] == "/chat" or message.text[:2] == ". "):
+    elif (message.text[:5] == "/chat" or message.text[:2] == ". "): # Remove this option?
         answer = just_chat(message.text[6:])
-    elif (message.text == "/hora"):
+    elif (message.text == "/hora"): # Remove this option?
         answer = str(datetime.now())
     else:
         add_buttons = True
-        answer = get_table(message)
+        answer = get_table(message.text, message.date, message.from_user.id)
 
     bot.send_message(message.chat.id, answer, reply_markup=gen_markup(add_buttons))
 
