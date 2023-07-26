@@ -15,14 +15,14 @@ chatGPT_key = os.environ.get("CHATGPT_KEY")
 telegram_user_id = os.environ.get("TELEGRAM_USER_ID")
 
 # Load text messages
+with open("data_structure.json", "r", encoding="utf-8") as f:
+    data_structure = json.load(f)
+
 with open("prompt_A1.txt", "r", encoding="utf-8") as f:
     prompt_A1 = f.read()
 
 with open("prompt_B1.txt", "r", encoding="utf-8") as f:
     prompt_B1 = f.read()
-
-with open("data_structure.json", "r", encoding="utf-8") as f:
-    data_structure = json.load(f)
 
 with open("start.txt", "r", encoding="utf-8") as f:
     start_message = f.read()
@@ -30,26 +30,19 @@ with open("start.txt", "r", encoding="utf-8") as f:
 with open("help.txt", "r", encoding="utf-8") as f:
     help_message = f.read()
 
-def just_chat(text):
-    '''
-    Takes a string with a message to chatGPT and returns the answer.
-    '''
-    messages.append({"role": "user", "content": text})
-    chat = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=messages)
-    
-    reply = chat.choices[0].message.content
-    return(reply)
-
-   
-def get_prompt(text, message_date, data_structure=data_structure):
+# Generate prompt header
+example_dic = {}
+for var_name in data_structure.keys():
+    example_dic[var_name] = data_structure[var_name]["example"]
+example_csv = pd.DataFrame.from_dict(example_dic).to_csv(index=False)
+prompt_header = prompt_A1 + example_csv + prompt_B1
+  
+def get_prompt(text, message_date):
     message_time = datetime.utcfromtimestamp(message_date)
     timestr = message_time.strftime("%d.%m.%Y %H:%M:%S, ")
-    example_dic = {}
-    for var_name in data_structure.keys():
-        example_dic[var_name] = data_structure[var_name]["example"]
-    example_csv = pd.DataFrame.from_dict(example_dic).to_csv(index=False)
-    prompt = prompt_A1 + example_csv + prompt_B1 + timestr + text
+    prompt = "Current time is " + timestr + text
     return(prompt)
+
 
 def text_to_csv(text, message_date):
     '''
@@ -105,7 +98,7 @@ def get_table(text, time, user_id):
 
 # Setup chatGPT
 openai.api_key = chatGPT_key
-messages = [ {"role": "system", "content": "You are a intelligent assistant."} ]
+messages = [ {"role": "system", "content": prompt_header} ]
 
 # Setup Whisper
 whisper_model = whisper.load_model("base")
@@ -152,10 +145,6 @@ def echo_all(message):
         answer = help_message
     elif (message.text == "/metadata"):
         answer = json.dumps(data_structure, indent=4)
-    elif (message.text[:5] == "/chat" or message.text[:2] == ". "): # Remove this option?
-        answer = just_chat(message.text[6:])
-    elif (message.text == "/hora"): # Remove this option?
-        answer = str(datetime.now())
     else:
         add_buttons = True
         answer = get_table(message.text, message.date, message.from_user.id)

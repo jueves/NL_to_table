@@ -3,8 +3,6 @@ Esta es una lista de mis comandos:
 /start     Mensaje de presentación.
 /help      Lista los comandos disponibles.
 /metadata  Muestra metadatos sobre las características de cada variable.
-/chat      Manda un mensaje a chatGPT y devuelve una respuesta (no es procesado como tabla).
-/hora      Muestra la hora actual.
 
 Los datos de tabla no requieren ir precedidos de ningún comando. La fecha y la hora registradas son el momento en que has enviado el mensaje, pero puedes especificar una fecha u hora diferente.
 Cada mensaje representa una única observación, es decir, valores sobre una o varias variables para un individuo concreto en un momento preciso.
@@ -13,4 +11,3 @@ Ejemplos de comandos:
 • Asma de 3.4 hace aproximadamente una hora.
 • Alergia de 5 ayer
 • asma 3, alergia 4, peso 66
-• /chat Sugiéreme un color relacionado con la primavera en Pekín.
