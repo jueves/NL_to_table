@@ -51,6 +51,7 @@ def text_to_csv(text, message_date):
     The prompt sent to GPT includes a fixed header describing the table structure.
     '''
     txt_input = get_prompt(text, message_date)
+    messages = [ {"role": "system", "content": prompt_header} ]
     messages.append({"role": "user", "content": txt_input})
     chat = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=messages)
     
@@ -98,7 +99,7 @@ def get_table(text, time, user_id):
 
 # Setup chatGPT
 openai.api_key = chatGPT_key
-messages = [ {"role": "system", "content": prompt_header} ]
+#messages = [ {"role": "system", "content": prompt_header} ]
 
 # Setup Whisper
 whisper_model = whisper.load_model("base")
@@ -125,13 +126,14 @@ def callback_query(call):
 
 @bot.message_handler(content_types=['voice'])
 def voice_processing(message):
+    bot.reply_to(message, "Procesando audio...")
     file_info = bot.get_file(message.voice.file_id)
     downloaded_file = bot.download_file(file_info.file_path)
     with open('user_data/voice_note.ogg', 'wb') as new_file:
         new_file.write(downloaded_file)
-    result = whisper_model.transcribe("user_data/voice_note.ogg")
-    bot.reply_to(message, result["text"])
-
+    transcription = whisper_model.transcribe("user_data/voice_note.ogg")
+    answer = get_table(transcription["text"], message.date, message.from_user.id)
+    bot.send_message(message.chat.id, answer, reply_markup=gen_markup(add_buttons=True))
 
 @bot.message_handler(func=lambda msg: True)
 def echo_all(message):
