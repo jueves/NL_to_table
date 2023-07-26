@@ -21,6 +21,9 @@ with open("data_structure.json", "r", encoding="utf-8") as f:
 with open("prompt_A1.txt", "r", encoding="utf-8") as f:
     prompt_A1 = f.read()
 
+with open("prompt_A2.txt", "r", encoding="utf-8") as f:
+    prompt_A2 = f.read()
+
 with open("prompt_B1.txt", "r", encoding="utf-8") as f:
     prompt_B1 = f.read()
 
@@ -30,13 +33,18 @@ with open("start.txt", "r", encoding="utf-8") as f:
 with open("help.txt", "r", encoding="utf-8") as f:
     help_message = f.read()
 
+# Generate variable description
+var_description = ""
+for var_name, var_metadata in data_structure.items():
+    var_description += "{name}, {description}\n".format(name=var_name, description=var_metadata["description"])
+
 # Generate prompt header
 example_dic = {}
 for var_name in data_structure.keys():
     example_dic[var_name] = data_structure[var_name]["example"]
 example_csv = pd.DataFrame.from_dict(example_dic).to_csv(index=False)
-prompt_header = prompt_A1 + example_csv + prompt_B1
-  
+prompt_header = prompt_A1 + var_description + prompt_A2 + example_csv + prompt_B1
+
 def get_prompt(text, message_date):
     message_time = datetime.utcfromtimestamp(message_date)
     timestr = message_time.strftime("%d.%m.%Y %H:%M:%S, ")
@@ -99,10 +107,9 @@ def get_table(text, time, user_id):
 
 # Setup chatGPT
 openai.api_key = chatGPT_key
-#messages = [ {"role": "system", "content": prompt_header} ]
 
 # Setup Whisper
-whisper_model = whisper.load_model("base")
+whisper_model = whisper.load_model("tiny")
 
 # Setup Telegram bot
 bot = telebot.TeleBot(telegram_key)
@@ -132,6 +139,7 @@ def voice_processing(message):
     with open('user_data/voice_note.ogg', 'wb') as new_file:
         new_file.write(downloaded_file)
     transcription = whisper_model.transcribe("user_data/voice_note.ogg")
+    print("TRANSCRIPTION:\n" + transcription["text"])
     answer = get_table(transcription["text"], message.date, message.from_user.id)
     bot.send_message(message.chat.id, answer, reply_markup=gen_markup(add_buttons=True))
 
