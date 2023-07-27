@@ -10,6 +10,7 @@ import whisper
 from sanity_check import sanity_check
 from table_processing import get_table, update_dataset, gen_markup
 
+# Set constants
 DATA_FILENAME = "user_data/data.csv"
 telegram_key = os.environ.get("TELEGRAM_KEY")
 chatGPT_key = os.environ.get("CHATGPT_KEY")
@@ -19,10 +20,10 @@ telegram_user_id = os.environ.get("TELEGRAM_USER_ID")
 with open("data_structure.json", "r", encoding="utf-8") as f:
     data_structure = json.load(f)
 
-with open("start.txt", "r", encoding="utf-8") as f:
+with open("text/start.txt", "r", encoding="utf-8") as f:
     start_message = f.read()
 
-with open("help.txt", "r", encoding="utf-8") as f:
+with open("text/help.txt", "r", encoding="utf-8") as f:
     help_message = f.read()
 
 

@@ -20,7 +20,7 @@ with open("data_structure.json", "r", encoding="utf-8") as f:
 
 
 
-def get_prompt_header(file_A1="prompt_A1.txt", file_A2="prompt_A2.txt", file_B1="prompt_B1.txt", data_structure=data_structure):
+def get_prompt_header(file_A1="text/prompt_A1.txt", file_A2="text/prompt_A2.txt", file_B1="text/prompt_B1.txt", data_structure=data_structure):
     # Load fixed texts
     with open(file_A1, "r", encoding="utf-8") as f:
         prompt_A1 = f.read()
