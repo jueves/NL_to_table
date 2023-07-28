@@ -1,34 +1,24 @@
 from io import StringIO
-import os
 import json
 from datetime import datetime
 import pandas as pd
-import telebot
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 import openai
-import whisper
 from sanity_check import sanity_check
 
-DATA_FILENAME = "user_data/data.csv"
-telegram_key = os.environ.get("TELEGRAM_KEY")
-chatGPT_key = os.environ.get("CHATGPT_KEY")
-telegram_user_id = os.environ.get("TELEGRAM_USER_ID")
-
-# Load text messages
-with open("data_structure.json", "r", encoding="utf-8") as f:
-    data_structure = json.load(f)
-
-
-
-def get_prompt_header(file_A1="text/prompt_A1.txt", file_A2="text/prompt_A2.txt", file_B1="text/prompt_B1.txt", data_structure=data_structure):
+def get_prompt_header(data_structure, filenames_dic):
+    '''
+    Generates a prompt based on the defined data structure to set how
+    chatGPT should behave.
+    '''
     # Load fixed texts
-    with open(file_A1, "r", encoding="utf-8") as f:
+    with open(filenames_dic["A1"], "r", encoding="utf-8") as f:
         prompt_A1 = f.read()
 
-    with open(file_A2, "r", encoding="utf-8") as f:
+    with open(filenames_dic["A2"], "r", encoding="utf-8") as f:
         prompt_A2 = f.read()
 
-    with open(file_B1, "r", encoding="utf-8") as f:
+    with open(filenames_dic["B1"], "r", encoding="utf-8") as f:
         prompt_B1 = f.read()
 
     # Generate variable description
@@ -42,23 +32,18 @@ def get_prompt_header(file_A1="text/prompt_A1.txt", file_A2="text/prompt_A2.txt"
         example_dic[var_name] = data_structure[var_name]["example"]
     example_csv = pd.DataFrame.from_dict(example_dic).to_csv(index=False)
     prompt_header = prompt_A1 + var_description + prompt_A2 + example_csv + prompt_B1
-    print("PROMPT HEADER\n" + prompt_header)
     return(prompt_header)
 
-def get_prompt(text, message_date):
-    message_time = datetime.utcfromtimestamp(message_date)
-    timestr = message_time.strftime("%d.%m.%Y %H:%M:%S, ")
-    prompt = "Current time is " + timestr + text
-    return(prompt)
-
-def text_to_csv(text, message_date):
+def text_to_csv(text, message_date, filenames_dic, data_structure):
     '''
     Takes telebot metada whose text describes a table and converts
     it to csv using chatGPT.
     The prompt sent to GPT includes a fixed header describing the table structure.
     '''
-    txt_input = get_prompt(text, message_date)
-    messages = [ {"role": "system", "content": get_prompt_header()} ]
+    message_date = datetime.utcfromtimestamp(message_date)
+    timestr = message_date.strftime("%d.%m.%Y %H:%M:%S")
+    txt_input = text + "\nCurrent time is " + timestr
+    messages = [ {"role": "system", "content": get_prompt_header(data_structure, filenames_dic)} ]
     messages.append({"role": "user", "content": txt_input})
     chat = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=messages)
     
@@ -77,7 +62,7 @@ def gen_markup(add_buttons=False):
                                 InlineKeyboardButton("Hay errores", callback_data="cb_errors"))
     return markup
 
-def update_dataset(data_filename=DATA_FILENAME):
+def update_dataset(data_filename, telegram_user_id, data_structure):
     '''
     Takes the names of the whole dataset file and the new data file.
     Performs an update attaching all new data to the whole dataset.
@@ -89,13 +74,13 @@ def update_dataset(data_filename=DATA_FILENAME):
     data = data[list(data_structure.keys())]
     data.to_csv(data_filename)
 
-def get_table(text, time, user_id):
+def get_table(text, time, user_id, filenames_dic, data_structure):
     '''
     Gets a message whose text describes data values, transforms, checks and
     saves the data.
     Returns answer text with information about the process.
     '''
-    csv_data = text_to_csv(text, time)
+    csv_data = text_to_csv(text, time, filenames_dic, data_structure)
     new_data = pd.read_csv(StringIO(csv_data))
     new_data.to_csv("user_data/" + str(user_id) + "_tmp.csv")
     data, answer = sanity_check(new_data)
