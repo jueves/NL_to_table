@@ -3,7 +3,7 @@ import json
 import telebot
 import openai
 import whisper
-from table_processing import get_table, update_dataset, gen_markup
+from table_processing import Text2Table
 
 # Set constants
 DATA_FILENAME = "user_data/data.csv"
@@ -26,6 +26,7 @@ with open("text/start.txt", "r", encoding="utf-8") as f:
 with open("text/help.txt", "r", encoding="utf-8") as f:
     help_message = f.read()
 
+text2table = Text2Table(DATA_STRUCTURE, FILENAMES_DIC, TELEGRAM_USER_ID, DATA_FILENAME)
 
 # Setup chatGPT
 openai.api_key = CHATGPT_KEY
@@ -44,8 +45,7 @@ def callback_query(call):
     if call.data == "cb_correct":
         if (str(call.from_user.id) == TELEGRAM_USER_ID):
             # Only saves data for user_id
-            update_dataset(data_filename=DATA_FILENAME, telegram_user_id=TELEGRAM_USER_ID,
-                            data_structure=TELEGRAM_USER_ID)
+            text2table.update_dataset()
             bot.answer_callback_query(call.id, "Datos guardados.")
 
         else:
@@ -63,9 +63,8 @@ def voice_processing(message):
         new_file.write(downloaded_file)
     transcription = whisper_model.transcribe("user_data/voice_note.ogg")
     print("TRANSCRIPTION:\n" + transcription["text"])
-    answer = get_table(transcription["text"], message.date, message.from_user.id,
-                       filenames_dic=FILENAMES_DIC, data_structure=DATA_STRUCTURE)
-    bot.send_message(message.chat.id, answer, reply_markup=gen_markup(add_buttons=True))
+    answer = text2table.get_table(transcription["text"], message.date, message.from_user.id)
+    bot.send_message(message.chat.id, answer, reply_markup=text2table.gen_markup(add_buttons=True))
 
 @bot.message_handler(func=lambda msg: True)
 def echo_all(message):
@@ -78,12 +77,11 @@ def echo_all(message):
     elif (message.text == "/help"):
         answer = help_message
     elif (message.text == "/metadata"):
-        answer = json.dumps(TELEGRAM_USER_ID, indent=4)
+        answer = json.dumps(DATA_STRUCTURE, indent=4)
     else:
         add_buttons = True
-        answer = get_table(message.text, message.date, message.from_user.id,
-                           filenames_dic=FILENAMES_DIC, data_structure=DATA_STRUCTURE)
+        answer = text2table.get_table(message.text, message.date, message.from_user.id)
 
-    bot.send_message(message.chat.id, answer, reply_markup=gen_markup(add_buttons))
+    bot.send_message(message.chat.id, answer, reply_markup=text2table.gen_markup(add_buttons))
 
 bot.infinity_polling()
