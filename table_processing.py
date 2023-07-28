@@ -1,5 +1,4 @@
 from io import StringIO
-import json
 from datetime import datetime
 import pandas as pd
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
@@ -12,7 +11,7 @@ class Text2Table:
         self.data_structure = data_structure
         self.telegram_user_id = telegram_user_id
         self.data_filename = data_filename
-        self.prompt_header = self.get_prompt_header(data_structure, filenames_dic) #(data_structure, filenames_dic)
+        self.prompt_header = self.get_prompt_header(data_structure, filenames_dic)
 
     def get_prompt_header(self, data_structure, filenames_dic):
         '''
@@ -67,7 +66,7 @@ class Text2Table:
         if add_buttons:
             markup.row_width = 2
             markup.add(InlineKeyboardButton("Todo correcto", callback_data="cb_correct"),
-                                    InlineKeyboardButton("Hay errores", callback_data="cb_errors"))
+                       InlineKeyboardButton("Hay errores", callback_data="cb_errors"))
         return markup
 
     def update_dataset(self):
