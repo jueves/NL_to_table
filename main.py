@@ -26,6 +26,7 @@ with open("text/start.txt", "r", encoding="utf-8") as f:
 with open("text/help.txt", "r", encoding="utf-8") as f:
     help_message = f.read()
 
+# Setup text to table converter
 text2table = Text2Table(DATA_STRUCTURE, FILENAMES_DIC, TELEGRAM_USER_ID, DATA_FILENAME)
 
 # Setup chatGPT
@@ -56,6 +57,9 @@ def callback_query(call):
 
 @bot.message_handler(content_types=['voice'])
 def voice_processing(message):
+    '''
+    Takes a voice note describing data values and answers with a table format propossal.
+    '''
     bot.reply_to(message, "Procesando audio...")
     file_info = bot.get_file(message.voice.file_id)
     downloaded_file = bot.download_file(file_info.file_path)
