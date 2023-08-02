@@ -1,10 +1,10 @@
 FROM python
 
-RUN pip install openai-whisper
-
-RUN pip install pyTelegramBotAPI pandas openai tabulate
+RUN pip install openai-whisper pyTelegramBotAPI openai
 
 RUN apt-get update && apt-get install -y ffmpeg
+
+RUN pip install pandas tabulate 
 
 WORKDIR /NL_to_table
 
