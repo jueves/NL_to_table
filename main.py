@@ -33,7 +33,7 @@ text2table = Text2Table(DATA_STRUCTURE, FILENAMES_DIC, TELEGRAM_USER_ID, DATA_FI
 openai.api_key = CHATGPT_KEY
 
 # Setup Whisper
-whisper_model = whisper.load_model("tiny")
+whisper_model = whisper.load_model("base")
 
 # Setup Telegram bot
 bot = telebot.TeleBot(TELEGRAM_KEY)
