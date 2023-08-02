@@ -7,11 +7,7 @@ from table_processing import Text2Table
 
 # Set constants
 DATA_FILENAME = "user_data/data.csv"
-FILENAMES_DIC = { 
-                  "A1":"text/prompt_A1.txt",
-                  "A2":"text/prompt_A2.txt",
-                  "B1":"text/prompt_B1.txt"
-                  }
+PROMPT_FILENAME = "text/prompt.txt"
 TELEGRAM_KEY = os.environ.get("TELEGRAM_KEY")
 CHATGPT_KEY = os.environ.get("CHATGPT_KEY")
 TELEGRAM_USER_ID = os.environ.get("TELEGRAM_USER_ID")
@@ -27,7 +23,7 @@ with open("text/help.txt", "r", encoding="utf-8") as f:
     help_message = f.read()
 
 # Setup text to table converter
-text2table = Text2Table(DATA_STRUCTURE, FILENAMES_DIC, TELEGRAM_USER_ID, DATA_FILENAME)
+text2table = Text2Table(DATA_STRUCTURE, PROMPT_FILENAME, TELEGRAM_USER_ID, DATA_FILENAME)
 
 # Setup chatGPT
 openai.api_key = CHATGPT_KEY

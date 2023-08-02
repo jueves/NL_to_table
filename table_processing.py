@@ -7,27 +7,20 @@ from sanity_check import sanity_check
 
 
 class Text2Table:
-    def __init__(self, data_structure, filenames_dic, telegram_user_id, data_filename):
+    def __init__(self, data_structure, prompt_filename, telegram_user_id, data_filename):
         self.data_structure = data_structure
         self.telegram_user_id = telegram_user_id
         self.data_filename = data_filename
         self.tmp_data = {}
-        self.prompt_header = self.get_prompt_header(data_structure, filenames_dic)
-
-    def get_prompt_header(self, data_structure, filenames_dic):
+        self.prompt_header = self.get_prompt_header(data_structure, prompt_filename)
+    
+    def get_prompt_header(self, data_structure, prompt_filename):
         '''
         Generates a prompt based on the defined data structure to set how
         chatGPT should behave.
         '''
-        # Load fixed texts
-        with open(filenames_dic["A1"], "r", encoding="utf-8") as f:
-            prompt_A1 = f.read()
-
-        with open(filenames_dic["A2"], "r", encoding="utf-8") as f:
-            prompt_A2 = f.read()
-
-        with open(filenames_dic["B1"], "r", encoding="utf-8") as f:
-            prompt_B1 = f.read()
+        with open(prompt_filename, "r", encoding="utf-8") as f:
+            prompt_raw = f.read()
 
         # Generate variable description
         var_description = ""
@@ -39,7 +32,7 @@ class Text2Table:
         for var_name in data_structure.keys():
             example_dic[var_name] = data_structure[var_name]["example"]
         example_csv = pd.DataFrame.from_dict(example_dic).to_csv(index=False)
-        prompt_header = prompt_A1 + var_description + prompt_A2 + example_csv + prompt_B1
+        prompt_header = prompt_raw.format(description=var_description, example=example_csv)
         return(prompt_header)
 
     def text_to_csv(self, text, message_date):
@@ -77,7 +70,6 @@ class Text2Table:
         Writes changes to disk.
         '''
         data = pd.read_csv(self.data_filename)
-        #new_data = pd.read_csv("user_data/" + str(self.telegram_user_id) + "_tmp.csv")
         data = pd.concat([data, self.tmp_data[self.telegram_user_id]], ignore_index=True)
         data = data[list(self.data_structure.keys())]
         data.to_csv(self.data_filename)
@@ -91,7 +83,6 @@ class Text2Table:
         csv_data = self.text_to_csv(text, time)
         new_data = pd.read_csv(StringIO(csv_data))
         self.tmp_data[user_id] = new_data
-        print(self.tmp_data)
         data, answer = sanity_check(new_data)
         answer = data.T.to_markdown() + answer
         return(answer)
