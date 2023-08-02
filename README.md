@@ -2,8 +2,5 @@
 Natural language to table converter.
 
 # To do
-- [X] Add keys from environment variables.
-- [X] Pass prompt header in the chat setup.
-- [X] Add Whisper support.
-- [ ] Generate variable description automatically.
-
+- [ ] Include more variables.
+- [ ] Include reminders for varibles not used in a long time.
