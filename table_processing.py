@@ -9,7 +9,7 @@ from sanity_check import sanity_check
 class Text2Table:
     def __init__(self, data_structure, prompt_filename, telegram_user_id, data_filename):
         self.data_structure = data_structure
-        self.telegram_user_id = telegram_user_id
+        self.telegram_user_id = int(telegram_user_id)
         self.data_filename = data_filename
         self.tmp_data = {}
         self.prompt_header = self.get_prompt_header(data_structure, prompt_filename)
@@ -69,9 +69,14 @@ class Text2Table:
         Performs an update attaching all new data to the whole dataset.
         Writes changes to disk.
         '''
+        # Add new data
         data = pd.read_csv(self.data_filename)
         data = pd.concat([data, self.tmp_data[self.telegram_user_id]], ignore_index=True)
+
+        # Filter out variables not in data structure
         data = data[list(self.data_structure.keys())]
+        
+        # Write changes to disk
         data.to_csv(self.data_filename)
 
     def get_table(self, text, time, user_id):
@@ -83,6 +88,8 @@ class Text2Table:
         csv_data = self.text_to_csv(text, time)
         new_data = pd.read_csv(StringIO(csv_data))
         self.tmp_data[user_id] = new_data
+        print("TMP DATA:")
+        print(self.tmp_data[user_id])
         data, answer = sanity_check(new_data)
         answer = data.T.to_markdown() + answer
         return(answer)
