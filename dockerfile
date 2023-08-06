@@ -8,7 +8,9 @@ RUN pip install pandas tabulate
 
 WORKDIR /NL_to_table
 
-COPY data_structure.json text/ main.py sanity_check.py /NL_to_table/
+COPY data_structure.json main.py sanity_check.py table_processing.py /NL_to_table/
+
+COPY text/* /NL_to_table/text/
 
 COPY user_data/data_example.csv /NL_to_table/user_data/data.csv
 
