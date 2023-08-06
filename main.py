@@ -5,6 +5,15 @@ import openai
 import whisper
 from table_processing import Text2Table
 
+
+# Load variables in .env file
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except:
+    print("Error loading dotenv, .env file won't be used.")
+
+
 # Set constants
 DATA_FILENAME = "user_data/data.csv"
 PROMPT_FILENAME = "text/prompt.txt"
