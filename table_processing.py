@@ -35,15 +35,15 @@ class Text2Table:
         prompt_header = prompt_raw.format(description=var_description, example=example_csv)
         return(prompt_header)
 
-    def text_to_csv(self, text, message_date):
+    def text_to_csv(self, message):
         '''
         Takes telebot metada whose text describes a table and converts
         it to csv using chatGPT.
         The prompt sent to GPT includes a fixed header describing the table structure.
         '''
-        message_date = datetime.utcfromtimestamp(message_date)
+        message_date = datetime.utcfromtimestamp(message.date)
         timestr = message_date.strftime("%d.%m.%Y %H:%M:%S")
-        txt_input = text + "\nCurrent time is " + timestr
+        txt_input = message.text + "\nCurrent time is " + timestr
         messages = [ {"role": "system", "content": self.prompt_header} ]
         messages.append({"role": "user", "content": txt_input})
         chat = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=messages)
@@ -79,17 +79,17 @@ class Text2Table:
         # Write changes to disk
         data.to_csv(self.data_filename)
 
-    def get_table(self, text, time, user_id):
+    #def get_table(self, text, time, user_id):
+    def get_table(self, message):
         '''
         Gets a message whose text describes data values, transforms, checks and
         saves the data.
         Returns answer text with information about the process.
         '''
-        csv_data = self.text_to_csv(text, time)
+        #csv_data = self.text_to_csv(text, time)
+        csv_data = self.text_to_csv(message)
         new_data = pd.read_csv(StringIO(csv_data))
-        self.tmp_data[user_id] = new_data
-        print("TMP DATA:")
-        print(self.tmp_data[user_id])
+        self.tmp_data[message.from_user.id] = new_data
         data, answer = sanity_check(new_data)
         answer = data.T.to_markdown() + answer
         return(answer)
