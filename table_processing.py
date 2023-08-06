@@ -12,6 +12,7 @@ class Text2Table:
         self.telegram_user_id = int(telegram_user_id)
         self.data_filename = data_filename
         self.tmp_data = {}
+        self.messages = {}
         self.prompt_header = self.get_prompt_header(data_structure, prompt_filename)
     
     def get_prompt_header(self, data_structure, prompt_filename):
@@ -44,9 +45,9 @@ class Text2Table:
         message_date = datetime.utcfromtimestamp(message.date)
         timestr = message_date.strftime("%d.%m.%Y %H:%M:%S")
         txt_input = message.text + "\nCurrent time is " + timestr
-        messages = [ {"role": "system", "content": self.prompt_header} ]
-        messages.append({"role": "user", "content": txt_input})
-        chat = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=messages)
+        self.messages[message.from_user.id] = [ {"role": "system", "content": self.prompt_header} ]
+        self.messages[message.from_user.id].append({"role": "user", "content": txt_input})
+        chat = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=self.messages[message.from_user.id])
         
         reply = chat.choices[0].message.content
         return(reply)
@@ -79,18 +80,15 @@ class Text2Table:
         # Write changes to disk
         data.to_csv(self.data_filename)
 
-    #def get_table(self, text, time, user_id):
     def get_table(self, message):
         '''
         Gets a message whose text describes data values, transforms, checks and
         saves the data.
         Returns answer text with information about the process.
         '''
-        #csv_data = self.text_to_csv(text, time)
         csv_data = self.text_to_csv(message)
         new_data = pd.read_csv(StringIO(csv_data))
         self.tmp_data[message.from_user.id] = new_data
         data, answer = sanity_check(new_data)
         answer = data.T.to_markdown() + answer
         return(answer)
-

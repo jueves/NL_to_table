@@ -73,7 +73,6 @@ def voice_processing(message):
     transcription = whisper_model.transcribe("user_data/voice_note.ogg", language="es")
     print("TRANSCRIPTION:\n" + transcription["text"])
     message.text = transcription["text"]
-    #answer = text2table.get_table(transcription["text"], message.date, message.from_user.id)
     answer = text2table.get_table(message)
     bot.send_message(message.chat.id, answer, reply_markup=text2table.gen_markup(add_buttons=True))
 
@@ -91,7 +90,6 @@ def echo_all(message):
         answer = json.dumps(DATA_STRUCTURE, indent=4)
     else:
         add_buttons = True
-        #answer = text2table.get_table(message.text, message.date, message.from_user.id)
         answer = text2table.get_table(message)
 
     bot.send_message(message.chat.id, answer, reply_markup=text2table.gen_markup(add_buttons))
