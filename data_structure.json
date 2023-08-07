@@ -5,6 +5,12 @@
         "range": [20, 200],
         "example": [65.2, 65, 65.8, 66]
     },
+    "waist": {
+        "description":"Abdominal perimeter in cm",
+        "type":"Numeric",
+        "range": [60, 120],
+        "example": [90, 82, 91.5, 66]
+    },
     "asthma": {
         "description":"Asthma crisis severity in a 0 to 5 scale.",
         "type":"Numeric",
@@ -16,6 +22,36 @@
         "type":"Numeric",
         "range":[0, 5],
         "example": [0, 1, 0, 5]
+    },
+    "food": {
+        "description":"Food eaten in that moment. Could be one or more foods.",
+        "type":"String",
+        "range":"",
+        "example": ["Papas con sardinas", "Pasta con verdura", "Garbanzos de lata", "Ensalada con pollo"]
+    },
+    "energy": {
+        "description":"Energy level in a 0 to 5 scale, being 0 falling sleep and 5 extraordinary exitement.",
+        "type":"Numeric",
+        "range":[0, 5],
+        "example": [0, 1, 3, 4]
+    },
+    "sleep": {
+        "description":"Number of hours slept in the previous night.",
+        "type":"Numeric",
+        "range":[0, 15],
+        "example": [8, 7.5, 9, 8.25]
+    },
+    "caffeine": {
+        "description":"Amount of caffeine ingested in diverse units.",
+        "type":"String",
+        "range":"",
+        "example": ["10 gramos de café", "Un cortado", "85mg", "Medio redbull"]
+    },
+    "water": {
+        "description":"Amount of water drank. FIX THIS",
+        "type":"Numeric",
+        "range":[0, 15],
+        "example": [8, 7.5, 9, 8.25]
     },
     "datetime": {
         "description":"The date and time in which data was collected. The date will be formated as DD.MM.YYYY and the time as HH:mm:ss",
