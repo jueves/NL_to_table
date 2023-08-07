@@ -8,3 +8,5 @@ services:
       - TELEGRAM_KEY=${TELEGRAM_KEY}
       - CHATGPT_KEY=${CHATGPT_KEY}
       - TELEGRAM_USER_ID=${TELEGRAM_USER_ID}
+      - WHISPER_TYPE=small
+      - WHISPER_LANG=es

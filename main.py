@@ -20,6 +20,8 @@ PROMPT_FILENAME = "text/prompt.txt"
 TELEGRAM_KEY = os.environ.get("TELEGRAM_KEY")
 CHATGPT_KEY = os.environ.get("CHATGPT_KEY")
 TELEGRAM_USER_ID = os.environ.get("TELEGRAM_USER_ID")
+WHISPER_TYPE = os.environ.get("WHISPER_TYPE")
+WHISPER_LANG= os.environ.get("WHISPER_LANG")
 
 # Load text messages
 with open("data_structure.json", "r", encoding="utf-8") as f:
@@ -38,7 +40,7 @@ text2table = Text2Table(DATA_STRUCTURE, PROMPT_FILENAME, TELEGRAM_USER_ID, DATA_
 openai.api_key = CHATGPT_KEY
 
 # Setup Whisper
-whisper_model = whisper.load_model("small")
+whisper_model = whisper.load_model(WHISPER_TYPE)
 
 # Setup Telegram bot
 bot = telebot.TeleBot(TELEGRAM_KEY)
@@ -62,7 +64,6 @@ def callback_query(call):
         answer = text2table.csv2answer(new_csv, call.from_user.id)
         bot.send_message(call.from_user.id, answer,
                          reply_markup=text2table.gen_markup(add_buttons=True))
-        #bot.answer_callback_query(call.id, "Aquí tienes una nueva propuesta.")
 
 @bot.message_handler(content_types=['voice'])
 def voice_processing(message):
@@ -74,7 +75,7 @@ def voice_processing(message):
     downloaded_file = bot.download_file(file_info.file_path)
     with open('user_data/voice_note.ogg', 'wb') as new_file:
         new_file.write(downloaded_file)
-    transcription = whisper_model.transcribe("user_data/voice_note.ogg", language="es")
+    transcription = whisper_model.transcribe("user_data/voice_note.ogg", language=WHISPER_LANG)
     print("AUDIO TRANSCRIPTION:\n" + transcription["text"])
     message.text = transcription["text"]
     answer = text2table.get_table(message) + "\nTRANSCRIPCIÓN DE AUDIO:\n" + transcription["text"]

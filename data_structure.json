@@ -48,10 +48,10 @@
         "example": ["10 gramos de café", "Un cortado", "85mg", "Medio redbull"]
     },
     "water": {
-        "description":"Amount of water drank. FIX THIS",
+        "description":"Amount of water drank in liters. If a container is given, convert it to liters. For example, one glass of water is 0.25 liters",
         "type":"Numeric",
-        "range":[0, 15],
-        "example": [8, 7.5, 9, 8.25]
+        "range":[0, 9],
+        "example": [0.25, 1.5, 0.8, 0.75]
     },
     "datetime": {
         "description":"The date and time in which data was collected. The date will be formated as DD.MM.YYYY and the time as HH:mm:ss",

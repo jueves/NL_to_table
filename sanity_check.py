@@ -2,7 +2,7 @@ import json
 import pandas as pd
 import numbers
 
-with open("data_structure.json", "r", ) as f:
+with open("data_structure.json", "r", encoding="utf-8") as f:
     data_structure = json.load(f)
 
 def sanity_check(data):
@@ -67,11 +67,12 @@ def check_types(data):
     for variable in data_structure.keys():
         var_type = data_structure[variable]["type"]
         value = data[variable][0]
-        if (var_type == "Numeric"):
-            if not (isinstance(value, numbers.Number)):
-                veredict += "El valor de " + variable + " no es numérico.\n"
-        if (var_type == "String"):
-            if not (isinstance(value, str)):
-                veredict += "El valor de " + variable + " no es texto.\n"
+        if not pd.isna(value):
+            if (var_type == "Numeric"):
+                if not (isinstance(value, numbers.Number)):
+                    veredict += "El valor de " + variable + " no es numérico.\n"
+            if (var_type == "String"):
+                if not (isinstance(value, str)):
+                    veredict += "El valor de " + variable + " no es texto.\n"
 
     return(veredict)
