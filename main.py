@@ -38,7 +38,7 @@ text2table = Text2Table(DATA_STRUCTURE, PROMPT_FILENAME, TELEGRAM_USER_ID, DATA_
 openai.api_key = CHATGPT_KEY
 
 # Setup Whisper
-whisper_model = whisper.load_model("base")
+whisper_model = whisper.load_model("small")
 
 # Setup Telegram bot
 bot = telebot.TeleBot(TELEGRAM_KEY)
@@ -58,7 +58,11 @@ def callback_query(call):
             bot.answer_callback_query(call.id, "Has confirmado la tabla propuesta.")
     
     elif call.data == "cb_errors":
-        bot.answer_callback_query(call.id, "Has marcado la tabla propuesta como erronea.")
+        new_csv = text2table.get_correction(call.from_user.id)
+        answer = text2table.csv2answer(new_csv, call.from_user.id)
+        bot.send_message(call.from_user.id, answer,
+                         reply_markup=text2table.gen_markup(add_buttons=True))
+        #bot.answer_callback_query(call.id, "Aquí tienes una nueva propuesta.")
 
 @bot.message_handler(content_types=['voice'])
 def voice_processing(message):
@@ -71,9 +75,9 @@ def voice_processing(message):
     with open('user_data/voice_note.ogg', 'wb') as new_file:
         new_file.write(downloaded_file)
     transcription = whisper_model.transcribe("user_data/voice_note.ogg", language="es")
-    print("TRANSCRIPTION:\n" + transcription["text"])
+    print("AUDIO TRANSCRIPTION:\n" + transcription["text"])
     message.text = transcription["text"]
-    answer = text2table.get_table(message)
+    answer = text2table.get_table(message) + "\nTRANSCRIPCIÓN DE AUDIO:\n" + transcription["text"]
     bot.send_message(message.chat.id, answer, reply_markup=text2table.gen_markup(add_buttons=True))
 
 @bot.message_handler(func=lambda msg: True)

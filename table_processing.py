@@ -86,9 +86,34 @@ class Text2Table:
         saves the data.
         Returns answer text with information about the process.
         '''
-        csv_data = self.text_to_csv(message)
-        new_data = pd.read_csv(StringIO(csv_data))
-        self.tmp_data[message.from_user.id] = new_data
-        data, answer = sanity_check(new_data)
-        answer = data.T.to_markdown() + answer
+        csv_str = self.text_to_csv(message)
+        answer = self.csv2answer(csv_str,
+                                 message.from_user.id)
         return(answer)
+
+    def csv2answer(self, csv_data, user_id):
+        '''
+        Gets a string of csv data and a user id.
+        Converts string to dataframe
+        Performs sanity check
+        Returns answer
+        '''
+        new_data = pd.read_csv(StringIO(csv_data))
+        self.tmp_data[user_id] = new_data
+        data, answer = sanity_check(new_data)
+        data = data.dropna(axis=1)
+        answer = data.T.to_markdown() + answer
+        return(answer)                        
+
+    def get_correction(self, user_id):
+        '''
+        Returns csv correction for the last message sent to chatGPT.
+        '''
+        messages = self.messages[user_id]
+        messages.append({"role": "user", "content": "Esa tabla contiene errores." + 
+                         " Respóndeme únicamente con la tabla corregida, sin incluir" +
+                          "ningún otro texto antes o despues."
+                         })
+        chat = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=messages)
+        new_csv = chat.choices[0].message.content
+        return(new_csv)
