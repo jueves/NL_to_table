@@ -53,6 +53,12 @@
         "range":[0, 9],
         "example": [0.25, 1.5, 0.8, 0.75]
     },
+    "color": {
+        "description":"A color name.",
+        "type":"String",
+        "range":"",
+        "example": ["negro", "rojo", "verde", "verde"]
+    },
     "datetime": {
         "description":"The date and time in which data was collected. The date will be formated as DD.MM.YYYY and the time as HH:mm:ss",
         "type":"String",
