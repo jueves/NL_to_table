@@ -7,6 +7,10 @@ from sanity_check import sanity_check
 
 
 class Text2Table:
+    '''
+    Creates a Text2Table object that stores metadata, temporal data and performs
+    various data transformations.
+    '''
     def __init__(self, data_structure, prompt_filename, telegram_user_id, data_filename):
         self.data_structure = data_structure
         self.telegram_user_id = int(telegram_user_id)

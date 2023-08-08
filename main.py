@@ -87,11 +87,11 @@ def echo_all(message):
     Takes all incoming messages and returns answers.
     '''
     add_buttons = False
-    if (message.text == "/start"):
+    if message.text == "/start":
         answer = start_message + help_message
-    elif (message.text == "/help"):
+    elif message.text == "/help":
         answer = help_message
-    elif (message.text == "/metadata"):
+    elif message.text == "/metadata":
         answer = json.dumps(DATA_STRUCTURE, indent=4)
     else:
         add_buttons = True
