@@ -24,7 +24,7 @@
         "example": [0, 1, 0, 5]
     },
     "food": {
-        "description":"Food eaten in that moment. Could be one or more foods.",
+        "description":"Food eaten in that moment. Could be one or more foods. Do not include caffeine drinks in the food category.",
         "type":"String",
         "range":"",
         "example": ["Papas con sardinas", "Pasta con verdura", "Garbanzos de lata", "Ensalada con pollo"]

@@ -65,14 +65,15 @@ def check_types(data):
     veredict = ""
 
     for variable in data_structure.keys():
-        var_type = data_structure[variable]["type"]
-        value = data[variable][0]
-        if not pd.isna(value):
-            if (var_type == "Numeric"):
-                if not (isinstance(value, numbers.Number)):
-                    veredict += "El valor de " + variable + " no es numérico.\n"
-            if (var_type == "String"):
-                if not (isinstance(value, str)):
-                    veredict += "El valor de " + variable + " no es texto.\n"
+        if variable in data.columns:
+            var_type = data_structure[variable]["type"]
+            value = data[variable][0]
+            if not pd.isna(value):
+                if (var_type == "Numeric"):
+                    if not (isinstance(value, numbers.Number)):
+                        veredict += "El valor de " + variable + " no es numérico.\n"
+                if (var_type == "String"):
+                    if not (isinstance(value, str)):
+                        veredict += "El valor de " + variable + " no es texto.\n"
 
     return(veredict)
