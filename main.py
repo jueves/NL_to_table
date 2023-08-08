@@ -1,6 +1,7 @@
 import os
 import json
 import telebot
+from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 import openai
 import whisper
 from table_processing import Text2Table
@@ -45,6 +46,15 @@ whisper_model = whisper.load_model(WHISPER_TYPE)
 # Setup Telegram bot
 bot = telebot.TeleBot(TELEGRAM_KEY)
 
+# Create Telegram message markups
+simple_markup = InlineKeyboardMarkup()
+buttons_markup = InlineKeyboardMarkup()
+buttons_markup.row_width = 2
+buttons_markup.add(InlineKeyboardButton("Todo correcto", callback_data="cb_correct"),
+                   InlineKeyboardButton("Hay errores", callback_data="cb_errors"))
+
+
+
 @bot.callback_query_handler(func=lambda call: True)
 def callback_query(call):
     '''
@@ -63,7 +73,7 @@ def callback_query(call):
         new_csv = text2table.get_correction(call.from_user.id)
         answer = text2table.csv2answer(new_csv, call.from_user.id)
         bot.send_message(call.from_user.id, answer,
-                         reply_markup=text2table.gen_markup(add_buttons=True))
+                         reply_markup=buttons_markup)
 
 @bot.message_handler(content_types=['voice'])
 def voice_processing(message):
@@ -79,14 +89,14 @@ def voice_processing(message):
     print("AUDIO TRANSCRIPTION:\n" + transcription["text"])
     message.text = transcription["text"]
     answer = text2table.get_table(message) + "\nTRANSCRIPCIÓN DE AUDIO:\n" + transcription["text"]
-    bot.send_message(message.chat.id, answer, reply_markup=text2table.gen_markup(add_buttons=True))
+    bot.send_message(message.chat.id, answer, reply_markup=buttons_markup)
 
 @bot.message_handler(func=lambda msg: True)
 def echo_all(message):
     '''
     Takes all incoming messages and returns answers.
     '''
-    add_buttons = False
+    markup = simple_markup
     if message.text == "/start":
         answer = start_message + help_message
     elif message.text == "/help":
@@ -94,9 +104,9 @@ def echo_all(message):
     elif message.text == "/metadata":
         answer = json.dumps(DATA_STRUCTURE, indent=4)
     else:
-        add_buttons = True
+        markup = buttons_markup
         answer = text2table.get_table(message)
 
-    bot.send_message(message.chat.id, answer, reply_markup=text2table.gen_markup(add_buttons))
+    bot.send_message(message.chat.id, answer, reply_markup=markup)
 
 bot.infinity_polling()

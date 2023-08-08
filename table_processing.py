@@ -1,7 +1,6 @@
 from io import StringIO
 from datetime import datetime
 import pandas as pd
-from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 import openai
 from sanity_check import sanity_check
 
@@ -55,18 +54,6 @@ class Text2Table:
         
         reply = chat.choices[0].message.content
         return(reply)
-
-    def gen_markup(self, add_buttons=False):
-        '''
-        If add_buttons=True, it returns a telebot markup object that adds buttons
-        to the message. Otherwise, it returns an empty markup.
-        '''
-        markup = InlineKeyboardMarkup()
-        if add_buttons:
-            markup.row_width = 2
-            markup.add(InlineKeyboardButton("Todo correcto", callback_data="cb_correct"),
-                       InlineKeyboardButton("Hay errores", callback_data="cb_errors"))
-        return markup
 
     def update_dataset(self):
         '''
