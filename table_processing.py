@@ -92,8 +92,9 @@ class Text2Table:
         new_data = pd.read_csv(StringIO(csv_data))
         self.tmp_data[user_id] = new_data
         data, answer = sanity_check(new_data)
+        reminders = self.get_reminders(data)
         data = data.dropna(axis=1)
-        answer = data.T.to_markdown() + answer
+        answer = data.T.to_markdown() + answer + reminders
         return(answer)                        
 
     def get_correction(self, user_id):
@@ -108,3 +109,11 @@ class Text2Table:
         chat = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=messages)
         new_csv = chat.choices[0].message.content
         return(new_csv)
+    
+    
+    def get_reminders(self, dataset):
+       ''' Gets dataset(pd.DataFrame)
+          Returns advice(str)
+       '''
+       advice = "Reminders are under development."
+       return(advice)
