@@ -115,5 +115,9 @@ class Text2Table:
        ''' Gets dataset(pd.DataFrame)
           Returns advice(str)
        '''
+''''        for var_name, var_metadata in self.data_structure.items():
+            if (dataset[var_name][""])
+            variable[datetime]''''
+
        advice = "Reminders are under development."
        return(advice)
