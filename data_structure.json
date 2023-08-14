@@ -140,7 +140,7 @@
         ],
         "max_empty_days": 30
     },
-    "datetime": {
+    "time": {
         "description": "The date and time in which data was collected. The date will be formated as DD.MM.YYYY and the time as HH:mm:ss",
         "type": "String",
         "range": "",

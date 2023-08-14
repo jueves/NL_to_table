@@ -4,7 +4,7 @@ import telebot
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 import openai
 import whisper
-from table_processing import Text2Table
+from table_processing import Text2Table, Reminders
 
 
 # Load variables in .env file
@@ -36,6 +36,15 @@ with open("text/help.txt", "r", encoding="utf-8") as f:
 
 # Setup text to table converter
 text2table = Text2Table(DATA_STRUCTURE, PROMPT_FILENAME, TELEGRAM_USER_ID, DATA_FILENAME)
+reminder = Reminders(DATA_FILENAME, DATA_STRUCTURE)
+print("\n### reminder.get_score(\"asthma\")")
+print(reminder.get_score("asthma"))
+
+print("\n### reminder.get_score_df()")
+print(reminder.get_score_df())
+
+print("\n### reminder.get_reminders()")
+print(reminder.get_reminders())
 
 # Setup chatGPT
 openai.api_key = CHATGPT_KEY
@@ -105,7 +114,7 @@ def echo_all(message):
         answer = json.dumps(DATA_STRUCTURE, indent=4)
     else:
         markup = buttons_markup
-        answer = text2table.get_table(message)
+        answer = text2table.get_table(message) + reminder.get_reminders()
 
     bot.send_message(message.chat.id, answer, reply_markup=markup)
 

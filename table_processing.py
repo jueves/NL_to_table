@@ -62,7 +62,7 @@ class Text2Table:
         Writes changes to disk.
         '''
         # Add new data
-        data = pd.read_csv(self.data_filename)
+        data = pd.read_csv(self.data_filename, parse_dates=["time"])
         data = pd.concat([data, self.tmp_data[self.telegram_user_id]], ignore_index=True)
 
         # Filter out variables not in data structure
@@ -90,11 +90,11 @@ class Text2Table:
         Returns answer
         '''
         new_data = pd.read_csv(StringIO(csv_data))
+        new_data["time"] = pd.to_datetime(new_data.time, format="mixed", dayfirst=True)
         self.tmp_data[user_id] = new_data
         data, answer = sanity_check(new_data)
-        reminders = self.get_reminders(data)
         data = data.dropna(axis=1)
-        answer = data.T.to_markdown() + answer + reminders
+        answer = data.T.to_markdown() + answer
         return(answer)                        
 
     def get_correction(self, user_id):
@@ -111,13 +111,45 @@ class Text2Table:
         return(new_csv)
     
     
-    def get_reminders(self, dataset):
+class Reminders:
+    '''
+    Calculates unuse score.
+    '''
+    def __init__(self, data_filename, metadata):
+        self.data = pd.read_csv(data_filename, parse_dates=["time"])
+        self.metadata = metadata
+
+    def get_score(self, var_name):
+        '''
+        Returns a score representing how unused is the variable.
+        The default metric is "number of days withot loggind new data."
+        '''
+        subdata = self.data[[var_name, "time"]].dropna()
+        if len(subdata) > 0:
+            subdata = subdata.sort_values("time")
+            last_date = subdata.time.iloc[-1]
+            score = datetime.now() - last_date
+        else:
+            score = pd.Timedelta(days=1000)
+        return(score)
+
+
+    def get_score_df(self):
+        '''
+        Returns the last use score for every variable.
+        '''
+        var_names = []
+        scores = []
+        for var_name in self.metadata.keys():
+            var_names.append(var_name)
+            scores.append(self.get_score(var_name))
+        score_df = pd.DataFrame({"var_name":var_names, "score":scores})
+        return(score_df)
+
+    def get_reminders(self):
        ''' Gets dataset(pd.DataFrame)
           Returns advice(str)
        '''
-''''        for var_name, var_metadata in self.data_structure.items():
-            if (dataset[var_name][""])
-            variable[datetime]''''
-
        advice = "Reminders are under development."
        return(advice)
+
