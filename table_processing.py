@@ -125,8 +125,8 @@ class Reminders:
         The default metric is "number of days withot loggind new data."
         '''
         subdata = self.data[[var_name, "time"]].dropna()
+        subdata = subdata.sort_values("time")
         if len(subdata) > 0:
-            subdata = subdata.sort_values("time")
             last_date = subdata.time.iloc[-1]
             score = datetime.now() - last_date
         else:
@@ -141,8 +141,9 @@ class Reminders:
         var_names = []
         scores = []
         for var_name in self.metadata.keys():
-            var_names.append(var_name)
-            scores.append(self.get_score(var_name))
+            if var_name != "time":
+                var_names.append(var_name)
+                scores.append(self.get_score(var_name))
         score_df = pd.DataFrame({"var_name":var_names, "score":scores})
         return(score_df)
 
