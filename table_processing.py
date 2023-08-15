@@ -147,6 +147,7 @@ class Reminders:
                 var_names.append(var_name)
                 scores.append(self.get_score(var_name))
         score_df = pd.DataFrame({"var_name":var_names, "score":scores})
+        score_df = score_df.sort_values("score", ascending=False)
         return(score_df)
 
     def get_reminders(self):

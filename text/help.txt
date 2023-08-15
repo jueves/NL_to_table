@@ -3,6 +3,7 @@ Esta es una lista de mis comandos:
 /start     Mensaje de presentación.
 /help      Lista los comandos disponibles.
 /metadata  Muestra metadatos sobre las características de cada variable.
+/lastuse   Muestra el tiempo pasado desde el último registro de cada variable. Si no existen registros se muestra el valor de 1000 días.
 
 Los datos de tabla no requieren ir precedidos de ningún comando. La fecha y la hora registradas son el momento en que has enviado el mensaje, pero puedes especificar una fecha u hora diferente.
 Cada mensaje representa una única observación, es decir, valores sobre una o varias variables para un individuo concreto en un momento preciso.
