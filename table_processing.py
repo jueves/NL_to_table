@@ -124,13 +124,15 @@ class Reminders:
         Returns a score representing how unused is the variable.
         The default metric is "number of days withot loggind new data."
         '''
-        subdata = self.data[[var_name, "time"]].dropna()
-        subdata = subdata.sort_values("time")
-        if len(subdata) > 0:
+        try:
+            subdata = self.data[[var_name, "time"]].dropna()
+            subdata = subdata.sort_values("time")
             last_date = subdata.time.iloc[-1]
             score = datetime.now() - last_date
-        else:
+        
+        except:
             score = pd.Timedelta(days=1000)
+            
         return(score)
 
 

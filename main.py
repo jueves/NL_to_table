@@ -14,7 +14,7 @@ try:
 except:
     print("Error loading dotenv, .env file won't be used.")
 
-
+pass
 # Set constants
 DATA_FILENAME = "user_data/data.csv"
 PROMPT_FILENAME = "text/prompt.txt"
