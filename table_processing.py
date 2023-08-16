@@ -125,13 +125,17 @@ class Reminders:
         The default metric is "number of days withot loggind new data."
         '''
         subdata = self.data[[var_name, "time"]].dropna()
-        subdata = subdata.sort_values("time")
-        if len(subdata) > 0:
+        try:
+            subdata = subdata.sort_values("time")
             last_date = subdata.time.iloc[-1]
             score = datetime.now() - last_date
-        else:
+        except:
             score = pd.Timedelta(days=1000)
+<<<<<<< HEAD
         score = score.days
+=======
+            
+>>>>>>> refs/remotes/origin/main
         return(score)
 
 
@@ -145,7 +149,12 @@ class Reminders:
             if var_name != "time":
                 var_names.append(var_name)
                 scores.append(self.get_score(var_name))
+<<<<<<< HEAD
         score_df = pd.DataFrame({"var_name":var_names, "score":scores}).sort_values("score",ascending=False)
+=======
+        score_df = pd.DataFrame({"var_name":var_names, "score":scores})
+        score_df = score_df.sort_values("score", ascending=False)
+>>>>>>> refs/remotes/origin/main
         return(score_df)
 
     def get_reminders(self):

@@ -14,7 +14,6 @@ try:
 except:
     print("Error loading dotenv, .env file won't be used.")
 
-
 # Set constants
 DATA_FILENAME = "user_data/data.csv"
 PROMPT_FILENAME = "text/prompt.txt"
@@ -37,14 +36,6 @@ with open("text/help.txt", "r", encoding="utf-8") as f:
 # Setup text to table converter
 text2table = Text2Table(DATA_STRUCTURE, PROMPT_FILENAME, TELEGRAM_USER_ID, DATA_FILENAME)
 reminder = Reminders(DATA_FILENAME, DATA_STRUCTURE)
-print("\n### reminder.get_score(\"asthma\")")
-print(reminder.get_score("asthma"))
-
-print("\n### reminder.get_score_df()")
-print(reminder.get_score_df())
-
-print("\n### reminder.get_reminders()")
-print(reminder.get_reminders())
 
 # Setup chatGPT
 openai.api_key = CHATGPT_KEY
@@ -111,9 +102,15 @@ def echo_all(message):
     elif message.text == "/help":
         answer = help_message
     elif message.text == "/metadata":
+<<<<<<< HEAD
         answer = "<code>" + json.dumps(DATA_STRUCTURE, indent=4) + "</code>"
     elif message.text == "/lastlog":
         answer = "<code>" + reminder.get_score_df().to_markdown(index=False) + "</code>"
+=======
+        answer = json.dumps(DATA_STRUCTURE, indent=4)
+    elif message.text == "/lastuse":
+        answer = reminder.get_score_df().to_markdown()
+>>>>>>> refs/remotes/origin/main
     else:
         markup = buttons_markup
         answer = "<code>" + text2table.get_table(message) + reminder.get_reminders() + "</code>"
