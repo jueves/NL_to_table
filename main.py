@@ -111,11 +111,13 @@ def echo_all(message):
     elif message.text == "/help":
         answer = help_message
     elif message.text == "/metadata":
-        answer = json.dumps(DATA_STRUCTURE, indent=4)
+        answer = "<code>" + json.dumps(DATA_STRUCTURE, indent=4) + "</code>"
+    elif message.text == "/lastlog":
+        answer = "<code>" + reminder.get_score_df().to_markdown(index=False) + "</code>"
     else:
         markup = buttons_markup
-        answer = text2table.get_table(message) + reminder.get_reminders()
+        answer = "<code>" + text2table.get_table(message) + reminder.get_reminders() + "</code>"
 
-    bot.send_message(message.chat.id, answer, reply_markup=markup)
+    bot.send_message(message.chat.id, answer, reply_markup=markup, parse_mode="html")
 
 bot.infinity_polling()
