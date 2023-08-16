@@ -114,7 +114,7 @@
         "max_empty_days": 30
     },
     "water": {
-        "description": "Amount of water drank in liters. If a container is given, convert it to liters. For example, one glass of water is 0.25 liters",
+        "description": "Amount of water drank in liters. If a container is given, convert it to liters. For example, one glass of water is 0.25 liters, two glasses of water 0.6 liters.",
         "type": "Numeric",
         "range": [
             0,
@@ -141,14 +141,14 @@
         "max_empty_days": 30
     },
     "time": {
-        "description": "The date and time in which data was collected. The date will be formated as DD.MM.YYYY and the time as HH:mm:ss",
-        "type": "String",
+        "description": "The date and time in which data was collected. The date will be formated as YYYY-MM-DD and the time as HH:mm:ss",
+        "type": "Time",
         "range": "",
         "example": [
-            "10/08/2023 10:01:23",
-            "10/08/2023 10:55:45",
-            "11/08/2023 12:11:17",
-            "12/08/2023 17:44:01"
+            "2023-03-01 14:53:00",
+            "2023-04-17 18:18:45",
+            "2023-08-08 16:09:02",
+            "2022-08-08 16:25:21"
         ],
         "max_empty_days": 30
     }
