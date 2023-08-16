@@ -92,9 +92,9 @@ class Text2Table:
         new_data = pd.read_csv(StringIO(csv_data))
         new_data["time"] = pd.to_datetime(new_data.time, format="mixed", dayfirst=True)
         self.tmp_data[user_id] = new_data
-        data, answer = sanity_check(new_data)
-        data = data.dropna(axis=1)
-        answer = data.T.to_markdown() + answer
+        answer = sanity_check(new_data)
+        new_data = new_data.dropna(axis=1)
+        answer = new_data.T.to_markdown() + answer
         return(answer)                        
 
     def get_correction(self, user_id):
@@ -109,8 +109,8 @@ class Text2Table:
         chat = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=messages)
         new_csv = chat.choices[0].message.content
         return(new_csv)
-    
-    
+
+
 class Reminders:
     '''
     Calculates unuse score.
@@ -131,6 +131,7 @@ class Reminders:
             score = datetime.now() - last_date
         else:
             score = pd.Timedelta(days=1000)
+        score = score.days
         return(score)
 
 
@@ -144,13 +145,15 @@ class Reminders:
             if var_name != "time":
                 var_names.append(var_name)
                 scores.append(self.get_score(var_name))
-        score_df = pd.DataFrame({"var_name":var_names, "score":scores})
+        score_df = pd.DataFrame({"var_name":var_names, "score":scores}).sort_values("score",ascending=False)
         return(score_df)
 
     def get_reminders(self):
        ''' Gets dataset(pd.DataFrame)
           Returns advice(str)
        '''
-       advice = "Reminders are under development."
+       last_log = self.get_score_df()
+       advice = "Hace {days} días que no registras {var}, ¿añades una observación?".format(days=last_log.score[0],
+                                                                                           var=last_log.var_name[0])
        return(advice)
 

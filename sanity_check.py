@@ -1,6 +1,7 @@
 import json
 import pandas as pd
 import numbers
+import datetime
 
 with open("data_structure.json", "r", encoding="utf-8") as f:
     data_structure = json.load(f)
@@ -10,19 +11,12 @@ def sanity_check(data):
     Checks variables names, ranges, and types.
     Returns report as string.
     '''
-    problems_header = "\n\nSANITY CHECK SUMMARY:\n"
-    problems = ""
-
+    problems = "\n\nSANITY CHECK SUMMARY:\n"
     problems += check_variables(data)
     problems += check_ranges(data)
     problems += check_types(data)
-
-    if (len(problems) == 0):
-        problems += "No problems found during sanitazion check."
-
-    answer = problems_header + problems
-    
-    return(data, answer)
+   
+    return(problems)
 
 def check_variables(data):
     '''
@@ -75,5 +69,7 @@ def check_types(data):
                 if (var_type == "String"):
                     if not (isinstance(value, str)):
                         veredict += "El valor de " + variable + " no es texto.\n"
-
+                if (var_type == "Time"):
+                    if not (isinstance(value, datetime.datetime)):
+                        veredict += "El valor de " + variable + " no es un objeto de tiempo.\n"
     return(veredict)
