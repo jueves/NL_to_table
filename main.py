@@ -102,15 +102,12 @@ def echo_all(message):
     elif message.text == "/help":
         answer = help_message
     elif message.text == "/metadata":
-<<<<<<< HEAD
         answer = "<code>" + json.dumps(DATA_STRUCTURE, indent=4) + "</code>"
     elif message.text == "/lastlog":
         answer = "<code>" + reminder.get_score_df().to_markdown(index=False) + "</code>"
-=======
         answer = json.dumps(DATA_STRUCTURE, indent=4)
     elif message.text == "/lastuse":
         answer = reminder.get_score_df().to_markdown()
->>>>>>> refs/remotes/origin/main
     else:
         markup = buttons_markup
         answer = "<code>" + text2table.get_table(message) + reminder.get_reminders() + "</code>"
