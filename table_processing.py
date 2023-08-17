@@ -97,18 +97,24 @@ class Text2Table:
         answer = new_data.T.to_markdown() + answer
         return(answer)                        
 
-    def get_correction(self, user_id):
+    def get_correction(self, user_id, critique=""):
         '''
         Returns csv correction for the last message sent to chatGPT.
         '''
         messages = self.messages[user_id]
-        messages.append({"role": "user", "content": "Esa tabla contiene errores." + 
+        messages.append({"role": "user", "content": "Esa tabla contiene errores. {critique}" + 
                          " Respóndeme únicamente con la tabla corregida, sin incluir" +
-                          "ningún otro texto antes o despues."
+                          "ningún otro texto antes o despues.".format(critique=critique)
                          })
         chat = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=messages)
         new_csv = chat.choices[0].message.content
         return(new_csv)
+    
+
+    def delete_last(self):
+        '''
+        Deletes last row logged.
+        '''
 
 
 class Reminders:
@@ -146,7 +152,7 @@ class Reminders:
                 var_names.append(var_name)
                 scores.append(self.get_score(var_name))
         score_df = pd.DataFrame({"var_name":var_names, "score":scores})
-        score_df = score_df.sort_values("score", ascending=False)
+        score_df = score_df.sort_values("score", ascending=False, ignore_index=True)
         return(score_df)
 
     def get_reminders(self):
@@ -154,7 +160,12 @@ class Reminders:
           Returns advice(str)
        '''
        last_log = self.get_score_df()
-       advice = "Hace {days} días que no registras {var}, ¿añades una observación?".format(days=last_log.score[0],
+       last_score = int(last_log.score[0])
+       if  last_score > 365:
+           last_score = "más de un año"
+       else:
+           last_score = str(last_score) + " días"
+       advice = "Hace {time} que no registras {var}, ¿añades una observación?".format(time=last_score,
                                                                                            var=last_log.var_name[0])
        return(advice)
 
