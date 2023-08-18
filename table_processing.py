@@ -121,12 +121,10 @@ class Text2Table:
         except:
             requests = {}
         message_date = datetime.utcfromtimestamp(message.date)
-        requests["time"] = message_date.strftime("%Y-%m-%d %H:%M:%S")
-        requests["comment"] = message.text[4:]
-        requests_str = json.dumps(requests)
-        print("### REQUESTS:\n\n" + requests_str)
+        request_date = message_date.strftime("%Y-%m-%d %H:%M:%S")
+        requests[request_date] = message.text[4:]
         with open("deletion_requests.json", "w") as f:
-            f = requests_str
+            json.dump(requests, f, indent=4)
 
 
 class Reminders:

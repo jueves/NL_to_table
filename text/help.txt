@@ -4,6 +4,7 @@ Esta es una lista de mis comandos:
 /help      Lista los comandos disponibles.
 /metadata  Muestra metadatos sobre las características de cada variable.
 /lastlog   Muestra la fecha de último registro para cada variable.
+/del       Registra una solicitud de borrado del último mensaje. Puede ir seguido de un comentario (en el mismo mensaje.)
 
 Los datos de tabla no requieren ir precedidos de ningún comando. La fecha y la hora registradas son el momento en que has enviado el mensaje, pero puedes especificar una fecha u hora diferente.
 Cada mensaje representa una única observación, es decir, valores sobre una o varias variables para un individuo concreto en un momento preciso.
