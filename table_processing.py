@@ -116,14 +116,14 @@ class Text2Table:
         Gets a Telegram messge object and logs it to a deletion requests file.
         '''
         try:
-            with open("deletion_requests.json", "r") as f:
+            with open("user_data/deletion_requests.json", "r") as f:
                requests = json.load(f)
         except:
             requests = {}
         message_date = datetime.utcfromtimestamp(message.date)
         request_date = message_date.strftime("%Y-%m-%d %H:%M:%S")
         requests[request_date] = message.text[4:]
-        with open("deletion_requests.json", "w") as f:
+        with open("user_data/deletion_requests.json", "w") as f:
             json.dump(requests, f, indent=4)
 
 
