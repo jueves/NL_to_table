@@ -129,7 +129,8 @@ class Text2Table:
 
 class Reminders:
     '''
-    Calculates unuse score.
+    Manages the unuse score, which represents how important is to add more data
+    to each variable.
     '''
     def __init__(self, data_filename, metadata):
         self.data = pd.read_csv(data_filename, parse_dates=["time"])
@@ -178,4 +179,3 @@ class Reminders:
        advice = "Hace {time} que no registras {var}, ¿añades una observación?".format(time=last_score,
                                                                                            var=last_log.var_name[0])
        return(advice)
-
