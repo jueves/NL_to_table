@@ -88,7 +88,8 @@ def voice_processing(message):
     transcription = whisper_model.transcribe("user_data/voice_note.ogg", language=WHISPER_LANG)
     print("AUDIO TRANSCRIPTION:\n" + transcription["text"])
     message.text = transcription["text"]
-    answer = text2table.get_table(message) + "\nTRANSCRIPCIÓN DE AUDIO:\n" + transcription["text"]
+    answer = "<code>" + text2table.get_table(message) + "</code>"
+    answer =+ "<code>" + "\nTRANSCRIPCIÓN DE AUDIO:\n" + transcription["text"] + "</code>"
     bot.send_message(message.chat.id, answer, reply_markup=buttons_markup)
 
 @bot.message_handler(func=lambda msg: True)
