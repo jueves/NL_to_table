@@ -136,15 +136,16 @@ class Reminders:
     to each variable.
     '''
     def __init__(self, data_filename, metadata):
+        self.data_filename = data_filename
         self.data = pd.read_csv(data_filename, parse_dates=["time"])
         self.metadata = metadata
 
-    def get_score(self, var_name):
+    def get_score(self, var_name, data):
         '''
         Returns a score representing how unused is the variable.
         The default metric is "number of days withot loggind new data."
         '''
-        subdata = self.data[[var_name, "time"]].dropna()
+        subdata = data[[var_name, "time"]].dropna()
         try:
             subdata = subdata.sort_values("time")
             last_date = subdata.time.iloc[-1]
@@ -158,12 +159,13 @@ class Reminders:
         '''
         Returns the last use score for every variable.
         '''
+        self.data =  pd.read_csv(self.data_filename, parse_dates=["time"])
         var_names = []
         scores = []
         for var_name in self.metadata.keys():
             if var_name != "time":
                 var_names.append(var_name)
-                scores.append(self.get_score(var_name))
+                scores.append(self.get_score(var_name, self.data))
         score_df = pd.DataFrame({"var_name":var_names, "score":scores})
         score_df = score_df.sort_values("score", ascending=False, ignore_index=True)
         return(score_df)
@@ -178,6 +180,7 @@ class Reminders:
            last_score = "más de un año"
        else:
            last_score = str(last_score) + " días"
-       advice = "Hace {time} que no registras {var}, ¿añades una observación?".format(time=last_score,
+       header = "\n\n" + "_"*25 + "\n\n"
+       advice = header + "Hace {time} que no registras {var}, ¿añades una observación?".format(time=last_score,
                                                                                            var=last_log.var_name[0])
        return(advice)

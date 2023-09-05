@@ -86,11 +86,12 @@ def voice_processing(message):
     with open('user_data/voice_note.ogg', 'wb') as new_file:
         new_file.write(downloaded_file)
     transcription = whisper_model.transcribe("user_data/voice_note.ogg", language=WHISPER_LANG)
-    print("AUDIO TRANSCRIPTION:\n" + transcription["text"])
     message.text = transcription["text"]
-    answer = "<code>" + text2table.get_table(message) + "</code>"
-    answer =+ "<code>" + "\nTRANSCRIPCIÓN DE AUDIO:\n" + transcription["text"] + "</code>"
-    bot.send_message(message.chat.id, answer, reply_markup=buttons_markup)
+    answer = "<code>" + text2table.get_table(message)
+    print("AUDIO TRANSCRIPTION:\n" + transcription["text"])
+    answer += "\nTRANSCRIPCIÓN DE AUDIO:\n" + transcription["text"]
+    answer += reminder.get_reminders()  + "</code>"
+    bot.send_message(message.chat.id, answer, reply_markup=buttons_markup, parse_mode="html")
 
 @bot.message_handler(func=lambda msg: True)
 def echo_all(message):

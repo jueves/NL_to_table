@@ -11,11 +11,11 @@ def sanity_check(data):
     Checks variables names, ranges, and types.
     Returns report as string.
     '''
-    problems = "\n\nSANITY CHECK SUMMARY:\n"
-    problems += check_variables(data)
+    problems = check_variables(data)
     problems += check_ranges(data)
     problems += check_types(data)
-   
+    if len(problems) > 0:
+        problems = "\n\nSANITY CHECK SUMMARY:\n" + problems
     return(problems)
 
 def check_variables(data):
