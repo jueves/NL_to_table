@@ -108,6 +108,9 @@ class Text2Table:
         # Filter out variables not in data structure
         data = data[list(self.data_structure.keys())]
         
+        # Update self.data
+        self.data = data
+
         # Write changes to disk
         data.to_csv(self.data_filename)
 
@@ -144,15 +147,10 @@ class Reminders:
         subdata = self.data[[var_name, "time"]].dropna()
         try:
             subdata = subdata.sort_values("time")
-            print("DATA SORTED BY TIME:")
-            print(subdata)
             last_date = subdata.time.iloc[-1]
-            print("LAST DATE:")
-            print("Last date for {var_name} is {last_date}".format(var_name=var_name, last_date=last_date))
             score = datetime.now() - last_date
         except:
             score = pd.Timedelta(days=1000)
-        score = score.days
         return(score)
 
 
@@ -175,7 +173,7 @@ class Reminders:
           Returns advice(str)
        '''
        last_log = self.get_score_df()
-       last_score = int(last_log.score[0])
+       last_score = last_log.score[0].days
        if  last_score > 365:
            last_score = "más de un año"
        else:

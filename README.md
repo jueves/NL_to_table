@@ -27,5 +27,5 @@ Every user gets it's own response, but only the user whose id is in the settings
 # To do
 - [x] Include more variables.
 - [X] Improve Readme.
-- [ ] Include reminders for varibles not used in a long time
+- [x] Include reminders for varibles not used in a long time.
 - [ ] Check if results could be improved by keeping longer conversations. Only reset chat on user command.
