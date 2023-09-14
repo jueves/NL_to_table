@@ -8,7 +8,7 @@ All info messages are in Spanish, but your data and variables can be in any lang
 Every user gets it's own response, but only the user whose id is in the settings will get its data logged.
 
 # Installation
-1. Install [Docker](https://www.docker.com) on your machine.
+1. Install Docker on your machine.
 2. Download `NL_to_table.yml` and fill it with your own keys and settings.
 3. Download `user_data/data_example.csv` and rename it as `user_data/data.csv`
 4. Run on Docker using the `NL_to_table.yml` compose file.
