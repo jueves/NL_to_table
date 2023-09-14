@@ -75,10 +75,21 @@ class Text2Table:
         new_data["time"] = pd.to_datetime(new_data.time, format="mixed", dayfirst=True)
 
         self.tmp_data[user_id] = new_data
-        answer = sanity_check(new_data)
-        new_data = new_data.dropna(axis=1)
-        answer = new_data.T.to_markdown() + answer
+        answer = self.df_to_markdown(new_data) + sanity_check(new_data)
         return(answer)                        
+
+    def df_to_markdown(self, new_data):
+        '''
+        Gets a new_data Pandas DataFrame and returns it as a Sring in a clear
+        Markdown structure.
+        '''
+        new_data = new_data.dropna(axis=1)
+        date_time = new_data.time
+        new_data = new_data.drop(columns=["time"])
+        new_data["date"] = date_time.map(datetime.date)
+        new_data["time"] = date_time.map(datetime.time)
+        new_data_md = new_data.T.to_markdown()
+        return(new_data_md)
 
     def get_table(self, message):
         '''
@@ -184,13 +195,13 @@ class Reminders:
        ''' Gets dataset(pd.DataFrame)
           Returns advice(str)
        '''
-       last_log = self.get_score_df()
-       last_score = last_log.score[0].days
+       last_log_df = self.get_score_df()
+       last_score = last_log_df.score[0]
        if  last_score > 365:
            last_score = "más de un año"
        else:
            last_score = str(last_score) + " días"
        header = "\n\n" + "_"*25 + "\n\n"
        advice = header + "Hace {time} que no registras {var}, ¿añades una observación?".format(time=last_score,
-                                                                                           var=last_log.var_name[0])
+                                                                                           var=last_log_df.var_name[0])
        return(advice)
