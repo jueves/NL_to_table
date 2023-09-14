@@ -64,7 +64,16 @@ class Text2Table:
         Returns answer
         '''
         new_data = pd.read_csv(StringIO(csv_data))
+
+        i = 0
+        while not "time" in new_data.columns and i < 4:
+            i =+ 1
+            print("ERROR: time missing, asking for correction.")
+            new_csv = self.get_correction(user_id, critique="No has incluído la columna time.")
+            new_data = pd.read_csv(StringIO(new_csv))
+        
         new_data["time"] = pd.to_datetime(new_data.time, format="mixed", dayfirst=True)
+
         self.tmp_data[user_id] = new_data
         answer = sanity_check(new_data)
         new_data = new_data.dropna(axis=1)
