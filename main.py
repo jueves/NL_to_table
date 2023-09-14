@@ -71,9 +71,9 @@ def callback_query(call):
     
     elif call.data == "cb_errors":
         new_csv = text2table.get_correction(call.from_user.id)
-        answer = text2table.csv2answer(new_csv, call.from_user.id)
-        bot.send_message(call.from_user.id, answer,
-                         reply_markup=buttons_markup)
+        answer = "<code>" + text2table.csv2answer(new_csv, call.from_user.id) + "</code>"
+        bot.send_message(call.from_user.id, answer, reply_markup=buttons_markup,
+                         parse_mode="html")
 
 @bot.message_handler(content_types=['voice'])
 def voice_processing(message):

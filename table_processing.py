@@ -158,9 +158,10 @@ class Reminders:
         try:
             subdata = subdata.sort_values("time")
             last_date = subdata.time.iloc[-1]
-            score = datetime.now() - last_date
+            time_diff = datetime.now() - last_date
         except:
-            score = pd.Timedelta(days=1000)
+            time_diff = pd.Timedelta(days=1000)
+        score = time_diff.days
         return(score)
 
 
