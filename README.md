@@ -17,7 +17,7 @@ Every user gets it's own response, but only the user whose id is in the settings
 - You can easily adapt the bot to your needs by downloading and editing `data_structure.json` and then mounting it on `/NL_to_table/`  
 - You can also change Whisper model type and default language under the environment section in the compose file.
 
-# Ussage
+# Usage
 1. Send a message to your bot, either a voice note or a text, with one or more variable values.
 2. You will be answered with your input in table format. If your input was a voice note, you will also get the Whisper transcription. At the foot of the message you will get two buttons, one to aprove it and one to get a correction.
 3. If you aprove the message and you are the owner (your user id is the one in the settings) your data will be saved. If you ask for a correction nothing will be saved and you will get a new propossal.
