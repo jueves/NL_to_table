@@ -12,7 +12,8 @@
             65.8,
             66
         ],
-        "max_empty_days": 30
+        "max_empty_days": 30,
+        "mute": "False"
     },
     "waist": {
         "description": "Abdominal perimeter in cm",
@@ -27,7 +28,8 @@
             91.5,
             66
         ],
-        "max_empty_days": 30
+        "max_empty_days": 30,
+        "mute": "False"
     },
     "asthma": {
         "description": "Asthma crisis severity in a 0 to 5 scale.",
@@ -42,7 +44,8 @@
             4,
             0
         ],
-        "max_empty_days": 30
+        "max_empty_days": 30,
+        "mute": "False"
     },
     "alergy": {
         "description": "Alergy crisis severity in a 0 to 5 scale.",
@@ -57,7 +60,8 @@
             0,
             5
         ],
-        "max_empty_days": 30
+        "max_empty_days": 30,
+        "mute": "False"
     },
     "food": {
         "description": "Food eaten in that moment. Could be one or more foods. Do not include caffeine drinks in the food category.",
@@ -69,7 +73,8 @@
             "Garbanzos de lata",
             "Ensalada con pollo"
         ],
-        "max_empty_days": 30
+        "max_empty_days": 30,
+        "mute": "False"
     },
     "energy": {
         "description": "Energy level in a 0 to 5 scale, being 0 falling sleep and 5 extraordinary exitement.",
@@ -84,7 +89,8 @@
             3,
             4
         ],
-        "max_empty_days": 30
+        "max_empty_days": 30,
+        "mute": "False"
     },
     "sleep": {
         "description": "Number of hours slept in the previous night.",
@@ -99,7 +105,24 @@
             9,
             8.25
         ],
-        "max_empty_days": 30
+        "max_empty_days": 30,
+        "mute": "False"
+    },
+    "nap": {
+        "description": "Number of minutes slept at the current time.",
+        "type": "Numeric",
+        "range": [
+            0,
+            180
+        ],
+        "example": [
+            5,
+            10,
+            10,
+            30
+        ],
+        "max_empty_days": 30,
+        "mute": "False"
     },
     "caffeine": {
         "description": "Amount of caffeine ingested in diverse units.",
@@ -111,7 +134,8 @@
             "85mg",
             "Medio redbull"
         ],
-        "max_empty_days": 30
+        "max_empty_days": 30,
+        "mute": "False"
     },
     "water": {
         "description": "Amount of water drank in liters. If a container is given, convert it to liters. For example, one glass of water is 0.25 liters, two glasses of water 0.6 liters.",
@@ -126,7 +150,8 @@
             0.8,
             0.75
         ],
-        "max_empty_days": 30
+        "max_empty_days": 30,
+        "mute": "True"
     },
     "color": {
         "description": "A color name.",
@@ -138,7 +163,21 @@
             "verde",
             "verde"
         ],
-        "max_empty_days": 30
+        "max_empty_days": 30,
+        "mute": "False"
+    },
+    "antihistaminic": {
+        "description": "Administration of anhistaminic.",
+        "type": "String",
+        "range": "",
+        "example": [
+            "True",
+            "False",
+            "False",
+            "True"
+        ],
+        "max_empty_days": 30,
+        "mute": "True"
     },
     "time": {
         "description": "The date and time in which data was collected. The date will be formated as YYYY-MM-DD and the time as HH:mm:ss",
@@ -150,6 +189,7 @@
             "2023-08-08 16:09:02",
             "2022-08-08 16:25:21"
         ],
-        "max_empty_days": 30
+        "max_empty_days": 30,
+        "mute": "False"
     }
 }
