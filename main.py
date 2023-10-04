@@ -4,8 +4,8 @@ import telebot
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 import openai
 import whisper
-from table_processing import Text2Table, Reminders
-
+from text2table import Text2Table
+from reminders import Reminders
 
 # Load variables in .env file
 try:
