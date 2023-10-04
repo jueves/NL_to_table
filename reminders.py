@@ -16,8 +16,8 @@ class Reminders:
         Returns a score representing how unused is the variable.
         The default metric is "number of days withot loggind new data."
         '''
-        subdata = data[[var_name, "time"]].dropna()
         try:
+            subdata = data[[var_name, "time"]].dropna()
             subdata = subdata.sort_values("time")
             last_date = subdata.time.iloc[-1]
             time_diff = datetime.now() - last_date
@@ -34,8 +34,8 @@ class Reminders:
         self.data =  pd.read_csv(self.data_filename, parse_dates=["time"])
         var_names = []
         scores = []
-        for var_name in self.metadata.keys():
-            if var_name != "time":
+        for var_name, var_metadata in self.metadata.items():
+            if var_name != "time" and var_metadata["mute"] == "False":
                 var_names.append(var_name)
                 scores.append(self.get_score(var_name, self.data))
         score_df = pd.DataFrame({"var_name":var_names, "score":scores})
@@ -48,11 +48,13 @@ class Reminders:
        '''
        last_log_df = self.get_score_df()
        last_score = last_log_df.score[0]
+       last_var_name = last_log_df.var_name[0]
+       
        if  last_score > 365:
            last_score = "más de un año"
        else:
            last_score = str(last_score) + " días"
        header = "\n\n" + "_"*25 + "\n\n"
        advice = header + "Hace {time} que no registras {var}, ¿añades una observación?".format(time=last_score,
-                                                                                           var=last_log_df.var_name[0])
+                                                                                           var=last_var_name)
        return(advice)
