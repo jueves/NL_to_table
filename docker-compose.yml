@@ -1,12 +1,9 @@
 version: '3.1'
 services:
   app:
-    image: bro3jo2/nltotable:latest
+    build: https://github.com/jueves/NL_to_table.git
     volumes:
       - ./user_data:/NL_to_table/user_data
-    environment:
-      - TELEGRAM_KEY=${TELEGRAM_KEY} # Your Telegram Bot Key. You can get it texting to @BotFather on Telegram.
-      - CHATGPT_KEY=${CHATGPT_KEY} # Your ChatGPT API key. You can get it on openai.com
-      - TELEGRAM_USER_ID=${TELEGRAM_USER_ID} # Your own user id. You can get it texting to @userinfobot on Telegram.
-      - WHISPER_TYPE=base # The language model to use. If the model is too large for your hardware the app will crash.
-      - WHISPER_LANG=es # Whisper will assume all audio comes in this language.
+       
+    env_file:
+      - .env
