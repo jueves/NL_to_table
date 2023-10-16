@@ -1,4 +1,4 @@
-FROM python
+FROM python:3.11.2
 
 RUN pip install openai==0.28.0 openai-whisper==20230918 pyTelegramBotAPI==4.13.0
 
