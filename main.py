@@ -16,12 +16,13 @@ except:
 
 # Set constants
 DATA_FILENAME = "user_data/data.csv"
-PROMPT_FILENAME = "text/prompt.txt"
 TELEGRAM_KEY = os.environ.get("TELEGRAM_KEY")
 CHATGPT_KEY = os.environ.get("CHATGPT_KEY")
 TELEGRAM_USER_ID = os.environ.get("TELEGRAM_USER_ID")
 WHISPER_TYPE = os.environ.get("WHISPER_TYPE")
 WHISPER_LANG= os.environ.get("WHISPER_LANG")
+
+print("##### VARIABLE IMPORTADA:\n", TELEGRAM_KEY)
 
 # Load text messages
 with open("data_structure.json", "r", encoding="utf-8") as f:
@@ -33,8 +34,12 @@ with open("text/start.txt", "r", encoding="utf-8") as f:
 with open("text/help.txt", "r", encoding="utf-8") as f:
     help_message = f.read()
 
+with open("text/prompt.txt", "r", encoding="utf-8") as f:
+    prompt_raw = f.read()
+
+
 # Setup text to table converter
-text2table = Text2Table(DATA_STRUCTURE, PROMPT_FILENAME, TELEGRAM_USER_ID, DATA_FILENAME)
+text2table = Text2Table(DATA_STRUCTURE, prompt_raw, TELEGRAM_USER_ID, DATA_FILENAME)
 reminder = Reminders(DATA_FILENAME, DATA_STRUCTURE)
 
 # Setup chatGPT

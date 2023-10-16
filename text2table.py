@@ -11,21 +11,19 @@ class Text2Table:
     Creates a Text2Table object that stores metadata, temporal data and performs
     various data transformations.
     '''
-    def __init__(self, data_structure, prompt_filename, telegram_user_id, data_filename):
+    def __init__(self, data_structure, prompt_raw, telegram_user_id, data_filename):
         self.data_structure = data_structure
         self.telegram_user_id = int(telegram_user_id)
         self.data_filename = data_filename
         self.tmp_data = {}
         self.messages = {}
-        self.prompt_header = self.get_prompt_header(data_structure, prompt_filename)
+        self.prompt_header = self.get_prompt_header(data_structure, prompt_raw)
     
-    def get_prompt_header(self, data_structure, prompt_filename):
+    def get_prompt_header(self, data_structure, prompt_raw):
         '''
         Generates a prompt based on the defined data structure to set how
         chatGPT should behave.
         '''
-        with open(prompt_filename, "r", encoding="utf-8") as f:
-            prompt_raw = f.read()
 
         # Generate variable description
         var_description = ""
