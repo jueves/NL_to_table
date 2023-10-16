@@ -9,9 +9,15 @@ Every user gets it's own response, but only the user whose id is in the settings
 
 # Installation
 1. Install Docker on your machine.
-2. Download `NL_to_table.yml` and fill it with your own keys and settings.
+2. Set your own `.env` file from `.env_example`.
+      - `TELEGRAM_KEY` Your Telegram Bot Key. You can get it texting to @BotFather on Telegram.
+      - `CHATGPT_KEY` Your ChatGPT API key. You can get it on openai.com
+      - `TELEGRAM_USER_ID` Your own user id. You can get it texting to @userinfobot on Telegram.
+      - `WHISPER_TYPE` The language model to use. If the model is too large for your hardware the app will crash.
+      - `WHISPER_LANG` Whisper will assume all audio comes in this language. 
+
 3. Download `user_data/data_example.csv` and rename it as `user_data/data.csv`
-4. Run on Docker using the `NL_to_table.yml` compose file.
+4. Run the bot using Docker compose.
 
 # Configuration
 - You can easily adapt the bot to your needs by downloading and editing `data_structure.json` and then mounting it on `/NL_to_table/`  
@@ -33,4 +39,5 @@ Variables muted in `data_structure.json` are excluded from reminders.
 
 # To do
 - [X] Include reminders for varibles not used in a long time.
+- [ ] Use a database.
 - [ ] Return descriptive data visualizations.
