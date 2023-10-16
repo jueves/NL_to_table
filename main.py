@@ -22,8 +22,6 @@ TELEGRAM_USER_ID = os.environ.get("TELEGRAM_USER_ID")
 WHISPER_TYPE = os.environ.get("WHISPER_TYPE")
 WHISPER_LANG= os.environ.get("WHISPER_LANG")
 
-print("##### VARIABLE IMPORTADA:\n", TELEGRAM_KEY)
-
 # Load text messages
 with open("data_structure.json", "r", encoding="utf-8") as f:
     DATA_STRUCTURE = json.load(f)
