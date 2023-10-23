@@ -10,7 +10,7 @@ MONGO_SERVER = os.environ.get("MONGO_SERVER")
 MONGO_USER = os.environ.get("MONGO_USER")
 MONGO_PASSWORD = os.environ.get("MONGO_PASSWORD")
 DATA_FILENAME = "user_data/data.csv"
-DB_NAME = "testingDB"
+DB_NAME = "main"
 COLLECTION_NAME = "personal"
 
 client = pymongo.MongoClient("mongodb://" + MONGO_SERVER + ":27017",
