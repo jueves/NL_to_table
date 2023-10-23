@@ -5,6 +5,7 @@ import openai
 import json
 from sanity_check import sanity_check
 from db_utils import get_mongo_collection
+from icecream import ic
 
 class Text2Table:
     '''
@@ -122,7 +123,10 @@ class Text2Table:
         data_dict = data_short.to_dict(orient='records')[0]
         
         # Write changes to database
-        self.collection.insert_one(data_dict)
+        self.collection.insert_one(ic(data_dict))
+        
+        # Test retrieving data
+        ic(self.collection.find_one({"weight": 40.0}))
 
     def del_request(self, message):
         '''
