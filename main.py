@@ -7,13 +7,6 @@ import whisper
 from text2table import Text2Table
 from reminders import Reminders
 
-# Load variables in .env file
-try:
-    from dotenv import load_dotenv
-    load_dotenv()
-except:
-    print("Error loading dotenv, .env file won't be used.")
-
 # Set constants
 DATA_FILENAME = "user_data/data.csv"
 TELEGRAM_KEY = os.environ.get("TELEGRAM_KEY")
@@ -22,10 +15,11 @@ TELEGRAM_USER_ID = os.environ.get("TELEGRAM_USER_ID")
 WHISPER_TYPE = os.environ.get("WHISPER_TYPE")
 WHISPER_LANG= os.environ.get("WHISPER_LANG")
 
-# Load text messages
+# Load data structure
 with open("data_structure.json", "r", encoding="utf-8") as f:
     DATA_STRUCTURE = json.load(f)
 
+# Load text messages
 with open("text/start.txt", "r", encoding="utf-8") as f:
     start_message = f.read()
 
@@ -37,7 +31,7 @@ with open("text/prompt.txt", "r", encoding="utf-8") as f:
 
 
 # Setup text to table converter
-text2table = Text2Table(DATA_STRUCTURE, prompt_raw, TELEGRAM_USER_ID, DATA_FILENAME)
+text2table = Text2Table(DATA_STRUCTURE, prompt_raw, TELEGRAM_USER_ID)
 reminder = Reminders(DATA_FILENAME, DATA_STRUCTURE)
 
 # Setup chatGPT

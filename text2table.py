@@ -4,17 +4,17 @@ import pandas as pd
 import openai
 import json
 from sanity_check import sanity_check
-
+from db_utils import get_mongo_collection
 
 class Text2Table:
     '''
     Creates a Text2Table object that stores metadata, temporal data and performs
     various data transformations.
     '''
-    def __init__(self, data_structure, prompt_raw, telegram_user_id, data_filename):
+    def __init__(self, data_structure, prompt_raw, telegram_user_id):
         self.data_structure = data_structure
         self.telegram_user_id = int(telegram_user_id)
-        self.data_filename = data_filename
+        self.collection = get_mongo_collection()
         self.tmp_data = {}
         self.messages = {}
         self.prompt_header = self.get_prompt_header(data_structure, prompt_raw)
@@ -115,22 +115,14 @@ class Text2Table:
 
     def update_dataset(self):
         '''
-        Takes the names of the whole dataset file and the new data file.
-        Performs an update attaching all new data to the whole dataset.
-        Writes changes to disk.
+        Updates database with new data.
         '''
-        # Add new data
-        data = pd.read_csv(self.data_filename, parse_dates=["time"])
-        data = pd.concat([data, self.tmp_data[self.telegram_user_id]], ignore_index=True)
-
-        # Filter out variables not in data structure
-        data = data[list(self.data_structure.keys())]
+        # Convert data      
+        data_short = self.tmp_data[self.telegram_user_id].dropna(axis=1)
+        data_dict = data_short.to_dict(orient='records')[0]
         
-        # Update self.data
-        self.data = data
-
-        # Write changes to disk
-        data.to_csv(self.data_filename)
+        # Write changes to database
+        self.collection.insert_one(data_dict)
 
     def del_request(self, message):
         '''
