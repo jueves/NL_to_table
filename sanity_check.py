@@ -1,6 +1,6 @@
 import json
 import pandas as pd
-import numbers
+from pandas.api.types import is_bool_dtype, is_number
 import datetime
 
 with open("data_structure.json", "r", encoding="utf-8") as f:
@@ -47,7 +47,7 @@ def check_ranges(data):
         var_range = data_structure[variable]["range"]
         if variable in data.columns:
             value = data[variable][0]
-            if isinstance(value, numbers.Number) and not pd.isna(value):
+            if is_number(value) and not pd.isna(value):
                 if not (var_range[0] <= value <= var_range[1]):
                     veredict += "Variable " + variable + " is out of range.\n"
     return(veredict)
@@ -64,7 +64,7 @@ def check_types(data):
             value = data[variable][0]
             if not pd.isna(value):
                 if (var_type == "Numeric"):
-                    if not (isinstance(value, numbers.Number)):
+                    if not is_number(value):
                         veredict += "El valor de " + variable + " no es numérico.\n"
                 if (var_type == "String"):
                     if not (isinstance(value, str)):
@@ -72,4 +72,7 @@ def check_types(data):
                 if (var_type == "Time"):
                     if not (isinstance(value, datetime.datetime)):
                         veredict += "El valor de " + variable + " no es un objeto de tiempo.\n"
+                if (var_type == "Boolean"):
+                    if not is_bool_dtype(value):
+                        veredict += "El valor de " + variable + " no es booleano.\n"
     return(veredict)

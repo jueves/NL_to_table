@@ -168,7 +168,7 @@
     },
     "antihistaminic": {
         "description": "Administration of anhistaminic.",
-        "type": "String",
+        "type": "Boolean",
         "range": "",
         "example": [
             "True",
