@@ -6,15 +6,15 @@ class Reminders:
     Manages the unuse score, which represents how important is to add more data
     to each variable.
     '''
-    def __init__(self, data_filename, metadata):
-        self.data_filename = data_filename
-        self.data = pd.read_csv(data_filename, parse_dates=["time"])
+    def __init__(self, mongodb, metadata):
+        self.mongo_lastuse = mongodb["lastuse"]
+        #self.data = pd.read_csv(data_filename, parse_dates=["time"])
         self.metadata = metadata
 
     def get_score(self, var_name, data):
         '''
         Returns a score representing how unused is the variable.
-        The default metric is "number of days withot loggind new data."
+        The default metric is "number of days without logging new data."
         '''
         try:
             subdata = data[[var_name, "time"]].dropna()

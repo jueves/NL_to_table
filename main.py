@@ -6,6 +6,7 @@ import openai
 import whisper
 from text2table import Text2Table
 from reminders import Reminders
+from db_utils import get_mongodb
 
 # Set constants
 DATA_FILENAME = "user_data/data.csv"
@@ -31,8 +32,8 @@ with open("text/prompt.txt", "r", encoding="utf-8") as f:
 
 
 # Setup text to table converter
-text2table = Text2Table(DATA_STRUCTURE, prompt_raw, TELEGRAM_USER_ID)
-reminder = Reminders(DATA_FILENAME, DATA_STRUCTURE)
+text2table = Text2Table(get_mongodb(), DATA_STRUCTURE, prompt_raw, TELEGRAM_USER_ID)
+reminder = Reminders(get_mongodb(), DATA_STRUCTURE)
 
 # Setup chatGPT
 openai.api_key = CHATGPT_KEY

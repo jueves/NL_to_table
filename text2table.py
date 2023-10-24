@@ -4,20 +4,19 @@ import pandas as pd
 import openai
 import json
 from sanity_check import sanity_check
-from db_utils import get_mongo_collection
 
 class Text2Table:
     '''
     Creates a Text2Table object that stores metadata, temporal data and performs
     various data transformations.
     '''
-    def __init__(self, data_structure, prompt_raw, telegram_user_id):
+    def __init__(self, mongodb, data_structure, prompt_raw, telegram_user_id):
         self.data_structure = data_structure
+        self.set_mongo_collections(mongodb)
+        self.prompt_header = self.get_prompt_header(data_structure, prompt_raw)
         self.telegram_user_id = int(telegram_user_id)
-        self.collection = get_mongo_collection()
         self.tmp_data = {}
         self.messages = {}
-        self.prompt_header = self.get_prompt_header(data_structure, prompt_raw)
     
     def get_prompt_header(self, data_structure, prompt_raw):
         '''
@@ -37,6 +36,21 @@ class Text2Table:
         example_csv = pd.DataFrame.from_dict(example_dic).to_csv(index=False)
         prompt_header = prompt_raw.format(description=var_description, example=example_csv)
         return(prompt_header)
+
+    def set_mongo_collections(self, mongodb):
+        '''
+        Sets the collections and the initial lastuse document
+        '''
+        self.mongo_personal = mongodb["personal"]
+        self.mongo_lastuse = mongodb["lastuse"]
+        if self.mongo_lastuse.count_documents({}) == 0:
+            # Create the initial lastuse document
+            lastuse_dict = {}
+            for variable in self.data_structure.keys():
+                lastuse_dict[variable] = datetime.strptime("2023-01-01", "%Y-%m-%d")
+            lastuse_dict["time"] = datetime.now()
+            self.mongo_lastuse.insert_one(lastuse_dict)
+
 
     def text_to_csv(self, message):
         '''
@@ -122,10 +136,7 @@ class Text2Table:
         data_dict = data_short.to_dict(orient='records')[0]
         
         # Write changes to database
-        self.collection.insert_one(data_dict)
-        
-        # Test retrieving data
-        self.collection.find_one({"weight": 40.0})
+        self.mongo_personal.insert_one(data_dict)
 
     def del_request(self, message):
         '''
@@ -141,3 +152,8 @@ class Text2Table:
         requests[request_date] = message.text[4:]
         with open("user_data/deletion_requests.json", "w") as f:
             json.dump(requests, f, indent=4)
+
+    def add_to_lastuse(self, data):
+        lastlog = self.mongo_lastuse.find_one(sort=[('time', -1)])
+
+        self.mongo_lastuse.insert_one(lastuse_dict)
