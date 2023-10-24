@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Setup Mongo
-MONGO_SERVER = os.environ.get("MONGO_SERVER")
+MONGO_SERVER = "mongo"
 MONGO_USER = os.environ.get("MONGO_USER")
 MONGO_PASSWORD = os.environ.get("MONGO_PASSWORD")
 DATA_FILENAME = "user_data/data.csv"

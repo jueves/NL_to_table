@@ -1,7 +1,7 @@
 import os
 import pymongo
 
-MONGO_SERVER = os.environ.get("MONGO_SERVER")
+MONGO_SERVER = "mongo"
 MONGO_USER = os.environ.get("MONGO_USER")
 MONGO_PASSWORD = os.environ.get("MONGO_PASSWORD")
 DB_NAME = "main"
