@@ -135,6 +135,9 @@ class Text2Table:
         data_short = self.tmp_data[self.telegram_user_id].dropna(axis=1)
         data_dict = data_short.to_dict(orient='records')[0]
         
+        # Update lastuse collection
+        self.add_to_lastuse(data_dict)
+
         # Write changes to database
         self.mongo_personal.insert_one(data_dict)
 
@@ -153,7 +156,16 @@ class Text2Table:
         with open("user_data/deletion_requests.json", "w") as f:
             json.dump(requests, f, indent=4)
 
-    def add_to_lastuse(self, data):
-        lastlog = self.mongo_lastuse.find_one(sort=[('time', -1)])
-
-        self.mongo_lastuse.insert_one(lastuse_dict)
+    def add_to_lastuse(self, data_dict):
+        '''
+        Gets a dictionary with the new data collected.
+        Updates lastuse Mongo collection with the date each
+        variable was recorded for the last time.
+        '''
+        lastuse = self.mongo_lastuse.find_one(sort=[('time', -1)],
+                                                 projection={"_id":0})
+        
+        for key in data_dict.keys():
+            lastuse[key] = data_dict["time"]
+        
+        self.mongo_lastuse.insert_one(lastuse)
