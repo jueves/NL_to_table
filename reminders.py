@@ -11,16 +11,15 @@ class Reminders:
         #self.data = pd.read_csv(data_filename, parse_dates=["time"])
         self.metadata = metadata
 
-    def get_score(self, var_name, data):
+    def get_score(self, var_name):
         '''
         Returns a score representing how unused is the variable.
         The default metric is "number of days without logging new data."
         '''
         try:
-            subdata = data[[var_name, "time"]].dropna()
-            subdata = subdata.sort_values("time")
-            last_date = subdata.time.iloc[-1]
-            time_diff = datetime.now() - last_date
+            lastuse_dict = self.mongo_lastuse.find_one(sort=[('time', -1)],
+                                                       projection={"_id":0})
+            time_diff = datetime.now() - lastuse_dict[var_name]
         except:
             time_diff = pd.Timedelta(days=1000)
         score = time_diff.days
@@ -31,13 +30,12 @@ class Reminders:
         '''
         Returns the last use score for every variable.
         '''
-        self.data =  pd.read_csv(self.data_filename, parse_dates=["time"])
         var_names = []
         scores = []
         for var_name, var_metadata in self.metadata.items():
             if var_name != "time" and var_metadata["mute"] == "False":
                 var_names.append(var_name)
-                scores.append(self.get_score(var_name, self.data))
+                scores.append(self.get_score(var_name))
         score_df = pd.DataFrame({"var_name":var_names, "score":scores})
         score_df = score_df.sort_values("score", ascending=False, ignore_index=True)
         return(score_df)
@@ -46,9 +44,10 @@ class Reminders:
        ''' Gets dataset(pd.DataFrame)
           Returns advice(str)
        '''
-       last_log_df = self.get_score_df()
-       last_score = last_log_df.score[0]
-       last_var_name = last_log_df.var_name[0]
+       lastuse_df = self.get_score_df()
+       
+       last_score = lastuse_df.score[0]
+       last_var_name = lastuse_df.var_name[0]
        
        if  last_score > 365:
            last_score = "más de un año"
@@ -57,4 +56,5 @@ class Reminders:
        header = "\n\n" + "_"*25 + "\n\n"
        advice = header + "Hace {time} que no registras {var}, ¿añades una observación?".format(time=last_score,
                                                                                            var=last_var_name)
+
        return(advice)
