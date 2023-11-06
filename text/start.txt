@@ -1,3 +1,3 @@
-¡Hola! Me llamo Cuadriculado y soy un bot para conversión de lenguaje natural a tablas.
+¡Hola! Soy un bot para conversión de lenguaje natural a tablas.
 Concretamente convierto a un formato muy específico recogiendo datos como el nivel de asma, de alergia y el peso.
 
