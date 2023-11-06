@@ -9,7 +9,6 @@ from reminders import Reminders
 from db_utils import get_mongodb
 
 # Set constants
-DATA_FILENAME = "user_data/data.csv"
 TELEGRAM_KEY = os.environ.get("TELEGRAM_KEY")
 CHATGPT_KEY = os.environ.get("CHATGPT_KEY")
 TELEGRAM_USER_ID = os.environ.get("TELEGRAM_USER_ID")
