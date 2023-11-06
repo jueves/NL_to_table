@@ -42,6 +42,7 @@ class Text2Table:
         Sets the collections and the initial lastuse document
         '''
         self.mongo_personal = mongodb["personal"]
+        self.mongo_delrequests = mongodb["delrequests"]
         self.mongo_lastuse = mongodb["lastuse"]
         if self.mongo_lastuse.count_documents({}) == 0:
             # Create the initial lastuse document
@@ -145,16 +146,10 @@ class Text2Table:
         '''
         Gets a Telegram message object and logs it to a deletion requests file.
         '''
-        try:
-            with open("user_data/deletion_requests.json", "r") as f:
-               requests = json.load(f)
-        except:
-            requests = {}
-        message_date = datetime.utcfromtimestamp(message.date)
-        request_date = message_date.strftime("%Y-%m-%d %H:%M:%S")
-        requests[request_date] = message.text[4:]
-        with open("user_data/deletion_requests.json", "w") as f:
-            json.dump(requests, f, indent=4)
+        request_date = datetime.utcfromtimestamp(message.date)
+        request_text = message.text[4:] # Excludes text begginig: "/del"
+        self.mongo_delrequests.insert_one({"date": request_date,
+                                           "text": request_text})
 
     def add_to_lastuse(self, data_dict):
         '''
