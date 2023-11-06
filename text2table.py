@@ -119,9 +119,9 @@ class Text2Table:
         Returns csv correction for the last message sent to chatGPT.
         '''
         messages = self.messages[user_id]
-        messages.append({"role": "user", "content": "Esa tabla contiene errores. {critique}" + 
-                         " Respóndeme únicamente con la tabla corregida, sin incluir" +
-                          "ningún otro texto antes o despues.".format(critique=critique)
+        messages.append({"role": "user", "content": '''Esa tabla contiene errores. {critique}.
+                          Respóndeme únicamente con la tabla corregida, sin incluir
+                          ningún otro texto antes o despues.'''.format(critique=critique)
                          })
         chat = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=messages)
         new_csv = chat.choices[0].message.content
