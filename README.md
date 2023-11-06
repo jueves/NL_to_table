@@ -30,13 +30,12 @@ Every user gets it's own response, but only the user whose id is in the settings
 
 ## Delete last log
 To create a deletion requests, use the `/del` command followed by a comment. For example: `/del That last alergy measure of 3 wasn't real, it was a test.`  
-This will get logged in `user_data/deletion_requests.json` to be reviewed by the admin.  
+This will get logged in the "delrequests" collection in the database to be reviewed by the admin.  
 
 ## Reminders
 Anytime you add new data you will be reminded of the variable that has been unrecorded for the longest time.  
 Variables muted in `data_structure.json` are excluded from reminders.
 
 # To do
-- [X] Include reminders for varibles not used in a long time.
-- [X] Use a database.
+- [ ] Set the minimum frequency of records per variable to skip reminders.
 - [ ] Return descriptive data visualizations.
