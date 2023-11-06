@@ -16,8 +16,7 @@ Every user gets it's own response, but only the user whose id is in the settings
       - `WHISPER_TYPE` The language model to use. If the model is too large for your hardware the app will crash.
       - `WHISPER_LANG` Whisper will assume all audio comes in this language. 
 
-3. Download `user_data/data_example.csv` and rename it as `user_data/data.csv`
-4. Run the bot using Docker compose.
+3. Run the bot using Docker compose.
 
 # Configuration
 - You can easily adapt the bot to your needs by downloading and editing `data_structure.json` and then mounting it on `/NL_to_table/`  
@@ -39,5 +38,5 @@ Variables muted in `data_structure.json` are excluded from reminders.
 
 # To do
 - [X] Include reminders for varibles not used in a long time.
-- [ ] Use a database.
+- [X] Use a database.
 - [ ] Return descriptive data visualizations.

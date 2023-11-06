@@ -12,6 +12,4 @@ COPY data_structure.json main.py sanity_check.py text2table.py reminders.py db_u
 
 COPY text/* /NL_to_table/text/
 
-COPY user_data/data_example.csv /NL_to_table/user_data/data.csv
-
 CMD python main.py
