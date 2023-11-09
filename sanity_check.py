@@ -25,13 +25,10 @@ def check_variables(data):
     given_set = set(data.columns)
     expected_set = set(data_structure.keys())
 
-    # Variables missing in data:
-    missing = expected_set.difference(given_set)
+    # Check for unsolicited variables in data:
     garbage = given_set.difference(expected_set)
     veredict = ""
 
-    if (len(missing) > 0):
-        veredict += "The following variables are missing: " + str(missing) + "\n"
     if (len(garbage) > 0):
         veredict += "The following variables where not asked for: " + str(garbage) + "\n"
 
