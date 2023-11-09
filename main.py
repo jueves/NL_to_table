@@ -78,39 +78,46 @@ def voice_processing(message):
     Takes a voice note describing data values and answers with a table format propossal.
     '''
     bot.reply_to(message, "Procesando audio...")
-    file_info = bot.get_file(message.voice.file_id)
-    downloaded_file = bot.download_file(file_info.file_path)
-    with open('user_data/voice_note.ogg', 'wb') as new_file:
-        new_file.write(downloaded_file)
-    transcription = whisper_model.transcribe("user_data/voice_note.ogg", language=WHISPER_LANG)
-    message.text = transcription["text"]
-    answer = "<code>" + text2table.get_table(message)
-    print("AUDIO TRANSCRIPTION:\n" + transcription["text"])
-    answer += "\nTRANSCRIPCIÓN DE AUDIO:\n" + transcription["text"]
-    answer += reminder.get_reminders()  + "</code>"
-    bot.send_message(message.chat.id, answer, reply_markup=buttons_markup, parse_mode="html")
+    try:
+        file_info = bot.get_file(message.voice.file_id)
+        downloaded_file = bot.download_file(file_info.file_path)
+        with open('user_data/voice_note.ogg', 'wb') as new_file:
+            new_file.write(downloaded_file)
+        transcription = whisper_model.transcribe("user_data/voice_note.ogg", language=WHISPER_LANG)
+        message.text = transcription["text"]
+        answer = "<code>" + text2table.get_table(message)
+        print("AUDIO TRANSCRIPTION:\n" + transcription["text"])
+        answer += "\nTRANSCRIPCIÓN DE AUDIO:\n" + transcription["text"]
+        answer += reminder.get_reminders()  + "</code>"
+        markup = buttons_markup
+    except Exception as e:
+        answer = f"<b>Algo ha salido mal:</b>\n{e}"
+        markup = simple_markup
+    bot.send_message(message.chat.id, answer, reply_markup=markup, parse_mode="html")
 
 @bot.message_handler(func=lambda msg: True)
 def echo_all(message):
     '''
     Takes all incoming messages and returns answers.
     '''
-    markup = simple_markup
-    if message.text == "/start":
-        answer = start_message + help_message
-    elif message.text == "/help":
-        answer = help_message
-    elif message.text == "/metadata":
-        answer = "<code>" + json.dumps(DATA_STRUCTURE, indent=4) + "</code>"
-    elif message.text == "/lastlog":
-        answer = "<code>" + reminder.get_score_df().to_markdown(index=False) + "</code>"
-    elif message.text[:4] == "/del":
-        text2table.del_request(message)
-        answer = "Se ha registrado tu solicitud de borrado. Tu comentario es: " + message.text[4:]
-    else:
-        markup = buttons_markup
-        answer = "<code>" + text2table.get_table(message) + reminder.get_reminders() + "</code>"
-
+    try:
+        markup = simple_markup
+        if message.text == "/start":
+            answer = start_message + help_message
+        elif message.text == "/help":
+            answer = help_message
+        elif message.text == "/metadata":
+            answer = "<code>" + json.dumps(DATA_STRUCTURE, indent=4) + "</code>"
+        elif message.text == "/lastlog":
+            answer = "<code>" + reminder.get_score_df().to_markdown(index=False) + "</code>"
+        elif message.text[:4] == "/del":
+            text2table.del_request(message)
+            answer = "Se ha registrado tu solicitud de borrado. Tu comentario es: " + message.text[4:]
+        else:
+            markup = buttons_markup
+            answer = "<code>" + text2table.get_table(message) + reminder.get_reminders() + "</code>"
+    except Exception as e:
+        answer = f"<b>Algo ha salido mal:</b>\n{e}"
     bot.send_message(message.chat.id, answer, reply_markup=markup, parse_mode="html")
 
 bot.infinity_polling()
