@@ -100,8 +100,8 @@ def echo_all(message):
     '''
     Takes all incoming messages and returns answers.
     '''
+    markup = simple_markup
     try:
-        markup = simple_markup
         if message.text == "/start":
             answer = start_message + help_message
         elif message.text == "/help":
