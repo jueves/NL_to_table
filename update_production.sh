@@ -1,4 +1,4 @@
-#!/bin/bashTAGS
+#!/bin/bash
 # This script takes the lastest nl_to_table local image, labels it, pushes it
 # and restarts the service.
 #
@@ -14,6 +14,7 @@ echo "### INFO ABOUT $DEV_IMAGE:latest ###"
 echo "Image tags: $DEV_TAGS"
 echo "Creation date: $DEV_DATE"
 echo "Version to be tagged with: $VERSION"
+echo ""
 
 # Ask for confirmation
 read -p "Are you sure you want to tag $DEV_IMAGE:latest to $PRODUCTION_IMAGE:$VERSION? " -n 1 -r
