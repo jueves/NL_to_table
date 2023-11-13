@@ -29,7 +29,7 @@ Every user gets it's own response, but only the user whose id is in the settings
 3. If you aprove the message and you are the owner (your user id is the one in the settings) your data will be saved. If you ask for a correction nothing will be saved and you will get a new propossal.
 
 ## Delete last log
-To create a deletion requests, use the `/del` command followed by a comment. For example: `/del That last alergy measure of 3 wasn't real, it was a test.`  
+To create a deletion requests, use the `/del` command followed by a comment. For example: `/del That last allergy measure of 3 wasn't real, it was a test.`  
 This will get logged in the "delrequests" collection in the database to be reviewed by the admin.  
 
 ## Reminders
