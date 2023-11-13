@@ -1,7 +1,7 @@
 version: '3.1'
 services:
   app:
-    image: bro3jo2/nltotable:0.8.1
+    image: bro3jo2/nltotable:${VERSION}
     depends_on:
       - mongo
     restart: always
