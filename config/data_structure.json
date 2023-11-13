@@ -47,8 +47,8 @@
         "max_empty_days": 30,
         "mute": "False"
     },
-    "alergy": {
-        "description": "Alergy crisis severity in a 0 to 5 scale.",
+    "allergy": {
+        "description": "Allergy crisis severity in a 0 to 5 scale.",
         "type": "Numeric",
         "range": [
             0,
