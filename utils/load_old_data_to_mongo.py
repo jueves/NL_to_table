@@ -1,3 +1,6 @@
+# Loads csv data files created with previous versions to the current storage
+# solution, MongoDB.
+
 import os
 import pymongo
 import pandas as pd
