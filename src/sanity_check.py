@@ -3,7 +3,7 @@ import pandas as pd
 from pandas.api.types import is_bool_dtype, is_number
 import datetime
 
-with open("data_structure.json", "r", encoding="utf-8") as f:
+with open("config/data_structure.json", "r", encoding="utf-8") as f:
     data_structure = json.load(f)
 
 def sanity_check(data):

@@ -17,10 +17,11 @@ WHISPER_LANG= os.environ.get("WHISPER_LANG")
 with open("version.txt", "r", encoding="utf8") as f:
     VERSION = f.read()
 
-print("--------------Versión: ", VERSION)
 # Load data structure
-with open("data_structure.json", "r", encoding="utf-8") as f:
+with open("config/data_structure.json", "r", encoding="utf-8") as f:
     DATA_STRUCTURE = json.load(f)
+
+print("######### VERSION: ", VERSION)
 
 # Load text messages
 with open("text/start.txt", "r", encoding="utf-8") as f:
