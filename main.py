@@ -14,7 +14,10 @@ CHATGPT_KEY = os.environ.get("CHATGPT_KEY")
 TELEGRAM_USER_ID = os.environ.get("TELEGRAM_USER_ID")
 WHISPER_TYPE = os.environ.get("WHISPER_TYPE")
 WHISPER_LANG= os.environ.get("WHISPER_LANG")
+with open("version.txt", "r", encoding="utf8") as f:
+    VERSION = f.read()
 
+print("--------------Versión: ", VERSION)
 # Load data structure
 with open("data_structure.json", "r", encoding="utf-8") as f:
     DATA_STRUCTURE = json.load(f)
@@ -113,6 +116,8 @@ def echo_all(message):
         elif message.text[:4] == "/del":
             text2table.del_request(message)
             answer = "Se ha registrado tu solicitud de borrado. Tu comentario es: " + message.text[4:]
+        elif message.text == "/version":
+            answer = f"Versión: {VERSION}"
         else:
             markup = buttons_markup
             answer = "<code>" + text2table.get_table(message) + reminder.get_reminders() + "</code>"

@@ -8,7 +8,7 @@ RUN pip install pandas==2.1.0 tabulate==0.9.0 pymongo==4.5.0
 
 WORKDIR /NL_to_table
 
-COPY data_structure.json main.py sanity_check.py text2table.py reminders.py db_utils.py load_old_data_to_mongo.py /NL_to_table/
+COPY data_structure.json main.py sanity_check.py text2table.py reminders.py db_utils.py load_old_data_to_mongo.py version.txt /NL_to_table/
 
 COPY text/* /NL_to_table/text/
 
