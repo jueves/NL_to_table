@@ -11,7 +11,7 @@ services:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
     volumes:
-      - db-data-dev:/data/db
+      - db-data-test:/data/db
 
   mongo-express:
     image: mongo-express
@@ -24,4 +24,4 @@ services:
       ME_CONFIG_MONGODB_URL: mongodb://${MONGO_USER}:${MONGO_PASSWORD}@mongo:27017/
 
 volumes:
-  db-data-dev:
+  db-data-test:
