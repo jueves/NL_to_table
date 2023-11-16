@@ -8,7 +8,6 @@ class Reminders:
     '''
     def __init__(self, mongodb, metadata):
         self.mongo_lastuse = mongodb["lastuse"]
-        #self.data = pd.read_csv(data_filename, parse_dates=["time"])
         self.metadata = metadata
 
     def get_score(self, var_name):
