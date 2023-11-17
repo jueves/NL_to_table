@@ -106,6 +106,8 @@ def echo_all(message):
     try:
         if message.text == "/start":
             answer = start_message + help_message
+            if not db.user_exists(message.from_user.id):
+                db.add_user(message.from_user.id)
         elif message.text == "/help":
             answer = help_message
         elif message.text == "/lastlog":

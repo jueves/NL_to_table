@@ -28,6 +28,13 @@ class MongoManagerPerUser:
         answer = self.db[collection].find_one(query, sort=sort, projection=projection)
         return(answer)
     
+    def user_exists(self, user_id):
+        if self.db["users"].count_documents({"user_id":user_id}) == 0:
+            exists = False
+        else:
+            exists = True
+        return(exists)
+    
     def add_user(self, user_id):
         # Set data structure
         if self.db["users"].count_documents({"user_id":user_id}) == 0:
