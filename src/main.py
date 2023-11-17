@@ -6,7 +6,7 @@ import openai
 import whisper
 from text2table import Text2Table
 from reminders import Reminders
-from db_utils import get_mongodb
+from db_utils import MongoManagerPerUser
 
 # Set constants
 TELEGRAM_KEY = os.environ.get("TELEGRAM_KEY")
@@ -17,10 +17,6 @@ WHISPER_LANG= os.environ.get("WHISPER_LANG")
 with open("version.txt", "r", encoding="utf8") as f:
     VERSION = f.read()
 
-# Load data structure
-with open("config/data_structure.json", "r", encoding="utf-8") as f:
-    DATA_STRUCTURE = json.load(f)
-
 print("######### VERSION: ", VERSION)
 
 # Load text messages
@@ -30,13 +26,20 @@ with open("text/start.txt", "r", encoding="utf-8") as f:
 with open("text/help.txt", "r", encoding="utf-8") as f:
     help_message = f.read()
 
-with open("text/prompt.txt", "r", encoding="utf-8") as f:
-    prompt_raw = f.read()
-
+# Setup Mongo Connection
+db = MongoManagerPerUser()
 
 # Setup text to table converter
-text2table = Text2Table(get_mongodb(), DATA_STRUCTURE, prompt_raw, TELEGRAM_USER_ID)
-reminder = Reminders(get_mongodb(), DATA_STRUCTURE)
+text2table = Text2Table(db)
+reminder = Reminders(db)
+
+# Set default user
+with open("config/data_structure.json", "r", encoding="utf-8") as f:
+    data_structure = json.load(f)
+with open("text/prompt.txt", "r", encoding="utf-8") as f:
+    prompt_raw = f.read()
+db["users"].insert_one(user_id=0, query={"structure":data_structure,
+                                         "prompt_raw":prompt_raw})
 
 # Setup chatGPT
 openai.api_key = CHATGPT_KEY
@@ -62,13 +65,8 @@ def callback_query(call):
     Manages callback for data validation buttons
     '''
     if call.data == "cb_correct":
-        if (str(call.from_user.id) == TELEGRAM_USER_ID):
-            # Only saves data for user_id
-            text2table.update_dataset()
-            bot.answer_callback_query(call.id, "Datos guardados.")
-
-        else:
-            bot.answer_callback_query(call.id, "Has confirmado la tabla propuesta.")
+        text2table.update_dataset(user_id=call.from_user.id)
+        bot.answer_callback_query(call.id, "Datos guardados.")
     
     elif call.data == "cb_errors":
         new_csv = text2table.get_correction(call.from_user.id)
@@ -92,7 +90,7 @@ def voice_processing(message):
         answer = "<code>" + text2table.get_table(message)
         print("AUDIO TRANSCRIPTION:\n" + transcription["text"])
         answer += "\nTRANSCRIPCIÓN DE AUDIO:\n" + transcription["text"]
-        answer += reminder.get_reminders()  + "</code>"
+        answer += reminder.get_reminders(user_id=message.from_user.id)  + "</code>"
         markup = buttons_markup
     except Exception as e:
         answer = f"<b>Algo ha salido mal:</b>\n{e}"
@@ -110,10 +108,8 @@ def echo_all(message):
             answer = start_message + help_message
         elif message.text == "/help":
             answer = help_message
-        elif message.text == "/metadata":
-            answer = "<code>" + json.dumps(DATA_STRUCTURE, indent=4) + "</code>"
         elif message.text == "/lastlog":
-            answer = "<code>" + reminder.get_score_df().to_markdown(index=False) + "</code>"
+            answer = "<code>" + reminder.get_score_df(message.from_user.id).to_markdown(index=False) + "</code>"
         elif message.text[:4] == "/del":
             text2table.del_request(message)
             answer = "Se ha registrado tu solicitud de borrado. Tu comentario es: " + message.text[4:]
@@ -121,7 +117,7 @@ def echo_all(message):
             answer = f"Versión: {VERSION}"
         else:
             markup = buttons_markup
-            answer = "<code>" + text2table.get_table(message) + reminder.get_reminders() + "</code>"
+            answer = "<code>" + text2table.get_table(message) + reminder.get_reminders(message.from_user.id) + "</code>"
     except Exception as e:
         answer = f"<b>Algo ha salido mal:</b>\n{e}"
     bot.send_message(message.chat.id, answer, reply_markup=markup, parse_mode="html")

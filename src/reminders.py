@@ -6,17 +6,16 @@ class Reminders:
     Manages the unuse score, which represents how important is to add more data
     to each variable.
     '''
-    def __init__(self, mongodb, metadata):
-        self.mongo_lastuse = mongodb["lastuse"]
-        self.metadata = metadata
+    def __init__(self, db):
+        self.db = db
 
-    def get_score(self, var_name):
+    def get_score(self, user_id, var_name):
         '''
         Returns a score representing how unused is the variable.
         The default metric is "number of days without logging new data."
         '''
         try:
-            lastuse_dict = self.mongo_lastuse.find_one(sort=[('time', -1)],
+            lastuse_dict = self.db.find_one("lastuse", user_id, sort=[('time', -1)],
                                                        projection={"_id":0})
             time_diff = datetime.now() - lastuse_dict[var_name]
         except:
@@ -25,13 +24,14 @@ class Reminders:
         return(score)
 
 
-    def get_score_df(self):
+    def get_score_df(self, user_id):
         '''
         Returns the last use score for every variable.
         '''
         var_names = []
         scores = []
-        for var_name, var_metadata in self.metadata.items():
+        data_structure = self.db.find_one("users", user_id)["data_structure"]
+        for var_name, var_metadata in data_structure.items():
             if var_name != "time" and var_metadata["mute"] == "False":
                 var_names.append(var_name)
                 scores.append(self.get_score(var_name))
@@ -39,11 +39,11 @@ class Reminders:
         score_df = score_df.sort_values("score", ascending=False, ignore_index=True)
         return(score_df)
 
-    def get_reminders(self):
+    def get_reminders(self, user_id):
        ''' Gets dataset(pd.DataFrame)
           Returns advice(str)
        '''
-       lastuse_df = self.get_score_df()
+       lastuse_df = self.get_score_df(user_id)
        
        last_score = lastuse_df.score[0]
        last_var_name = lastuse_df.var_name[0]

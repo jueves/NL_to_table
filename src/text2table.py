@@ -2,7 +2,6 @@ from io import StringIO
 from datetime import datetime
 import pandas as pd
 import openai
-import json
 from sanity_check import sanity_check
 
 class Text2Table:
@@ -10,49 +9,11 @@ class Text2Table:
     Creates a Text2Table object that stores metadata, temporal data and performs
     various data transformations.
     '''
-    def __init__(self, mongodb, data_structure, prompt_raw, telegram_user_id):
-        self.data_structure = data_structure
-        self.set_mongo_collections(mongodb)
-        self.prompt_header = self.get_prompt_header(data_structure, prompt_raw)
-        self.telegram_user_id = int(telegram_user_id)
+    def __init__(self, db):
+        self.db = db
         self.tmp_data = {}
         self.messages = {}
     
-    def get_prompt_header(self, data_structure, prompt_raw):
-        '''
-        Generates a prompt based on the defined data structure to set how
-        chatGPT should behave.
-        '''
-
-        # Generate variable description
-        var_description = ""
-        for var_name, var_metadata in data_structure.items():
-            var_description += "{name}, {description}\n".format(name=var_name, description=var_metadata["description"])
-
-        # Generate example data
-        example_dic = {}
-        for var_name in data_structure.keys():
-            example_dic[var_name] = data_structure[var_name]["example"]
-        example_csv = pd.DataFrame.from_dict(example_dic).to_csv(index=False)
-        prompt_header = prompt_raw.format(description=var_description, example=example_csv)
-        return(prompt_header)
-
-    def set_mongo_collections(self, mongodb):
-        '''
-        Sets the collections and the initial lastuse document
-        '''
-        self.mongo_personal = mongodb["personal"]
-        self.mongo_delrequests = mongodb["delrequests"]
-        self.mongo_lastuse = mongodb["lastuse"]
-        if self.mongo_lastuse.count_documents({}) == 0:
-            # Create the initial lastuse document
-            lastuse_dict = {}
-            for variable in self.data_structure.keys():
-                lastuse_dict[variable] = datetime.strptime("2023-01-01", "%Y-%m-%d")
-            lastuse_dict["time"] = datetime.now()
-            self.mongo_lastuse.insert_one(lastuse_dict)
-
-
     def text_to_csv(self, message):
         '''
         Takes telebot metada whose text describes a table and converts
@@ -128,19 +89,19 @@ class Text2Table:
         new_csv = chat.choices[0].message.content
         return(new_csv)
 
-    def update_dataset(self):
+    def update_dataset(self, user_id):
         '''
         Updates database with new data.
         '''
         # Convert data      
-        data_short = self.tmp_data[self.telegram_user_id].dropna(axis=1)
+        data_short = self.tmp_data[user_id].dropna(axis=1)
         data_dict = data_short.to_dict(orient='records')[0]
         
         # Update lastuse collection
-        self.add_to_lastuse(data_dict)
+        self.add_to_lastuse(user_id, data_dict)
 
         # Write changes to database
-        self.mongo_personal.insert_one(data_dict)
+        self.db.insert_one("personal", user_id, data_dict)
 
     def del_request(self, message):
         '''
@@ -148,10 +109,10 @@ class Text2Table:
         '''
         request_date = datetime.utcfromtimestamp(message.date)
         request_text = message.text[4:] # Excludes text begginig: "/del"
-        self.mongo_delrequests.insert_one({"date": request_date,
-                                           "text": request_text})
+        self.db.insert_one(collection="delrequests", user_id=message.from_user.id,
+                           query={"date": request_date, "text": request_text})
 
-    def add_to_lastuse(self, data_dict):
+    def add_to_lastuse(self, user_id, data_dict):
         '''
         Gets a dictionary with the new data collected.
         Updates lastuse Mongo collection with the date each
@@ -163,4 +124,5 @@ class Text2Table:
         for key in data_dict.keys():
             lastuse[key] = data_dict["time"]
         
-        self.mongo_lastuse.insert_one(lastuse)
+        self.db.insert_one(collection="lastuse", user_id=user_id,
+                           query=lastuse)
