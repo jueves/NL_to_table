@@ -17,22 +17,22 @@ class MongoManagerPerUser:
         client = pymongo.MongoClient("mongodb://" + db_server + ":27017",
                                     username=db_user,
                                     password=db_password)
-        self.db = client[db_name]
+        self._db = client[db_name]
         self.users_list = []
                 
     def insert_one(self, collection, user_id, data):
         data["user_id"] = user_id
-        self.db[collection].insert_one(data)
+        self._db[collection].insert_one(data)
 
     def find_one(self, collection, user_id, query={}, sort=None, projection=None):
         query['user_id'] = user_id
-        answer = self.db[collection].find_one(query, sort=sort, projection=projection)
+        answer = self._db[collection].find_one(query, sort=sort, projection=projection)
         return(answer)
     
     def user_exists(self, user_id):
         if user_id in self.users_list:
             exists = True
-        elif self.db["users"].count_documents({"user_id":user_id}) > 0:
+        elif self._db["users"].count_documents({"user_id":user_id}) > 0:
             exists = True
             self.users_list.append(user_id)
         else:
@@ -41,27 +41,27 @@ class MongoManagerPerUser:
     
     def add_user(self, user_id):
         # Set data structure
-        if self.db["users"].count_documents({"user_id":user_id}) == 0:
+        if self._db["users"].count_documents({"user_id":user_id}) == 0:
             # Set data structure
-            default_doc = self.db["users"].find_one({"user_id":0})
+            default_doc = self._db["users"].find_one({"user_id":0})
             newuser_doc = {"user_id":user_id,
                            "data_structure":default_doc["data_structure"],
                            "prompt_header":self.get_prompt_header(default_doc["data_structure"],
                                                                   default_doc["prompt_raw"])}
-            self.db["users"].insert_one(newuser_doc)
+            self._db["users"].insert_one(newuser_doc)
         else:
             raise RuntimeError("The user already exists.")
 
         # Create initial last use document
-        if self.db["lastuse"].count_documents({"user_id":user_id}) == 0:
+        if self._db["lastuse"].count_documents({"user_id":user_id}) == 0:
             # Create the initial lastuse document
             lastuse_dict = {}
-            data_structure = self.db["users"].find_one({"user_id": user_id})["data_structure"]
+            data_structure = self._db["users"].find_one({"user_id": user_id})["data_structure"]
             for variable in  data_structure.keys():
                 lastuse_dict[variable] = datetime.strptime("2023-01-01", "%Y-%m-%d")
             lastuse_dict["time"] = datetime.now()
             lastuse_dict["user_id"] = user_id
-            self.db["lastuse"].insert_one(lastuse_dict)
+            self._db["lastuse"].insert_one(lastuse_dict)
         else:
             raise RuntimeError("lastlog has already been initiated for this user.")
         
