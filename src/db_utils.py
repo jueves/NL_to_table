@@ -18,21 +18,25 @@ class MongoManagerPerUser:
                                     username=db_user,
                                     password=db_password)
         self.db = client[db_name]
+        self.users_list = []
                 
-    def insert_one(self, collection, user_id, data_dict):
-        data_dict["user_id"] = user_id
-        self.db[collection].insert_one(data_dict)
+    def insert_one(self, collection, user_id, data):
+        data["user_id"] = user_id
+        self.db[collection].insert_one(data)
 
-    def find_one(self, collection, user_id, query, sort=None, projection=None):
+    def find_one(self, collection, user_id, query={}, sort=None, projection=None):
         query['user_id'] = user_id
         answer = self.db[collection].find_one(query, sort=sort, projection=projection)
         return(answer)
     
     def user_exists(self, user_id):
-        if self.db["users"].count_documents({"user_id":user_id}) == 0:
-            exists = False
-        else:
+        if user_id in self.users_list:
             exists = True
+        elif self.db["users"].count_documents({"user_id":user_id}) > 0:
+            exists = True
+            self.users_list.append(user_id)
+        else:
+            exists = False
         return(exists)
     
     def add_user(self, user_id):
@@ -43,7 +47,7 @@ class MongoManagerPerUser:
             newuser_doc = {"user_id":user_id,
                            "data_structure":default_doc["data_structure"],
                            "prompt_header":self.get_prompt_header(default_doc["data_structure"],
-                                                                  default_doc["propmt_raw"])}
+                                                                  default_doc["prompt_raw"])}
             self.db["users"].insert_one(newuser_doc)
         else:
             raise RuntimeError("The user already exists.")

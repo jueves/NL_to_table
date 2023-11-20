@@ -3,6 +3,7 @@ from datetime import datetime
 import pandas as pd
 import openai
 from sanity_check import sanity_check
+from icecream import ic
 
 class Text2Table:
     '''
@@ -20,10 +21,12 @@ class Text2Table:
         it to csv using chatGPT.
         The prompt sent to GPT includes a fixed header describing the table structure.
         '''
+        user_dict = self.db.find_one(collection="users", user_id=message.from_user.id)
+        prompt_header = user_dict["prompt_header"]
         message_date = datetime.utcfromtimestamp(message.date)
         timestr = message_date.strftime("%Y-%m-%d %H:%M:%S")
         txt_input = message.text + "\nCurrent time is " + timestr
-        self.messages[message.from_user.id] = [ {"role": "system", "content": self.prompt_header} ]
+        self.messages[message.from_user.id] = [ {"role": "system", "content": prompt_header} ]
         self.messages[message.from_user.id].append({"role": "user", "content": txt_input})
         chat = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=self.messages[message.from_user.id])
         
@@ -45,7 +48,7 @@ class Text2Table:
             print("ERROR: time missing, asking for correction.")
             new_csv = self.get_correction(user_id, critique="No has incluído la columna time.")
             new_data = pd.read_csv(StringIO(new_csv))
-        
+            ic(new_csv)
         new_data["time"] = pd.to_datetime(new_data.time, format="mixed", dayfirst=True)
 
         self.tmp_data[user_id] = new_data
@@ -71,15 +74,17 @@ class Text2Table:
         saves the data.
         Returns answer text with information about the process.
         '''
-        csv_str = self.text_to_csv(message)
-        answer = self.csv2answer(csv_str,
-                                 message.from_user.id)
+        csv_str = ic(self.text_to_csv(message))
+        answer = ic(self.csv2answer(csv_str,
+                                 message.from_user.id))
         return(answer)
 
     def get_correction(self, user_id, critique=""):
         '''
         Returns csv correction for the last message sent to chatGPT.
         '''
+        if len(critique) == 0:
+            critique = sanity_check(self.tmp_data[user_id])
         messages = self.messages[user_id]
         messages.append({"role": "user", "content": '''Esa tabla contiene errores. {critique}.
                           Respóndeme únicamente con la tabla corregida, sin incluir
@@ -110,7 +115,7 @@ class Text2Table:
         request_date = datetime.utcfromtimestamp(message.date)
         request_text = message.text[4:] # Excludes text begginig: "/del"
         self.db.insert_one(collection="delrequests", user_id=message.from_user.id,
-                           query={"date": request_date, "text": request_text})
+                           data={"date": request_date, "text": request_text})
 
     def add_to_lastuse(self, user_id, data_dict):
         '''
@@ -118,11 +123,11 @@ class Text2Table:
         Updates lastuse Mongo collection with the date each
         variable was recorded for the last time.
         '''
-        lastuse = self.mongo_lastuse.find_one(sort=[('time', -1)],
-                                                 projection={"_id":0})
+        lastuse = self.db.find_one(collection="lastuse", user_id=user_id,
+                                   sort=[('time', -1)], projection={"_id":0})
         
         for key in data_dict.keys():
             lastuse[key] = data_dict["time"]
         
         self.db.insert_one(collection="lastuse", user_id=user_id,
-                           query=lastuse)
+                           data=lastuse)

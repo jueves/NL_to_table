@@ -15,8 +15,8 @@ class Reminders:
         The default metric is "number of days without logging new data."
         '''
         try:
-            lastuse_dict = self.db.find_one("lastuse", user_id, sort=[('time', -1)],
-                                                       projection={"_id":0})
+            lastuse_dict = self.db.find_one(collection="lastuse", user_id=user_id,
+                                             sort=[('time', -1)], projection={"_id":0})
             time_diff = datetime.now() - lastuse_dict[var_name]
         except:
             time_diff = pd.Timedelta(days=1000)
@@ -34,14 +34,14 @@ class Reminders:
         for var_name, var_metadata in data_structure.items():
             if var_name != "time" and var_metadata["mute"] == "False":
                 var_names.append(var_name)
-                scores.append(self.get_score(var_name))
+                scores.append(self.get_score(user_id, var_name))
         score_df = pd.DataFrame({"var_name":var_names, "score":scores})
         score_df = score_df.sort_values("score", ascending=False, ignore_index=True)
         return(score_df)
 
     def get_reminders(self, user_id):
-       ''' Gets dataset(pd.DataFrame)
-          Returns advice(str)
+       ''' Gets dataset as pd.DataFrame
+          Returns advice as str
        '''
        lastuse_df = self.get_score_df(user_id)
        

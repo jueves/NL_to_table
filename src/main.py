@@ -7,6 +7,7 @@ import whisper
 from text2table import Text2Table
 from reminders import Reminders
 from db_utils import MongoManagerPerUser
+from icecream import ic
 
 # Set constants
 TELEGRAM_KEY = os.environ.get("TELEGRAM_KEY")
@@ -38,7 +39,7 @@ with open("config/data_structure.json", "r", encoding="utf-8") as f:
     data_structure = json.load(f)
 with open("text/prompt.txt", "r", encoding="utf-8") as f:
     prompt_raw = f.read()
-db["users"].insert_one(user_id=0, query={"structure":data_structure,
+db.insert_one(collection="users", user_id=0, data={"data_structure":data_structure,
                                          "prompt_raw":prompt_raw})
 
 # Setup chatGPT
@@ -87,8 +88,8 @@ def voice_processing(message):
             new_file.write(downloaded_file)
         transcription = whisper_model.transcribe("user_data/voice_note.ogg", language=WHISPER_LANG)
         message.text = transcription["text"]
-        answer = "<code>" + text2table.get_table(message)
         print("AUDIO TRANSCRIPTION:\n" + transcription["text"])
+        answer = "<code>" + text2table.get_table(message)
         answer += "\nTRANSCRIPCIÓN DE AUDIO:\n" + transcription["text"]
         answer += reminder.get_reminders(user_id=message.from_user.id)  + "</code>"
         markup = buttons_markup
@@ -104,10 +105,10 @@ def echo_all(message):
     '''
     markup = simple_markup
     try:
+        if not db.user_exists(message.from_user.id):
+                db.add_user(message.from_user.id)
         if message.text == "/start":
             answer = start_message + help_message
-            if not db.user_exists(message.from_user.id):
-                db.add_user(message.from_user.id)
         elif message.text == "/help":
             answer = help_message
         elif message.text == "/lastlog":
