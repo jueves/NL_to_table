@@ -6,15 +6,16 @@ import datetime
 with open("config/data_structure.json", "r", encoding="utf-8") as f:
     data_structure = json.load(f)
 
-def sanity_check(data):
+def sanity_check(data, header=True):
     '''
+    Gets a Pandas Data Frame.
     Checks variables names, ranges, and types.
     Returns report as string.
     '''
     problems = check_variables(data)
     problems += check_ranges(data)
     problems += check_types(data)
-    if len(problems) > 0:
+    if header and len(problems) > 0:
         problems = "\n\nSANITY CHECK SUMMARY:\n" + problems
     return(problems)
 
@@ -30,7 +31,7 @@ def check_variables(data):
     veredict = ""
 
     if (len(garbage) > 0):
-        veredict += "The following variables where not asked for: " + str(garbage) + "\n"
+        veredict += "Las siguientes variables no fueron solicitadas: " + str(garbage) + "\n"
 
     return(veredict)
 
@@ -46,7 +47,7 @@ def check_ranges(data):
             value = data[variable][0]
             if is_number(value) and not pd.isna(value):
                 if not (var_range[0] <= value <= var_range[1]):
-                    veredict += "Variable " + variable + " is out of range.\n"
+                    veredict += "La variable " + variable + " está fuera de rango.\n"
     return(veredict)
 
 def check_types(data):
