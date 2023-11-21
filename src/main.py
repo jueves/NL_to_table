@@ -7,7 +7,6 @@ import whisper
 from text2table import Text2Table
 from reminders import Reminders
 from db_utils import MongoManagerPerUser
-from icecream import ic
 
 # Set constants
 TELEGRAM_KEY = os.environ.get("TELEGRAM_KEY")

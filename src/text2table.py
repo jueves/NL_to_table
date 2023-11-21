@@ -3,7 +3,6 @@ from datetime import datetime
 import pandas as pd
 import openai
 from sanity_check import sanity_check
-from icecream import ic
 
 class Text2Table:
     '''
@@ -48,7 +47,7 @@ class Text2Table:
             print("ERROR: time missing, asking for correction.")
             new_csv = self.get_correction(user_id, critique="No has incluído la columna time.")
             new_data = pd.read_csv(StringIO(new_csv))
-            ic(new_csv)
+            new_csv
         new_data["time"] = pd.to_datetime(new_data.time, format="mixed", dayfirst=True)
 
         self.tmp_data[user_id] = new_data
@@ -74,9 +73,9 @@ class Text2Table:
         saves the data.
         Returns answer text with information about the process.
         '''
-        csv_str = ic(self.text_to_csv(message))
-        answer = ic(self.csv2answer(csv_str,
-                                 message.from_user.id))
+        csv_str = self.text_to_csv(message)
+        answer = self.csv2answer(csv_str,
+                                 message.from_user.id)
         return(answer)
 
     def get_correction(self, user_id, critique=""):
