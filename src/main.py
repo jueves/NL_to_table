@@ -6,6 +6,7 @@ import openai
 import whisper
 from text2table import Text2Table
 from reminders import Reminders
+from reports import Reporter
 from db_utils import MongoManagerPerUser
 
 # Set constants
@@ -49,6 +50,9 @@ whisper_model = whisper.load_model(WHISPER_TYPE)
 
 # Setup Telegram bot
 bot = telebot.TeleBot(TELEGRAM_KEY)
+
+# Setup reports
+reports = Reporter(db, bot)
 
 # Create Telegram message markups
 simple_markup = InlineKeyboardMarkup()
@@ -115,6 +119,8 @@ def echo_all(message):
         elif message.text[:4] == "/del":
             text2table.del_request(message)
             answer = "Se ha registrado tu solicitud de borrado. Tu comentario es: " + message.text[4:]
+        elif message.text == "/getdata":
+            answer = reports.send_data(message)
         elif message.text == "/version":
             answer = f"Versión: {VERSION}"
         else:
