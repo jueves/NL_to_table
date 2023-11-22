@@ -21,15 +21,33 @@ class MongoManagerPerUser:
         self.users_list = []
                 
     def insert_one(self, collection, user_id, data):
+        '''
+        pymongo insert_one method, forcing filtering by user_id
+        '''
         data["user_id"] = user_id
         self._db[collection].insert_one(data)
 
     def find_one(self, collection, user_id, query={}, sort=None, projection=None):
+        '''
+        pymongo find_one method, forcing filtering by user_id
+        '''
         query['user_id'] = user_id
         answer = self._db[collection].find_one(query, sort=sort, projection=projection)
         return(answer)
     
+    def find(self, collection, user_id, query={}, sort=None, projection=None):
+        '''
+        pymongo find method, forcing filtering by user_id
+        '''
+        query['user_id'] = user_id
+        answer = self._db[collection].find(query, sort=sort, projection=projection)
+        return(answer)
+    
     def user_exists(self, user_id):
+        '''
+        Gets user_id
+        Returns True or False depending on user existence
+        '''
         if user_id in self.users_list:
             exists = True
         elif self._db["users"].count_documents({"user_id":user_id}) > 0:
@@ -40,6 +58,10 @@ class MongoManagerPerUser:
         return(exists)
     
     def add_user(self, user_id):
+        '''
+        Gets new user_id
+        Adds new user
+        '''
         # Set data structure
         if self._db["users"].count_documents({"user_id":user_id}) == 0:
             # Set data structure
