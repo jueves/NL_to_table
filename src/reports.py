@@ -1,4 +1,5 @@
 import pandas as pd
+from icecream import ic
 
 class Reporter:
     def __init__(self, db, bot):
@@ -9,8 +10,9 @@ class Reporter:
         '''
         Get data from db.personal and return it as pd.DataFrame
         '''
-        user_id = message.from_user.id
-        data = pd.DataFrame({'A': [1, 2], 'B': [3, 4]})
+        cursor = self.db.find("personal", message.from_user.id)
+        data = pd.DataFrame(list(cursor))
+        data = data.drop(["_id", "user_id"], axis=1)
         return(data)
 
     def send_data(self, message):
