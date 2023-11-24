@@ -1,0 +1,39 @@
+allergy,time,asthma,weight,energy,food,nap,waist,sleep,caffeine,color,antihistaminic,isexample
+0.0,2023-11-21 09:00:00,0,,,Ensalada,,,,Café con Leche,,False,True
+0.0,2023-11-20 09:59:32,,,0,,10,,,,,False,True
+0.0,2023-11-19 10:02:32,,,,Pasta,,,,Café con Leche,,False,True
+0.0,2023-11-18 10:02:45,2.0,,,,,,,Cortado,Blanco,,True
+3,2023-11-17 00:00:00,,70.0,,,,,,,,True,True
+,2023-11-16 09:43:20,,,4.0,,10,,,Café con Leche,,,True
+0.0,2023-11-15 08:03:51,,,,Yogurt,,,,,Rojo,False,True
+,2023-11-14 10:04:23,,,1.0,,,,,,,,True
+,2023-11-13 13:40:39,0,69.5,,Ensalada,,,,Americano,,,True
+,2023-11-12 13:41:19,,70.2,4.0,,15.0,,,,,,True
+,2023-11-11 13:56:40,0.0,,,4.0,Arroz,,,,Café con Leche,,True
+5.0,2023-11-10 13:59:00,,,,,10,,,,Azul,True,True
+,2023-11-09 14:00:12,,,,Couscous,,,,Café con Leche,,,True
+,2023-11-08 14:13:30,0,69.7,,,,,,Cocacola,,,True
+0.0,2023-11-07 15:53:32,,,,,,,,,,False,True
+,2023-11-06 15:56:32,,,3.0,Verdura con Papas y Pollo,,,,Café con Leche,,,True
+,2023-11-05 15:59:01,,,,,15.0,,,,,,True
+,2023-11-04 07:47:04,0,,5.0,Tortilla con Ensalada,,85.0,8.0,Café con Leche,Blanco,False,True
+,2023-11-03 08:17:14,,,,,,,,,,False,True
+0.0,2023-11-21 09:00:00,0,,,Ensalada,,,,Café con Leche,,False,True
+0.0,2023-11-20 09:59:32,,,0,,10,,,,,False,True
+0.0,2023-11-19 10:02:32,,,,Pasta,,,,Café con Leche,,False,True
+0.0,2023-11-18 10:02:45,2.0,,,,,,,Cortado,Blanco,,True
+3,2023-11-17 00:00:00,,70.0,,,,,,,,True,True
+,2023-11-16 09:43:20,,,4.0,,10,,,Café con Leche,,,True
+0.0,2023-11-15 08:03:51,,,,Yogurt,,,,,Rojo,False,True
+,2023-11-14 10:04:23,,,1.0,,,,,,,,True
+,2023-11-13 13:40:39,0,69.5,,Ensalada,,,,Americano,,,True
+,2023-11-12 13:41:19,,70.2,4.0,,15.0,,,,,,True
+,2023-11-11 13:56:40,0.0,,,4.0,Arroz,,,,Café con Leche,,True
+5.0,2023-11-10 13:59:00,,,,,10,,,,Azul,True,True
+,2023-11-09 14:00:12,,,,Couscous,,,,Café con Leche,,,True
+,2023-11-08 14:13:30,0,69.7,,,,,,Cocacola,,,True
+0.0,2023-11-07 15:53:32,,,,,,,,,,False,True
+,2023-11-06 15:56:32,,,3.0,Verdura con Papas y Pollo,,,,Café con Leche,,,True
+,2023-11-05 15:59:01,,,,,15.0,,,,,,True
+,2023-11-04 07:47:04,0,,5.0,Tortilla con Ensalada,,85.0,8.0,Café con Leche,Blanco,False,True
+,2023-11-03 08:17:14,,,,,,,,,,False,True

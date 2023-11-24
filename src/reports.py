@@ -1,5 +1,4 @@
 import pandas as pd
-from icecream import ic
 
 class Reporter:
     def __init__(self, db, bot):
@@ -22,13 +21,13 @@ class Reporter:
         Returns text answer as a string.
         '''
         data = self.get_data(message)
-        answer = "Here you have some dummy data."
-
+        
         csv_file_name = f"user_data/{str(message.from_user.id)}_full.csv"
         data.to_csv(csv_file_name)
         with open(csv_file_name, "r") as csv_file:
             self.bot.send_document(message.chat.id, reply_to_message_id=message.message_id,
                                     document=csv_file)
+        answer = "Aquí tiene sus datos."
         return(answer)
 
 
