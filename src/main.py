@@ -39,7 +39,7 @@ with open("config/data_structure.json", "r", encoding="utf-8") as f:
     data_structure = json.load(f)
 with open("text/prompt.txt", "r", encoding="utf-8") as f:
     prompt_raw = f.read()
-db.insert_one(collection="users", user_id=0, data={"data_structure":data_structure,
+db.insert_one(collection="users", user_id=0, records={"data_structure":data_structure,
                                          "prompt_raw":prompt_raw})
 
 # Setup chatGPT
@@ -87,9 +87,10 @@ def voice_processing(message):
     try:
         file_info = bot.get_file(message.voice.file_id)
         downloaded_file = bot.download_file(file_info.file_path)
-        with open('user_data/voice_note.ogg', 'wb') as new_file:
+        audio_file = f'user_data/{message.from_user.id}_voice.ogg'
+        with open('audio_file', 'wb') as new_file:
             new_file.write(downloaded_file)
-        transcription = whisper_model.transcribe("user_data/voice_note.ogg", language=WHISPER_LANG)
+        transcription = whisper_model.transcribe("audio_file", language=WHISPER_LANG)
         message.text = transcription["text"]
         print("AUDIO TRANSCRIPTION:\n" + transcription["text"])
         answer = "<code>" + text2table.get_table(message)
@@ -114,13 +115,16 @@ def echo_all(message):
             answer = start_message + help_message
         elif message.text == "/help":
             answer = help_message
-        elif message.text == "/lastlog":
+        elif message.text == "/lastuse":
             answer = "<code>" + reminder.get_score_df(message.from_user.id).to_markdown(index=False) + "</code>"
         elif message.text[:4] == "/del":
             text2table.del_request(message)
             answer = "Se ha registrado tu solicitud de borrado. Tu comentario es: " + message.text[4:]
         elif message.text == "/getdata":
             answer = reports.send_data(message)
+        elif message.text == "/example":
+            answer = text2table.update_dataset(message.from_user.id,
+                                              "user_data/dummy_data.csv")
         elif message.text == "/version":
             answer = f"Versión: {VERSION}"
         else:
