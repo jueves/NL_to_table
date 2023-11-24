@@ -3,6 +3,7 @@ from datetime import datetime
 import pandas as pd
 import openai
 from sanity_check import sanity_check
+from icecream import ic
 
 class Text2Table:
     '''
@@ -93,19 +94,24 @@ class Text2Table:
         new_csv = chat.choices[0].message.content
         return(new_csv)
 
-    def update_dataset(self, user_id):
+    def update_dataset(self, user_id, filename=""):
         '''
         Updates database with new data.
-        '''
-        # Convert data      
-        data_short = self.tmp_data[user_id].dropna(axis=1)
-        data_dict = data_short.to_dict(orient='records')[0]
-        
+        '''    
+        if len(filename)==0:
+            dataframe = self.tmp_data[user_id].dropna(axis=1)
+        else:
+            dataframe = pd.read_csv(filename, parse_dates=["time"])
+       
         # Update lastuse collection
-        self.add_to_lastuse(user_id, data_dict)
-
+        self.add_to_lastuse(user_id, ic(dataframe))
+        
         # Write changes to database
-        self.db.insert_one("personal", user_id, data_dict)
+        records = dataframe.to_dict(orient="records")
+        if len(records) == 1:
+            self.db.insert_one("personal", user_id, records[0])
+        else:
+            self.db.insert_many("personal", user_id, records)
 
     def del_request(self, message):
         '''
@@ -114,19 +120,28 @@ class Text2Table:
         request_date = datetime.utcfromtimestamp(message.date)
         request_text = message.text[4:] # Excludes text begginig: "/del"
         self.db.insert_one(collection="delrequests", user_id=message.from_user.id,
-                           data={"date": request_date, "text": request_text})
+                           records={"date": request_date, "text": request_text})
 
-    def add_to_lastuse(self, user_id, data_dict):
+    def add_to_lastuse(self, user_id, dataframe):
         '''
         Gets a dictionary with the new data collected.
         Updates lastuse Mongo collection with the date each
         variable was recorded for the last time.
         '''
+        # Get last log in lastuse collection
         lastuse = self.db.find_one(collection="lastuse", user_id=user_id,
                                    sort=[('time', -1)], projection={"_id":0})
         
-        for key in data_dict.keys():
-            lastuse[key] = data_dict["time"]
-        
+        # Get lastuse_time
+        if len(dataframe) == 1:
+            lastuse_time = dataframe["time"][0]
+        else:
+            lastuse_time = datetime.now()
+
+        # Set new time
+        for var_name in dataframe.columns:
+            lastuse[var_name] = lastuse_time
+
+        # Insert data        
         self.db.insert_one(collection="lastuse", user_id=user_id,
-                           data=lastuse)
+                           records=ic(lastuse))
