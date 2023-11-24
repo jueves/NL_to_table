@@ -20,12 +20,20 @@ class MongoManagerPerUser:
         self._db = client[db_name]
         self.users_list = []
                 
-    def insert_one(self, collection, user_id, data):
+    def insert_one(self, collection, user_id, records):
         '''
         pymongo insert_one method, forcing filtering by user_id
         '''
-        data["user_id"] = user_id
-        self._db[collection].insert_one(data)
+        records["user_id"] = user_id
+        self._db[collection].insert_one(records)
+    
+    def insert_many(self, collection, user_id, records):
+        '''
+        pymongo insert_many method, forcing filtering by user_id
+        '''
+        for document in records:
+            document.update({"user_id":user_id})
+        self._db[collection].insert_many(records)
 
     def find_one(self, collection, user_id, query={}, sort=None, projection=None):
         '''
@@ -85,7 +93,7 @@ class MongoManagerPerUser:
             lastuse_dict["user_id"] = user_id
             self._db["lastuse"].insert_one(lastuse_dict)
         else:
-            raise RuntimeError("lastlog has already been initiated for this user.")
+            raise RuntimeError("lastuse has already been initiated for this user.")
         
     def update_user(self, user_id, data_structure):
         '''
@@ -111,4 +119,23 @@ class MongoManagerPerUser:
         example_csv = pd.DataFrame.from_dict(example_dic).to_csv(index=False)
         prompt_header = prompt_raw.format(description=var_description, example=example_csv)
         return(prompt_header)
+    
+    '''
+    def load_example_data(self, user_id, file_name):
+        # Loads example dummy data on database for user_id.
+        try:
+            data = pd.read_csv(file_name, parse_dates=["time"])
+            lastuse = {}
+            for var_name in data.columns:
+                lastuse[var_name] = datetime.now()
+            lastuse["user_id"] = user_id
+            data["user_id"] = user_id
+
+            self.db.personal.insert_many(data.to_dict(orient="records"))
+            self.db.lastuse.insert_one(lastuse)
+            answer = "Datos cargados."
+        except Exception as e:
+            answer = f"<b>Algo ha salido mal:</b>\n{e}"
+        return(answer)
+    '''
         
