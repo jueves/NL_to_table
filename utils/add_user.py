@@ -23,7 +23,7 @@ client = pymongo.MongoClient("mongodb://" + MONGO_SERVER + ":27017",
                              username=MONGO_USER, password=MONGO_PASSWORD)
 db = client[DB_NAME]
 
-# Write old data (data without user) to MongoDB
+# Write old data (data without user) to MongoDB for testing purpouses
 '''
 with open("config/data_structure.json", "r") as f:
     data_structure = json.load(f)
