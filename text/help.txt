@@ -1,14 +1,16 @@
 Esta es una lista de mis comandos:
 
-/start     Mensaje de presentación.
-/help      Lista los comandos disponibles.
-/lastlog   Muestra la fecha de último registro para cada variable.
-/del       Registra una solicitud de borrado del último mensaje. Puede ir seguido de un comentario (en el mismo mensaje.)
+/start       Mensaje de presentación.
+/ayuda       Lista los comandos disponibles.
+/ultimo_uso  Muestra la fecha de último registro para cada variable.
+/eliminar    Registra una solicitud de borrado del último mensaje. Puede ir seguido de un comentario (en el mismo mensaje.)
+/descargar   Envía al usuario un archivo con todos sus datos en formato .csv
+/ejemplo     Carga datos ficticios a modo de ejemplo para probar la aplicación.
 
 Los datos de tabla no requieren ir precedidos de ningún comando. La fecha y la hora registradas son el momento en que has enviado el mensaje, pero puedes especificar una fecha u hora diferente.
 Cada mensaje representa una única observación, es decir, valores sobre una o varias variables para un individuo concreto en un momento preciso.
 
 Ejemplos de comandos:
-• Asma de 3.4 hace aproximadamente una hora.
+• Asma de 3.4 hace una hora.
 • Alergia de 5 ayer
 • asma 3, alergia 4, peso 66

@@ -93,40 +93,74 @@ class Text2Table:
         new_csv = chat.choices[0].message.content
         return(new_csv)
 
-    def update_dataset(self, user_id):
+    def update_dataset(self, user_id, filename=""):
         '''
         Updates database with new data.
-        '''
-        # Convert data      
-        data_short = self.tmp_data[user_id].dropna(axis=1)
-        data_dict = data_short.to_dict(orient='records')[0]
-        
+        '''    
+        if len(filename)==0:
+            dataframe = self.tmp_data[user_id].dropna(axis=1)
+        else:
+            dataframe = pd.read_csv(filename, parse_dates=["time"])
+       
         # Update lastuse collection
-        self.add_to_lastuse(user_id, data_dict)
-
+        self.add_to_lastuse(user_id, dataframe)
+        
         # Write changes to database
-        self.db.insert_one("personal", user_id, data_dict)
+        records = dataframe.to_dict(orient="records")
+        if len(records) == 1:
+            self.db.insert_one("personal", user_id, records[0])
+        else:
+            self.db.insert_many("personal", user_id, records)
 
     def del_request(self, message):
         '''
         Gets a Telegram message object and logs it to a deletion requests file.
         '''
         request_date = datetime.utcfromtimestamp(message.date)
-        request_text = message.text[4:] # Excludes text begginig: "/del"
+        request_text = " ".join(message.text.split()[1:]) # Excludes command from the text
         self.db.insert_one(collection="delrequests", user_id=message.from_user.id,
-                           data={"date": request_date, "text": request_text})
+                           records={"date": request_date, "text": request_text})
+        return(request_text)
 
-    def add_to_lastuse(self, user_id, data_dict):
+    def add_to_lastuse(self, user_id, dataframe):
         '''
         Gets a dictionary with the new data collected.
         Updates lastuse Mongo collection with the date each
         variable was recorded for the last time.
         '''
+        # Get last log in lastuse collection
         lastuse = self.db.find_one(collection="lastuse", user_id=user_id,
                                    sort=[('time', -1)], projection={"_id":0})
         
-        for key in data_dict.keys():
-            lastuse[key] = data_dict["time"]
+        # Get lastuse_time
+        if len(dataframe) == 1:
+            lastuse_time = dataframe["time"][0]
+        else:
+            # For simplicity, if multiple observations are being loaded at once,
+            # we set current datetime as lastuse datetime.
+            # Currently (v0.9.2) only dummy data is loaded in bulk.
+            lastuse_time = datetime.now()
+
+        # Set new var time
+        for var_name in dataframe.columns:
+            try:
+                if lastuse[var_name] < lastuse_time:
+                    lastuse[var_name] = lastuse_time
+            except:
+                lastuse[var_name] = None
         
+        # Set isexample
+        if "isexample" in dataframe.columns and dataframe.isexample[0]:
+            # Gets regular boolean instead of numpy.bool_ to comply with pymongo
+            # This assumes that bulk loading is all either examples or real data.
+            # Currently (v0.9.2) only dummy data is loaded in bulk.
+            lastuse["isexample"] = True 
+        else:
+            lastuse["isexample"] = False
+        
+        # Set new logging time
+        lastuse["time"] = datetime.now()
+
+        # Insert data        
         self.db.insert_one(collection="lastuse", user_id=user_id,
-                           data=lastuse)
+                           records=lastuse)

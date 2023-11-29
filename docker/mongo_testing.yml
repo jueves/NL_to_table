@@ -14,7 +14,7 @@ services:
       - db-data-test:/data/db
 
   mongo-express:
-    image: mongo-express
+    image: mongo-express:1.0.0-alpha
     restart: always
     ports:
       - 8085:8081

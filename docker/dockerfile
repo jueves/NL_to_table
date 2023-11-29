@@ -14,8 +14,8 @@ COPY text/* /NL_to_table/text/
 
 COPY config/data_structure.json /NL_to_table/config/
 
-COPY version.txt /NL_to_table/
+COPY user_data/dummy_data.csv /NL_to_table/user_data/
 
-RUN mkdir /NL_to_table/user_data
+COPY version.txt /NL_to_table/
 
 CMD python main.py

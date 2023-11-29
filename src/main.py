@@ -6,6 +6,7 @@ import openai
 import whisper
 from text2table import Text2Table
 from reminders import Reminders
+from reports import Reporter
 from db_utils import MongoManagerPerUser
 
 # Set constants
@@ -38,7 +39,7 @@ with open("config/data_structure.json", "r", encoding="utf-8") as f:
     data_structure = json.load(f)
 with open("text/prompt.txt", "r", encoding="utf-8") as f:
     prompt_raw = f.read()
-db.insert_one(collection="users", user_id=0, data={"data_structure":data_structure,
+db.insert_one(collection="users", user_id=0, records={"data_structure":data_structure,
                                          "prompt_raw":prompt_raw})
 
 # Setup chatGPT
@@ -50,14 +51,32 @@ whisper_model = whisper.load_model(WHISPER_TYPE)
 # Setup Telegram bot
 bot = telebot.TeleBot(TELEGRAM_KEY)
 
+# Setup reports
+reports = Reporter(db, bot)
+
 # Create Telegram message markups
 simple_markup = InlineKeyboardMarkup()
-buttons_markup = InlineKeyboardMarkup()
-buttons_markup.row_width = 2
-buttons_markup.add(InlineKeyboardButton("Todo correcto", callback_data="cb_correct"),
+
+# update_markup
+update_markup = InlineKeyboardMarkup()
+update_markup.row_width = 2
+update_markup.add(InlineKeyboardButton("Todo correcto", callback_data="cb_correct"),
                    InlineKeyboardButton("Hay errores", callback_data="cb_errors"))
 
+# load_markup
+load_markup = InlineKeyboardMarkup()
+load_markup.row_width = 2
+load_markup.add(InlineKeyboardButton("Cargar datos", callback_data="cb_load"),
+                   InlineKeyboardButton("Cancelar", callback_data="cb_cancel"))
 
+
+# Set Telegram commands dic
+cmd = {"help": ["/help", "/ayuda", "/h"],
+       "lastuse": ["/lastuse", "/ultimo_uso"],
+       "del": ["/del", "/eliminar", "/borrar"],
+       "example": ["/example", "/ejemplo"],
+       "getdata": ["/getdata", "/descargar"]
+       }
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback_query(call):
@@ -71,8 +90,14 @@ def callback_query(call):
     elif call.data == "cb_errors":
         new_csv = text2table.get_correction(call.from_user.id)
         answer = "<code>" + text2table.csv2answer(new_csv, call.from_user.id) + "</code>"
-        bot.send_message(call.from_user.id, answer,                                                                                                                                                                                                                                                                                                                 reply_markup=buttons_markup,
+        bot.send_message(call.from_user.id, answer,                                                                                                                                                                                                                                                                                                                 reply_markup=update_markup,
                          parse_mode="html")
+    elif call.data == "cb_load":
+        text2table.update_dataset(call.from_user.id,
+                                  "user_data/dummy_data.csv")
+        bot.answer_callback_query(call.id, "Datos de ejemplo cargados.")
+    elif call.data == "cb_cancel":
+        bot.answer_callback_query(call.id, "No se han cargado los datos.")
 
 @bot.message_handler(content_types=['voice'])
 def voice_processing(message):
@@ -83,15 +108,16 @@ def voice_processing(message):
     try:
         file_info = bot.get_file(message.voice.file_id)
         downloaded_file = bot.download_file(file_info.file_path)
-        with open('user_data/voice_note.ogg', 'wb') as new_file:
+        audio_file = f'user_data/{message.from_user.id}_voice.ogg'
+        with open('audio_file', 'wb') as new_file:
             new_file.write(downloaded_file)
-        transcription = whisper_model.transcribe("user_data/voice_note.ogg", language=WHISPER_LANG)
+        transcription = whisper_model.transcribe("audio_file", language=WHISPER_LANG)
         message.text = transcription["text"]
         print("AUDIO TRANSCRIPTION:\n" + transcription["text"])
         answer = "<code>" + text2table.get_table(message)
         answer += "\nTRANSCRIPCIÓN DE AUDIO:\n" + transcription["text"]
         answer += reminder.get_reminders(user_id=message.from_user.id)  + "</code>"
-        markup = buttons_markup
+        markup = update_markup
     except Exception as e:
         answer = f"<b>Algo ha salido mal:</b>\n{e}"
         markup = simple_markup
@@ -108,17 +134,22 @@ def echo_all(message):
                 db.add_user(message.from_user.id)
         if message.text == "/start":
             answer = start_message + help_message
-        elif message.text == "/help":
+        elif message.text in cmd["help"]:
             answer = help_message
-        elif message.text == "/lastlog":
+        elif message.text in cmd["lastuse"]:
             answer = "<code>" + reminder.get_score_df(message.from_user.id).to_markdown(index=False) + "</code>"
-        elif message.text[:4] == "/del":
-            text2table.del_request(message)
-            answer = "Se ha registrado tu solicitud de borrado. Tu comentario es: " + message.text[4:]
+        elif message.text.split()[0] in cmd["del"]:
+            request_text = text2table.del_request(message)
+            answer = "Se ha registrado tu solicitud de borrado. Tu comentario es: " + request_text
+        elif message.text in cmd["getdata"]:
+            answer = reports.send_data(message)
+        elif message.text in cmd["example"]:
+            markup = load_markup
+            answer = "¿Desea cargar datos ficticios a modo de ejemplo?"
         elif message.text == "/version":
             answer = f"Versión: {VERSION}"
         else:
-            markup = buttons_markup
+            markup = update_markup
             answer = "<code>" + text2table.get_table(message) + reminder.get_reminders(message.from_user.id) + "</code>"
     except Exception as e:
         answer = f"<b>Algo ha salido mal:</b>\n{e}"
