@@ -3,7 +3,6 @@ from datetime import datetime
 import pandas as pd
 import openai
 from sanity_check import sanity_check
-from icecream import ic
 
 class Text2Table:
     '''
@@ -104,7 +103,7 @@ class Text2Table:
             dataframe = pd.read_csv(filename, parse_dates=["time"])
        
         # Update lastuse collection
-        self.add_to_lastuse(user_id, ic(dataframe))
+        self.add_to_lastuse(user_id, dataframe)
         
         # Write changes to database
         records = dataframe.to_dict(orient="records")
@@ -136,12 +135,18 @@ class Text2Table:
         if len(dataframe) == 1:
             lastuse_time = dataframe["time"][0]
         else:
+            # For simplicity, if multiple observations are being loaded at once,
+            # we set current datetime as lastuse datetime.
+            # Currently (v0.9.2) only dummy data is loaded in bulk.
             lastuse_time = datetime.now()
 
         # Set new time
         for var_name in dataframe.columns:
-            lastuse[var_name] = lastuse_time
+            if lastuse[var_name] < lastuse_time:
+                lastuse[var_name] = lastuse_time
+        lastuse["isexample"] = "isexample" in dataframe.columns
+        lastuse["time"] = datetime.now()
 
         # Insert data        
         self.db.insert_one(collection="lastuse", user_id=user_id,
-                           records=ic(lastuse))
+                           records=lastuse)
