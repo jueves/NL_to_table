@@ -56,12 +56,27 @@ reports = Reporter(db, bot)
 
 # Create Telegram message markups
 simple_markup = InlineKeyboardMarkup()
-buttons_markup = InlineKeyboardMarkup()
-buttons_markup.row_width = 2
-buttons_markup.add(InlineKeyboardButton("Todo correcto", callback_data="cb_correct"),
+
+# update_markup
+update_markup = InlineKeyboardMarkup()
+update_markup.row_width = 2
+update_markup.add(InlineKeyboardButton("Todo correcto", callback_data="cb_correct"),
                    InlineKeyboardButton("Hay errores", callback_data="cb_errors"))
 
+# load_markup
+load_markup = InlineKeyboardMarkup()
+load_markup.row_width = 2
+load_markup.add(InlineKeyboardButton("Cargar datos", callback_data="cb_load"),
+                   InlineKeyboardButton("Cancelar", callback_data="cb_cancel"))
 
+
+# Set Telegram commands dic
+cmd = {"help": ["/help", "/ayuda", "/h"],
+       "lastuse": ["/lastuse", "/ultimo_uso"],
+       "del": ["/del", "/eliminar", "/borrar"],
+       "example": ["/example", "/ejemplo"],
+       "getdata": ["/getdata", "/descargar"]
+       }
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback_query(call):
@@ -75,8 +90,14 @@ def callback_query(call):
     elif call.data == "cb_errors":
         new_csv = text2table.get_correction(call.from_user.id)
         answer = "<code>" + text2table.csv2answer(new_csv, call.from_user.id) + "</code>"
-        bot.send_message(call.from_user.id, answer,                                                                                                                                                                                                                                                                                                                 reply_markup=buttons_markup,
+        bot.send_message(call.from_user.id, answer,                                                                                                                                                                                                                                                                                                                 reply_markup=update_markup,
                          parse_mode="html")
+    elif call.data == "cb_load":
+        text2table.update_dataset(call.from_user.id,
+                                  "user_data/dummy_data.csv")
+        bot.answer_callback_query(call.id, "Datos de ejemplo cargados.")
+    elif call.data == "cb_cancel":
+        bot.answer_callback_query(call.id, "No se han cargado los datos.")
 
 @bot.message_handler(content_types=['voice'])
 def voice_processing(message):
@@ -96,7 +117,7 @@ def voice_processing(message):
         answer = "<code>" + text2table.get_table(message)
         answer += "\nTRANSCRIPCIÓN DE AUDIO:\n" + transcription["text"]
         answer += reminder.get_reminders(user_id=message.from_user.id)  + "</code>"
-        markup = buttons_markup
+        markup = update_markup
     except Exception as e:
         answer = f"<b>Algo ha salido mal:</b>\n{e}"
         markup = simple_markup
@@ -113,22 +134,22 @@ def echo_all(message):
                 db.add_user(message.from_user.id)
         if message.text == "/start":
             answer = start_message + help_message
-        elif message.text == "/help":
+        elif message.text in cmd["help"]:
             answer = help_message
-        elif message.text == "/lastuse":
+        elif message.text in cmd["lastuse"]:
             answer = "<code>" + reminder.get_score_df(message.from_user.id).to_markdown(index=False) + "</code>"
-        elif message.text[:4] == "/del":
-            text2table.del_request(message)
-            answer = "Se ha registrado tu solicitud de borrado. Tu comentario es: " + message.text[4:]
-        elif message.text == "/getdata":
+        elif message.text.split()[0] in cmd["del"]:
+            request_text = text2table.del_request(message)
+            answer = "Se ha registrado tu solicitud de borrado. Tu comentario es: " + request_text
+        elif message.text in cmd["getdata"]:
             answer = reports.send_data(message)
-        elif message.text == "/example":
-            answer = text2table.update_dataset(message.from_user.id,
-                                              "user_data/dummy_data.csv")
+        elif message.text in cmd["example"]:
+            markup = load_markup
+            answer = "¿Desea cargar datos ficticios a modo de ejemplo?"
         elif message.text == "/version":
             answer = f"Versión: {VERSION}"
         else:
-            markup = buttons_markup
+            markup = update_markup
             answer = "<code>" + text2table.get_table(message) + reminder.get_reminders(message.from_user.id) + "</code>"
     except Exception as e:
         answer = f"<b>Algo ha salido mal:</b>\n{e}"

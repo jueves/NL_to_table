@@ -117,9 +117,10 @@ class Text2Table:
         Gets a Telegram message object and logs it to a deletion requests file.
         '''
         request_date = datetime.utcfromtimestamp(message.date)
-        request_text = message.text[4:] # Excludes text begginig: "/del"
+        request_text = " ".join(message.text.split()[1:]) # Excludes command from the text
         self.db.insert_one(collection="delrequests", user_id=message.from_user.id,
                            records={"date": request_date, "text": request_text})
+        return(request_text)
 
     def add_to_lastuse(self, user_id, dataframe):
         '''
@@ -140,11 +141,24 @@ class Text2Table:
             # Currently (v0.9.2) only dummy data is loaded in bulk.
             lastuse_time = datetime.now()
 
-        # Set new time
+        # Set new var time
         for var_name in dataframe.columns:
-            if lastuse[var_name] < lastuse_time:
-                lastuse[var_name] = lastuse_time
-        lastuse["isexample"] = "isexample" in dataframe.columns
+            try:
+                if lastuse[var_name] < lastuse_time:
+                    lastuse[var_name] = lastuse_time
+            except:
+                lastuse[var_name] = None
+        
+        # Set isexample
+        if "isexample" in dataframe.columns and dataframe.isexample[0]:
+            # Gets regular boolean instead of numpy.bool_ to comply with pymongo
+            # This assumes that bulk loading is all either examples or real data.
+            # Currently (v0.9.2) only dummy data is loaded in bulk.
+            lastuse["isexample"] = True 
+        else:
+            lastuse["isexample"] = False
+        
+        # Set new logging time
         lastuse["time"] = datetime.now()
 
         # Insert data        
