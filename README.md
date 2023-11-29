@@ -37,5 +37,6 @@ Anytime you add new data you will be reminded of the variable that has been unre
 Variables muted in `data_structure.json` are excluded from reminders.
 
 # To do
+- [ ] Add multiuser support.
 - [ ] Set the minimum frequency of records per variable to skip reminders.
 - [ ] Return descriptive data visualizations.
