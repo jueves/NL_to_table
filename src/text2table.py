@@ -112,16 +112,6 @@ class Text2Table:
         else:
             self.db.insert_many("personal", user_id, records)
 
-    def del_request(self, message):
-        '''
-        Gets a Telegram message object and logs it to a deletion requests file.
-        '''
-        request_date = datetime.utcfromtimestamp(message.date)
-        request_text = " ".join(message.text.split()[1:]) # Excludes command from the text
-        self.db.insert_one(collection="delrequests", user_id=message.from_user.id,
-                           records={"date": request_date, "text": request_text})
-        return(request_text)
-
     def add_to_lastuse(self, user_id, dataframe):
         '''
         Gets a dictionary with the new data collected.
