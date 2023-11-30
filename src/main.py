@@ -8,6 +8,7 @@ from text2table import Text2Table
 from reminders import Reminders
 from reports import Reporter
 from db_utils import MongoManagerPerUser
+from user_manager import UserManager
 
 # Set constants
 TELEGRAM_KEY = os.environ.get("TELEGRAM_KEY")
@@ -53,6 +54,9 @@ bot = telebot.TeleBot(TELEGRAM_KEY)
 
 # Setup reports
 reports = Reporter(db, bot)
+
+# Setyo user_manager
+user_manager = UserManager(db, bot)
 
 # Create Telegram message markups
 simple_markup = InlineKeyboardMarkup()
@@ -109,9 +113,9 @@ def voice_processing(message):
         file_info = bot.get_file(message.voice.file_id)
         downloaded_file = bot.download_file(file_info.file_path)
         audio_file = f'user_data/{message.from_user.id}_voice.ogg'
-        with open('audio_file', 'wb') as new_file:
+        with open(audio_file, 'wb') as new_file:
             new_file.write(downloaded_file)
-        transcription = whisper_model.transcribe("audio_file", language=WHISPER_LANG)
+        transcription = whisper_model.transcribe(audio_file, language=WHISPER_LANG)
         message.text = transcription["text"]
         print("AUDIO TRANSCRIPTION:\n" + transcription["text"])
         answer = "<code>" + text2table.get_table(message)
@@ -130,8 +134,8 @@ def echo_all(message):
     '''
     markup = simple_markup
     try:
-        if not db.user_exists(message.from_user.id):
-                db.add_user(message.from_user.id)
+        if not user_manager.user_exists(message.from_user.id):
+                user_manager.add_user(message.from_user.id)
         if message.text == "/start":
             answer = start_message + help_message
         elif message.text in cmd["help"]:
@@ -139,7 +143,7 @@ def echo_all(message):
         elif message.text in cmd["lastuse"]:
             answer = "<code>" + reminder.get_score_df(message.from_user.id).to_markdown(index=False) + "</code>"
         elif message.text.split()[0] in cmd["del"]:
-            request_text = text2table.del_request(message)
+            request_text = db.del_request(message)
             answer = "Se ha registrado tu solicitud de borrado. Tu comentario es: " + request_text
         elif message.text in cmd["getdata"]:
             answer = reports.send_data(message)
