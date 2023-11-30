@@ -28,6 +28,10 @@ with open("text/start.txt", "r", encoding="utf-8") as f:
 with open("text/help.txt", "r", encoding="utf-8") as f:
     help_message = f.read()
 
+with open("text/config_instructions.txt", "r", encoding="utf-8") as f:
+    config_instructions = f.read()
+
+
 # Setup Mongo Connection
 db = MongoManagerPerUser()
 
@@ -79,7 +83,8 @@ cmd = {"help": ["/help", "/ayuda", "/h"],
        "lastuse": ["/lastuse", "/ultimo_uso"],
        "del": ["/del", "/eliminar", "/borrar"],
        "example": ["/example", "/ejemplo"],
-       "getdata": ["/getdata", "/descargar"]
+       "getdata": ["/getdata", "/descargar"],
+       "getconf": ["/getconf", "/configurar"]
        }
 
 @bot.callback_query_handler(func=lambda call: True)
@@ -150,6 +155,9 @@ def echo_all(message):
         elif message.text in cmd["example"]:
             markup = load_markup
             answer = "¿Desea cargar datos ficticios a modo de ejemplo?"
+        elif message.text in cmd["getconf"]:
+            user_manager.send_data_structure(message)
+            answer = config_instructions
         elif message.text == "/version":
             answer = f"Versión: {VERSION}"
         else:

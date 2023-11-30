@@ -1,5 +1,6 @@
 from datetime import datetime
 import pandas as pd
+import json
 
 class UserManager:
     '''
@@ -76,9 +77,14 @@ class UserManager:
         prompt_header = prompt_raw.format(description=var_description, example=example_csv)
         return(prompt_header)
 
-    def get_data_structure(self, user_id):
-       #
-       print("get_data_structure() is still under development")
+    def send_data_structure(self, message):
+      filename = f"user_data/{message.from_user.id}_data_structure.json"
+      with open(filename, "w") as json_file:
+          data_structure = self.db.find_one("users", message.from_user.id)["data_structure"]
+          json.dump(data_structure, json_file, indent=4)
+      with open(filename, "r") as json_file:
+        self.bot.send_document(message.chat.id, reply_to_message_id=message.message_id,
+                               document=json_file)
      
     def set_data_structure(self, user_id, data_structure):
        #

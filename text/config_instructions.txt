@@ -1,0 +1,28 @@
+INSTRUCCIONES DE CONFIGURACIÓN
+Has recibido un archivo json con el que configurar esta aplicación. Puedes modificarlo con cualquier editor de texto.
+
+La aplicación funcionará según las variables que hayas definido en dicho archivo.
+
+Los ejemplos y la descripción son importantes para que ChatGPT entienda el contexto de tus instrucciones y pueda interpretar correctamente los valores a incluir en la tabla.
+
+Puedes renombrar, añadir o eliminar tantas variables como quieras.
+
+Estos son los campos que encontrarás en el archivo:
+
+DESCRIPTION
+La descripción de la variable se usa para que ChatGPT entienda el contexto de tus instrucciones y pueda interpretar correctamente los valores a incluir en la tabla.
+
+TYPE
+Debe de ser "Numeric", "String", "Boolean" o "Time". Indica el tipo de dato y es usado para comprobaciones internas sobre la calidad de los datos.
+
+RANGE
+Solo para variables numéricas, en otro caso se deja vacío. También es usado para comprobar la calidad de los datos. Introduce un rango que contenga todos los valores razonables de tu variable. Si el ChatGPT propone un valor fuera de rango saltará un error.
+
+EXAMPLE
+Cuatro valores de ejemplo. Al igual que la descripción, refuerza el contexto para mejorar la interpretación de ChatGPT.
+
+MAX_EMPTY_DAYS
+Número máximo de días que puedes estar sin registrar una variable. Si pasa más tiempo salta un recordatorio. Puedes configurar este campo pero todavía no está en funcionamiento.
+
+MUTE
+Si el valor de mute es True, la variable no se incluirá en los recordatorios.
