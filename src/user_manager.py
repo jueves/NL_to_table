@@ -79,6 +79,9 @@ class UserManager:
         return(prompt_header)
 
     def send_data_structure(self, message):
+      '''
+      Sends user a copy of its own data structure json file.
+      '''
       filename = f"user_data/{message.from_user.id}_data_structure.json"
       with open(filename, "w") as json_file:
           data_structure = self.db.find_one("users", message.from_user.id)["data_structure"]
@@ -88,8 +91,21 @@ class UserManager:
                                document=json_file)
      
     def set_data_structure(self, user_id, data_structure_filename):
-       validation_report = validate_data_structure(data_structure_filename)
-       return(validation_report)
+        '''
+        Sets new data_structure in database for user_id.
+        '''
+        sanity_report = validate_data_structure(data_structure_filename)
+        if sanity_report == "no errors":
+            try:
+                with open(data_structure_filename, "r") as f:
+                    data_structure = json.load(f)
+                self.db.update_user_field(user_id, "data_structure", data_structure)
+                answer = "Se ha cargado la configuración"
+            except Exception as e:
+                answer = f"Error: Los datos no pudieron ser cargados.\n{e}"
+        else:
+            answer = sanity_report
+        return(answer)
 
    
         

@@ -55,6 +55,14 @@ class MongoManagerPerUser:
         count = self._db[collection].count_documents({"user_id":user_id})
         return(count)
     
+    def update_user_field(self, user_id, field, value):
+        '''
+        Allows to update every field for a user except for the 'user_id' field.
+        '''
+        if field != "user_id":
+            self._db["users"].update_many({ "user_id": user_id },
+                                        { "$set": { field: value }})
+
     def del_request(self, message):
         '''
         Gets a Telegram message object and logs it to a deletion requests file.
