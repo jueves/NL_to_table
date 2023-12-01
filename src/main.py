@@ -132,6 +132,25 @@ def voice_processing(message):
         markup = simple_markup
     bot.send_message(message.chat.id, answer, reply_markup=markup, parse_mode="html")
 
+@bot.message_handler(content_types=['document'])
+def document_processing(message):
+    '''
+    '''
+    if message.document.file_name[-19:] == "data_structure.json":
+        try:
+            file_info = bot.get_file(message.document.file_id)
+            downloaded_file = bot.download_file(file_info.file_path)
+            filename = f'user_data/{message.from_user.id}_data_structure.json'
+            with open(filename, 'wb') as new_file:
+                new_file.write(downloaded_file)
+            answer = user_manager.set_data_structure(message.from_user.id, filename)
+        except Exception as e:
+            answer = f"<b>Algo ha salido mal:</b>\n{e}"
+    else:
+        answer = ("Solo acepto archivos de configuración. Estos han de llevar un"
+                  "nombre acabado en 'data_structure.json'")
+    bot.send_message(message.chat.id, answer, parse_mode="html")
+
 @bot.message_handler(func=lambda msg: True)
 def echo_all(message):
     '''

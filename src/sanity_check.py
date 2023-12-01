@@ -74,3 +74,44 @@ def check_types(data):
                     if not is_bool_dtype(value):
                         veredict += "El valor de " + variable + " no es booleano.\n"
     return(veredict)
+
+def validate_data_structure(data_structure_filename):
+    '''
+    Gets the file name of a json file with a data structure.
+    Checks the structure and returns error report as str.
+    If no errors found, 'no errors' string will be returned.
+    '''
+    answer = ""
+    try:
+        with open(data_structure_filename, "r") as f:
+           data_structure = json.load(f)
+    except Exception as e:
+        answer += f"Error al importar el archivo:\n{e}"
+
+    for var_name in data_structure.keys():
+        var = data_structure[var_name]
+        try:
+            if not isinstance(var["description"], str):
+                answer += "\nLa descripción debe de ser un texto entre comillas."
+            if not var["type"] in ["String", "Numeric", "Boolean", "Time"]:
+                answer += (f"\nError en la variable {var_name}. El apartado 'type' debe ser: "
+                            "'String', 'Numeric', 'Boolean' o 'Time'")
+            if not isinstance(var["range"], list) or len(var["range"]) not in [0, 2]:
+                answer += (f"\nError en la variable {var_name}. El apartado 'range' debe de "
+                             "ser una lista de 2 o 0 elementos. Ejemplo: [0, 10] o []")
+            if not isinstance(var["example"], list) or not len(var["example"]) == 4:
+                answer += (f"\nError en la variable {var_name}. El apartado 'example' debe de "
+                             "ser una lista de 4 elementos. Ejemplo: [1, 2, 1, 0]")
+            if not isinstance(var["max_empty_days"], int):
+                answer += (f"\nError en la variable {var_name}. El apartado 'max_empty_days' debe de "
+                             "ser un número. Ejemplo: 30")
+            if not var["mute"] in ["True", "False"]:
+                answer += (f"\nError en la variable {var_name}. El valor de 'mute' ha de ser"
+                             "o bien 'True' o bien 'False'")
+        except Exception as e:
+            answer += f"\n\nError de formato en la variable {var_name}:\n{e}"
+    if len(answer) > 0:
+        answer = "Ha habido errores al procesar tu archivo de configuración.\n\n" + answer
+    else:
+        answer = "no errors"
+    return(answer)

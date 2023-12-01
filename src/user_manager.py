@@ -1,6 +1,7 @@
 from datetime import datetime
 import pandas as pd
 import json
+from sanity_check import validate_data_structure
 
 class UserManager:
     '''
@@ -83,10 +84,12 @@ class UserManager:
           data_structure = self.db.find_one("users", message.from_user.id)["data_structure"]
           json.dump(data_structure, json_file, indent=4)
       with open(filename, "r") as json_file:
-        self.bot.send_document(message.chat.id, reply_to_message_id=message.message_id,
+          self.bot.send_document(message.chat.id, reply_to_message_id=message.message_id,
                                document=json_file)
      
-    def set_data_structure(self, user_id, data_structure):
-       #
-       print("set_data_structure() is still under development")
+    def set_data_structure(self, user_id, data_structure_filename):
+       validation_report = validate_data_structure(data_structure_filename)
+       return(validation_report)
+
+   
         
