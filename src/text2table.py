@@ -51,7 +51,8 @@ class Text2Table:
         new_data["time"] = pd.to_datetime(new_data.time, format="mixed", dayfirst=True)
 
         self.tmp_data[user_id] = new_data
-        answer = self.df_to_markdown(new_data) + sanity_check(new_data)
+        data_structure = self.db.find_one("users", user_id)["data_structure"]
+        answer = self.df_to_markdown(new_data) + sanity_check(new_data, data_structure)
         return(answer)                        
 
     def df_to_markdown(self, new_data):
@@ -83,7 +84,8 @@ class Text2Table:
         Returns csv correction for the last message sent to chatGPT.
         '''
         if len(critique) == 0:
-            critique = sanity_check(self.tmp_data[user_id])
+            data_structure = self.db.find_one("users", user_id)["data_structure"]
+            critique = sanity_check(self.tmp_data[user_id], data_structure)
         messages = self.messages[user_id]
         messages.append({"role": "user", "content": '''Esa tabla contiene errores. {critique}.
                           Respóndeme únicamente con la tabla corregida, sin incluir
@@ -111,16 +113,6 @@ class Text2Table:
             self.db.insert_one("personal", user_id, records[0])
         else:
             self.db.insert_many("personal", user_id, records)
-
-    def del_request(self, message):
-        '''
-        Gets a Telegram message object and logs it to a deletion requests file.
-        '''
-        request_date = datetime.utcfromtimestamp(message.date)
-        request_text = " ".join(message.text.split()[1:]) # Excludes command from the text
-        self.db.insert_one(collection="delrequests", user_id=message.from_user.id,
-                           records={"date": request_date, "text": request_text})
-        return(request_text)
 
     def add_to_lastuse(self, user_id, dataframe):
         '''

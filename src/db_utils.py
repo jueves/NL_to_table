@@ -51,91 +51,24 @@ class MongoManagerPerUser:
         answer = self._db[collection].find(query, sort=sort, projection=projection)
         return(answer)
     
-    def user_exists(self, user_id):
-        '''
-        Gets user_id
-        Returns True or False depending on user existence
-        '''
-        if user_id in self.users_list:
-            exists = True
-        elif self._db["users"].count_documents({"user_id":user_id}) > 0:
-            exists = True
-            self.users_list.append(user_id)
-        else:
-            exists = False
-        return(exists)
+    def count_documents(self, collection, user_id):
+        count = self._db[collection].count_documents({"user_id":user_id})
+        return(count)
     
-    def add_user(self, user_id):
+    def update_user_field(self, user_id, field, value):
         '''
-        Gets new user_id
-        Adds new user
+        Allows to update every field for a user except for the 'user_id' field.
         '''
-        # Set data structure
-        if self._db["users"].count_documents({"user_id":user_id}) == 0:
-            # Set data structure
-            default_doc = self._db["users"].find_one({"user_id":0})
-            newuser_doc = {"user_id":user_id,
-                           "data_structure":default_doc["data_structure"],
-                           "prompt_header":self.get_prompt_header(default_doc["data_structure"],
-                                                                  default_doc["prompt_raw"])}
-            self._db["users"].insert_one(newuser_doc)
-        else:
-            raise RuntimeError("The user already exists.")
+        if field != "user_id":
+            self._db["users"].update_many({ "user_id": user_id },
+                                        { "$set": { field: value }})
 
-        # Create initial last use document
-        if self._db["lastuse"].count_documents({"user_id":user_id}) == 0:
-            # Create the initial lastuse document
-            lastuse_dict = {}
-            data_structure = self._db["users"].find_one({"user_id": user_id})["data_structure"]
-            for variable in  data_structure.keys():
-                lastuse_dict[variable] = datetime.strptime("2023-01-01", "%Y-%m-%d")
-            lastuse_dict["time"] = datetime.now()
-            lastuse_dict["user_id"] = user_id
-            self._db["lastuse"].insert_one(lastuse_dict)
-        else:
-            raise RuntimeError("lastuse has already been initiated for this user.")
-        
-    def update_user(self, user_id, data_structure):
+    def del_request(self, message):
         '''
-        Updates user's data_structure and prompt
+        Gets a Telegram message object and logs it to a deletion requests file.
         '''
-
-    
-    def get_prompt_header(self, data_structure, prompt_raw):
-        '''
-        Generates a prompt based on the defined data structure to set how
-        chatGPT should behave.
-        '''
-        # Generate variable description
-        var_description = ""
-        for var_name, var_metadata in data_structure.items():
-            var_description += "{name}, {description}\n".format(name=var_name,
-                                                                description=var_metadata["description"])
-
-        # Generate example data
-        example_dic = {}
-        for var_name in data_structure.keys():
-            example_dic[var_name] = data_structure[var_name]["example"]
-        example_csv = pd.DataFrame.from_dict(example_dic).to_csv(index=False)
-        prompt_header = prompt_raw.format(description=var_description, example=example_csv)
-        return(prompt_header)
-    
-    '''
-    def load_example_data(self, user_id, file_name):
-        # Loads example dummy data on database for user_id.
-        try:
-            data = pd.read_csv(file_name, parse_dates=["time"])
-            lastuse = {}
-            for var_name in data.columns:
-                lastuse[var_name] = datetime.now()
-            lastuse["user_id"] = user_id
-            data["user_id"] = user_id
-
-            self.db.personal.insert_many(data.to_dict(orient="records"))
-            self.db.lastuse.insert_one(lastuse)
-            answer = "Datos cargados."
-        except Exception as e:
-            answer = f"<b>Algo ha salido mal:</b>\n{e}"
-        return(answer)
-    '''
-        
+        request_date = datetime.utcfromtimestamp(message.date)
+        request_text = " ".join(message.text.split()[1:]) # Excludes command from the text
+        self.insert_one(collection="delrequests", user_id=message.from_user.id,
+                        records={"date": request_date, "text": request_text})
+        return(request_text)

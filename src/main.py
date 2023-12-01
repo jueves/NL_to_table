@@ -8,6 +8,7 @@ from text2table import Text2Table
 from reminders import Reminders
 from reports import Reporter
 from db_utils import MongoManagerPerUser
+from user_manager import UserManager
 
 # Set constants
 TELEGRAM_KEY = os.environ.get("TELEGRAM_KEY")
@@ -17,7 +18,6 @@ WHISPER_TYPE = os.environ.get("WHISPER_TYPE")
 WHISPER_LANG= os.environ.get("WHISPER_LANG")
 with open("version.txt", "r", encoding="utf8") as f:
     VERSION = f.read()
-
 print("######### VERSION: ", VERSION)
 
 # Load text messages
@@ -27,20 +27,16 @@ with open("text/start.txt", "r", encoding="utf-8") as f:
 with open("text/help.txt", "r", encoding="utf-8") as f:
     help_message = f.read()
 
+with open("text/config_instructions.txt", "r", encoding="utf-8") as f:
+    config_instructions = f.read()
+
+
 # Setup Mongo Connection
 db = MongoManagerPerUser()
 
 # Setup text to table converter
 text2table = Text2Table(db)
 reminder = Reminders(db)
-
-# Set default user
-with open("config/data_structure.json", "r", encoding="utf-8") as f:
-    data_structure = json.load(f)
-with open("text/prompt.txt", "r", encoding="utf-8") as f:
-    prompt_raw = f.read()
-db.insert_one(collection="users", user_id=0, records={"data_structure":data_structure,
-                                         "prompt_raw":prompt_raw})
 
 # Setup chatGPT
 openai.api_key = CHATGPT_KEY
@@ -53,6 +49,9 @@ bot = telebot.TeleBot(TELEGRAM_KEY)
 
 # Setup reports
 reports = Reporter(db, bot)
+
+# Setyo user_manager
+user_manager = UserManager(db, bot)
 
 # Create Telegram message markups
 simple_markup = InlineKeyboardMarkup()
@@ -75,7 +74,8 @@ cmd = {"help": ["/help", "/ayuda", "/h"],
        "lastuse": ["/lastuse", "/ultimo_uso"],
        "del": ["/del", "/eliminar", "/borrar"],
        "example": ["/example", "/ejemplo"],
-       "getdata": ["/getdata", "/descargar"]
+       "getdata": ["/getdata", "/descargar"],
+       "getconf": ["/getconf", "/configurar"]
        }
 
 @bot.callback_query_handler(func=lambda call: True)
@@ -109,9 +109,9 @@ def voice_processing(message):
         file_info = bot.get_file(message.voice.file_id)
         downloaded_file = bot.download_file(file_info.file_path)
         audio_file = f'user_data/{message.from_user.id}_voice.ogg'
-        with open('audio_file', 'wb') as new_file:
+        with open(audio_file, 'wb') as new_file:
             new_file.write(downloaded_file)
-        transcription = whisper_model.transcribe("audio_file", language=WHISPER_LANG)
+        transcription = whisper_model.transcribe(audio_file, language=WHISPER_LANG)
         message.text = transcription["text"]
         print("AUDIO TRANSCRIPTION:\n" + transcription["text"])
         answer = "<code>" + text2table.get_table(message)
@@ -123,6 +123,25 @@ def voice_processing(message):
         markup = simple_markup
     bot.send_message(message.chat.id, answer, reply_markup=markup, parse_mode="html")
 
+@bot.message_handler(content_types=['document'])
+def document_processing(message):
+    '''
+    '''
+    if message.document.file_name[-19:] == "data_structure.json":
+        try:
+            file_info = bot.get_file(message.document.file_id)
+            downloaded_file = bot.download_file(file_info.file_path)
+            filename = f'user_data/{message.from_user.id}_data_structure.json'
+            with open(filename, 'wb') as new_file:
+                new_file.write(downloaded_file)
+            answer = user_manager.set_data_structure(message.from_user.id, filename)
+        except Exception as e:
+            answer = f"<b>Algo ha salido mal:</b>\n{e}"
+    else:
+        answer = ("Solo acepto archivos de configuración. Estos han de llevar un"
+                  "nombre acabado en 'data_structure.json'")
+    bot.send_message(message.chat.id, answer, parse_mode="html")
+
 @bot.message_handler(func=lambda msg: True)
 def echo_all(message):
     '''
@@ -130,8 +149,8 @@ def echo_all(message):
     '''
     markup = simple_markup
     try:
-        if not db.user_exists(message.from_user.id):
-                db.add_user(message.from_user.id)
+        if not user_manager.user_exists(message.from_user.id):
+                user_manager.add_user(message.from_user.id)
         if message.text == "/start":
             answer = start_message + help_message
         elif message.text in cmd["help"]:
@@ -139,13 +158,16 @@ def echo_all(message):
         elif message.text in cmd["lastuse"]:
             answer = "<code>" + reminder.get_score_df(message.from_user.id).to_markdown(index=False) + "</code>"
         elif message.text.split()[0] in cmd["del"]:
-            request_text = text2table.del_request(message)
+            request_text = db.del_request(message)
             answer = "Se ha registrado tu solicitud de borrado. Tu comentario es: " + request_text
         elif message.text in cmd["getdata"]:
             answer = reports.send_data(message)
         elif message.text in cmd["example"]:
             markup = load_markup
             answer = "¿Desea cargar datos ficticios a modo de ejemplo?"
+        elif message.text in cmd["getconf"]:
+            user_manager.send_data_structure(message)
+            answer = config_instructions
         elif message.text == "/version":
             answer = f"Versión: {VERSION}"
         else:

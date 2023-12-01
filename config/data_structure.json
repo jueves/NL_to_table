@@ -66,7 +66,7 @@
     "food": {
         "description": "Food eaten in that moment. Could be one or more foods. Do not include caffeine drinks in the food category.",
         "type": "String",
-        "range": "",
+        "range": [],
         "example": [
             "Papas con sardinas",
             "Pasta con verdura",
@@ -127,7 +127,7 @@
     "caffeine": {
         "description": "Amount of caffeine ingested in diverse units.",
         "type": "String",
-        "range": "",
+        "range": [],
         "example": [
             "10 gramos de caf\u00e9",
             "Un cortado",
@@ -156,7 +156,7 @@
     "color": {
         "description": "A color name.",
         "type": "String",
-        "range": "",
+        "range": [],
         "example": [
             "negro",
             "rojo",
@@ -169,7 +169,7 @@
     "antihistaminic": {
         "description": "Administration of anhistaminic.",
         "type": "Boolean",
-        "range": "",
+        "range": [],
         "example": [
             "True",
             "False",
@@ -182,7 +182,7 @@
     "time": {
         "description": "The date and time in which data was collected. The date will be formated as YYYY-MM-DD and the time as HH:mm:ss",
         "type": "Time",
-        "range": "",
+        "range": [],
         "example": [
             "2023-03-01 14:53:00",
             "2023-04-17 18:18:45",
