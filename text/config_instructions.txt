@@ -26,3 +26,5 @@ Número máximo de días que puedes estar sin registrar una variable. Si pasa m�
 
 MUTE
 Si el valor de mute es True, la variable no se incluirá en los recordatorios.
+
+Una buena opción para editar tu archivo es copiar el contenido y editarlo online en https://jsonchecker.com/
