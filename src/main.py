@@ -75,7 +75,8 @@ cmd = {"help": ["/help", "/ayuda", "/h"],
        "del": ["/del", "/eliminar", "/borrar"],
        "example": ["/example", "/ejemplo"],
        "getdata": ["/getdata", "/descargar"],
-       "getconf": ["/getconf", "/configurar"]
+       "getconf": ["/getconf", "/configurar"],
+       "lineal": ["/lineal"]
        }
 
 @bot.callback_query_handler(func=lambda call: True)
@@ -168,6 +169,9 @@ def echo_all(message):
         elif message.text in cmd["getconf"]:
             user_manager.send_data_structure(message)
             answer = config_instructions
+        elif message.text.split()[0] in cmd["lineal"]:
+            reports.get_lineal(message)
+            answer = "Aquí tienes el gráfico."
         elif message.text == "/version":
             answer = f"Versión: {VERSION}"
         else:
