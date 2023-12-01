@@ -3,23 +3,20 @@ import pandas as pd
 from pandas.api.types import is_bool_dtype, is_number
 import datetime
 
-with open("config/data_structure.json", "r", encoding="utf-8") as f:
-    data_structure = json.load(f)
-
-def sanity_check(data, header=True):
+def sanity_check(data, data_structure, header=True):
     '''
     Gets a Pandas Data Frame.
     Checks variables names, ranges, and types.
     Returns report as string.
     '''
-    problems = check_variables(data)
-    problems += check_ranges(data)
-    problems += check_types(data)
+    problems = check_variables(data, data_structure)
+    problems += check_ranges(data, data_structure)
+    problems += check_types(data, data_structure)
     if header and len(problems) > 0:
         problems = "\n\nSANITY CHECK SUMMARY:\n" + problems
     return(problems)
 
-def check_variables(data):
+def check_variables(data, data_structure):
     '''
     Checks if the variables are the expected ones, returns report as string.
     '''
@@ -35,7 +32,7 @@ def check_variables(data):
 
     return(veredict)
 
-def check_ranges(data):
+def check_ranges(data, data_structure):
     '''
     Checks if the values are in range.
     Returns report as string.
@@ -50,7 +47,7 @@ def check_ranges(data):
                     veredict += "La variable " + variable + " está fuera de rango.\n"
     return(veredict)
 
-def check_types(data):
+def check_types(data, data_structure):
     '''
     Checks data types, returns report as string.
     '''
