@@ -18,7 +18,6 @@ WHISPER_TYPE = os.environ.get("WHISPER_TYPE")
 WHISPER_LANG= os.environ.get("WHISPER_LANG")
 with open("version.txt", "r", encoding="utf8") as f:
     VERSION = f.read()
-
 print("######### VERSION: ", VERSION)
 
 # Load text messages
@@ -38,14 +37,6 @@ db = MongoManagerPerUser()
 # Setup text to table converter
 text2table = Text2Table(db)
 reminder = Reminders(db)
-
-# Set default user
-with open("config/data_structure.json", "r", encoding="utf-8") as f:
-    data_structure = json.load(f)
-with open("text/prompt.txt", "r", encoding="utf-8") as f:
-    prompt_raw = f.read()
-db.insert_one(collection="users", user_id=0, records={"data_structure":data_structure,
-                                         "prompt_raw":prompt_raw})
 
 # Setup chatGPT
 openai.api_key = CHATGPT_KEY

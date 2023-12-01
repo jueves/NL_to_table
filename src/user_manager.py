@@ -37,12 +37,15 @@ class UserManager:
         '''
         # Set data structure
         if self.db.count_documents("users", user_id) == 0:
+            with open("config/data_structure.json", "r", encoding="utf-8") as f:
+                data_structure = json.load(f)
+            with open("text/prompt.txt", "r", encoding="utf-8") as f:
+                prompt_raw = f.read()
             # Set data structure
-            default_doc = self.db.find_one(collection="users", user_id=0)
             newuser_doc = {"user_id":user_id,
-                           "data_structure":default_doc["data_structure"],
-                           "prompt_header":self.get_prompt_header(default_doc["data_structure"],
-                                                                  default_doc["prompt_raw"])}
+                           "data_structure":data_structure,
+                           "prompt_header":self.get_prompt_header(data_structure,
+                                                                  prompt_raw)}
             self.db.insert_one("users", user_id, newuser_doc)
         else:
             raise RuntimeError("The user already exists.")
