@@ -1,7 +1,6 @@
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-from icecream import ic
 
 class Reporter:
     def __init__(self, db, bot):
