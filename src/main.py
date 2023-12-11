@@ -76,7 +76,10 @@ cmd = {"help": ["/help", "/ayuda", "/h"],
        "example": ["/example", "/ejemplo"],
        "getdata": ["/getdata", "/descargar"],
        "getconf": ["/getconf", "/configurar"],
-       "lineal": ["/lineal"]
+       "lineal": ["/lineal"],
+       "count": ["/count", "/frecuencia", "/frec"],
+       "plot": ["/plot", "/grafico"],
+       "vars": ["/variables", "/vars"]
        }
 
 @bot.callback_query_handler(func=lambda call: True)
@@ -170,8 +173,13 @@ def echo_all(message):
             user_manager.send_data_structure(message)
             answer = config_instructions
         elif message.text.split()[0] in cmd["lineal"]:
-            reports.get_lineal(message)
-            answer = "Aquí tienes el gráfico."
+            answer = reports.get_plot(message, var_type="Numeric")
+        elif message.text.split()[0] in cmd["count"]:
+            answer = reports.get_plot(message, var_type="any")
+        elif message.text.split()[0] in cmd["plot"]:
+            answer = reports.get_plot(message)
+        elif message.text in cmd["vars"]:
+            answer = reports.get_variables(message)
         elif message.text == "/version":
             answer = f"Versión: {VERSION}"
         else:

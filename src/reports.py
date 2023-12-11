@@ -34,21 +34,80 @@ class Reporter:
         answer = "Aquí tiene sus datos."
         return(answer)
     
-    def get_lineal(self, message):
+    def get_linealplot(self, message):
         '''
-        Plots var_name vs time and sends it as a picture.
+        Gets a message with a var name.
+        Returns lineal plot of var_name vs time.
         '''
         data = self.get_data(message.from_user.id)
         var_name = message.text.split()[1]
-        #plt.xticks(rotation=45, ha='right')
         lineal_plot = sns.lineplot(x="time", y=var_name, data=data)
         lineal_plot.set_xticklabels(lineal_plot.get_xticklabels(), rotation=45, ha='right')
-        plt.tight_layout()
-        figure = lineal_plot.get_figure()
-        filename = f"user_data/{message.from_user.id}_{var_name}.png"
-        figure.savefig(filename)
-        plt.close()
-        with open(filename, "rb") as plot_pic:
-            self.bot.send_photo(message.chat.id, photo=plot_pic)
+        return(lineal_plot)
+    
+    def get_countplot(self, message):
+        '''
+        Gets message.
+        Extracts variable name from message text and user_id from
+        message's metadata.
+        Returns plot.
+        '''
+        data = self.get_data(message.from_user.id)
+        var_name = message.text.split()[1]
+        max_num_labels = 5 
+        # If num labels exceeds max_num_labels, create label "other"
+        counts = data[var_name].value_counts()
+        if len(counts) > max_num_labels:
+            other_values = counts[max_num_labels:].index
+            data[var_name] = ["Otros" if value in other_values else value for value in data[var_name]]
+        
+        my_order = list(counts.index[:max_num_labels]) + ["Otros"]
+        count_plot = sns.countplot(y=var_name, data = data, order=my_order)
+        return(count_plot)
+
+    def get_plot(self, message, var_type=None):
+        '''
+        Gets message with var name.
+        Sends plot depending on var type.
+        '''
+        if len(message.text.split()) == 2:
+            var_name = message.text.split()[1]
+            answer = "Aquí tienes el gráfico."
+            if var_type == None:
+                data_structure = self.db.find_one("users", message.from_user.id)["data_structure"]
+                var_type = data_structure[var_name]["type"]
+                answer = ("Aquí tienes. También puedes especificar el tipo de gráfico"
+                          " usando /lineal o /frecuencia seguido del nombre de la variable.")
+            if var_type == "Numeric":
+                myplot = self.get_linealplot(message)
+            else:
+                myplot = self.get_countplot(message)
+            plt.tight_layout()
+            figure = myplot.get_figure()
+            filename = f"user_data/{message.from_user.id}_{var_name}.png"
+            figure.savefig(filename)
+            plt.close()
+            with open(filename, "rb") as plot_pic:
+                self.bot.send_photo(message.chat.id, photo=plot_pic)
+            
+        else:
+            answer = ("Formato incorrecto. Debes de indicar la variable a mostrar. "
+                      "Ej: <code>{command} energy</code>\n"
+                      "Para ver la lista de variables disponibles usa "
+                      "/variables").format(command=message.text.split()[0])
+        return(answer)
+    
+    def get_variables(self, message):
+        '''
+        Gets a message.
+        Returns user variable names as a string.
+        '''
+        data_structure = self.db.find_one("users", message.from_user.id)["data_structure"]
+
+        answer = "Estas son las variables disponibles:\n"
+        for var_name in data_structure.keys():
+            if var_name != "time":
+                answer += "- " + var_name + "\n"
+        return(answer)
 
 
