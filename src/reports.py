@@ -40,7 +40,7 @@ class Reporter:
         '''
         data = self.get_data(message.from_user.id)
         var_name = message.text.split()[1]
-        lineal_plot = sns.lineplot(x="time", y=var_name, data=data)
+        lineal_plot = sns.lineplot(x="time", y=var_name, data=data, marker="o")
         lineal_plot.set_xticklabels(lineal_plot.get_xticklabels(), rotation=45, ha='right')
         return(lineal_plot)
     
@@ -54,14 +54,24 @@ class Reporter:
         data = self.get_data(message.from_user.id)
         var_name = message.text.split()[1]
         max_num_labels = 5 
-        # If num labels exceeds max_num_labels, create label "other"
+
+        # Set order
+        is_numeric = pd.api.types.is_numeric_dtype(data[var_name])
         counts = data[var_name].value_counts()
+        if is_numeric:
+            my_order = sorted(data[var_name].dropna().unique(), reverse=True)[:max_num_labels]
+        else:
+            my_order = list(counts[:max_num_labels].index)
+
+        counts = data[var_name].value_counts()
+
+        # Create "other" category
         if len(counts) > max_num_labels:
             other_values = counts[max_num_labels:].index
             data[var_name] = ["Otros" if value in other_values else value for value in data[var_name]]
-        
-        my_order = list(counts.index[:max_num_labels]) + ["Otros"]
+            my_order += ["Otros"]
         count_plot = sns.countplot(y=var_name, data = data, order=my_order)
+
         return(count_plot)
 
     def get_plot(self, message, var_type=None):
