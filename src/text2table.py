@@ -27,7 +27,7 @@ class Text2Table:
         txt_input = message.text + "\nCurrent time is " + timestr
         self.messages[message.from_user.id] = [ {"role": "system", "content": prompt_header} ]
         self.messages[message.from_user.id].append({"role": "user", "content": txt_input})
-        chat = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=self.messages[message.from_user.id])
+        chat = openai.ChatCompletion.create(model="gpt-3.5-turbo", temperature=0, messages=self.messages[message.from_user.id])
         
         reply = chat.choices[0].message.content
         return(reply)
@@ -47,12 +47,13 @@ class Text2Table:
             print("ERROR: time missing, asking for correction.")
             new_csv = self.get_correction(user_id, critique="No has incluído la columna time.")
             new_data = pd.read_csv(StringIO(new_csv))
-            new_csv
-        new_data["time"] = pd.to_datetime(new_data.time, format="mixed", dayfirst=True)
-
-        self.tmp_data[user_id] = new_data
-        data_structure = self.db.find_one("users", user_id)["data_structure"]
-        answer = self.df_to_markdown(new_data) + sanity_check(new_data, data_structure)
+        if "time" in new_data.columns:
+            new_data["time"] = pd.to_datetime(new_data.time, format="mixed", dayfirst=True)
+            self.tmp_data[user_id] = new_data
+            data_structure = self.db.find_one("users", user_id)["data_structure"]
+            answer = self.df_to_markdown(new_data) + sanity_check(new_data, data_structure)
+        else:
+            answer = "No se pudo obtener una tabla, reformule su mensaje de manera más clara."
         return(answer)                        
 
     def df_to_markdown(self, new_data):
@@ -60,9 +61,9 @@ class Text2Table:
         Gets a new_data Pandas DataFrame and returns it as a Sring in a clear
         Markdown structure.
         '''
-        new_data = new_data.dropna(axis=1)
         date_time = new_data.time
-        new_data = new_data.drop(columns=["time"])
+        new_data = new_data.dropna(axis=1)
+        new_data = new_data.drop(columns=["time"], errors="ignore")
         new_data["date"] = date_time.map(datetime.date)
         new_data["time"] = date_time.map(datetime.time)
         new_data_md = new_data.T.to_markdown()
@@ -91,7 +92,7 @@ class Text2Table:
                           Respóndeme únicamente con la tabla corregida, sin incluir
                           ningún otro texto antes o despues.'''.format(critique=critique)
                          })
-        chat = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=messages)
+        chat = openai.ChatCompletion.create(model="gpt-3.5-turbo", temperature=1, messages=messages)
         new_csv = chat.choices[0].message.content
         return(new_csv)
 
