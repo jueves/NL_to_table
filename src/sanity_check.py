@@ -9,12 +9,28 @@ def sanity_check(data, data_structure, header=True):
     Checks variables names, ranges, and types.
     Returns report as string.
     '''
-    problems = check_variables(data, data_structure)
-    problems += check_ranges(data, data_structure)
-    problems += check_types(data, data_structure)
+    valid, problems = check_nlines(data)
+    if valid:
+        problems += check_variables(data, data_structure)
+        problems += check_ranges(data, data_structure)
+        problems += check_types(data, data_structure)
     if header and len(problems) > 0:
         problems = "\n\nSANITY CHECK SUMMARY:\n" + problems
     return(problems)
+
+def check_nlines(data):
+    '''
+    Check the number of lines in data.
+    Returns validity (wether exists any data to evaluate) and veredict.
+    '''
+    valid = True
+    veredict = ""
+    if len(data) == 0:
+        valid = False
+        veredict = ("La tabla tiene 0 filas. Se ha solicitado una tabla con 1 fila.")
+    elif len(data) > 1:
+        veredict = f"Sólo se ha solicitado una fila, se ha devuelto una tabla con {len(data)} filas."
+    return(valid, veredict)
 
 def check_variables(data, data_structure):
     '''
