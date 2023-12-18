@@ -16,7 +16,7 @@ All info messages are in Spanish, but your data and variables can be in any lang
 3. Run the bot using Docker Compose.
 
 # Configuration
-You can easily adapt the bot to your needs by downloading and editing `data_structure.json` and then mounting it on `/NL_to_table/`  
+You can get your config file with the `/getconf` command. You will be sent instructions explaining the diferent fields to set. You can create and delete any variable you want as long as you define it with the proper structure. Once done, you can send it back to the bot and it will be set for your future data logs. This does not affect your old data.
 
 # Usage
 ## Log new data
@@ -28,6 +28,9 @@ You can easily adapt the bot to your needs by downloading and editing `data_stru
 To create a deletion requests, use the `/del` command followed by a comment. For example: `/del That last allergy measure of 3 wasn't real, it was a test.`  
 This will get logged in the "delrequests" collection in the database to be reviewed by the admin.  
 
+## Check available variables
+You can use the command `/vars` to get a list of all available variables.
+
 ## Reminders
 Anytime you add new data you will be reminded of the variable that has been unrecorded for the longest time.  
 Variables muted in `data_structure.json` are excluded from reminders.
@@ -38,8 +41,15 @@ You can download all your data in a csv file using the command `/download`
 ## Dummy data
 You can load dummy data in order to test the app using the `/example` command.
 
+## Plots
+You have two diferent plots you can use for quick basic exploration:
+- `/count` for a single variable counting barplot.
+- `/lineal` for variable vs time lineplot.
+- You can also use just use `/plot` and it will be chosen for you.
+
+
 # To do
 - [X] Add multiuser support.
 - [ ] Add interactive record deletion.
 - [ ] Set the minimum frequency of records per variable to skip reminders.
-- [ ] Return descriptive data visualizations.
+- [X] Return descriptive data visualizations.
