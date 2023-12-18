@@ -24,15 +24,15 @@ class Text2Table:
         prompt_header = user_dict["prompt_header"]
         message_date = datetime.utcfromtimestamp(message.date)
         timestr = message_date.strftime("%Y-%m-%d %H:%M:%S")
-        txt_input = message.text + "\nCurrent time is " + timestr
+        text_input = message.text + "\nCurrent time is " + timestr
         self.messages[message.from_user.id] = [ {"role": "system", "content": prompt_header} ]
-        self.messages[message.from_user.id].append({"role": "user", "content": txt_input})
+        self.messages[message.from_user.id].append({"role": "user", "content": text_input})
         chat = openai.ChatCompletion.create(model="gpt-3.5-turbo", temperature=0, messages=self.messages[message.from_user.id])
         
         reply = chat.choices[0].message.content
-        return(reply)
+        return(text_input, reply)
 
-    def csv2answer(self, csv_data, user_id):
+    def csv2answer(self, text_input, csv_data, user_id):
         '''
         Gets a string of csv data and a user id.
         Converts string to dataframe
@@ -40,7 +40,7 @@ class Text2Table:
         Returns answer
         '''
         new_data = pd.read_csv(StringIO(csv_data))
-
+        
         i = 0
         while not "time" in new_data.columns and i < 4:
             i =+ 1
@@ -49,9 +49,12 @@ class Text2Table:
             new_data = pd.read_csv(StringIO(new_csv))
         if "time" in new_data.columns:
             new_data["time"] = pd.to_datetime(new_data.time, format="mixed", dayfirst=True)
-            self.tmp_data[user_id] = new_data
             data_structure = self.db.find_one("users", user_id)["data_structure"]
             answer = self.df_to_markdown(new_data) + sanity_check(new_data, data_structure)
+            
+            # Add prompt and save data
+            new_data["prompt"] = text_input
+            self.tmp_data[user_id] = new_data
         else:
             answer = "No se pudo obtener una tabla, reformule su mensaje de manera más clara."
         return(answer)                        
@@ -63,7 +66,7 @@ class Text2Table:
         '''
         date_time = new_data.time
         new_data = new_data.dropna(axis=1)
-        new_data = new_data.drop(columns=["time"], errors="ignore")
+        new_data = new_data.drop(columns=["time", "prompt"], errors="ignore")
         new_data["date"] = date_time.map(datetime.date)
         new_data["time"] = date_time.map(datetime.time)
         new_data_md = new_data.T.to_markdown()
@@ -75,8 +78,8 @@ class Text2Table:
         saves the data.
         Returns answer text with information about the process.
         '''
-        csv_str = self.text_to_csv(message)
-        answer = self.csv2answer(csv_str,
+        text_input, csv_str = self.text_to_csv(message)
+        answer = self.csv2answer(text_input, csv_str,
                                  message.from_user.id)
         return(answer)
 
