@@ -1,5 +1,4 @@
 import os
-import json
 import telebot
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 import openai
