@@ -1,4 +1,6 @@
-# Adds user field to old MongoDB documents.
+# First versions of the project where single use only.
+# This adds a user to old MongoDB documents making them compatible
+# with the multiuser version.
 # In order to modify production database, expose port 27017 on
 # the mongo service and use the proper .env file.
 import json
