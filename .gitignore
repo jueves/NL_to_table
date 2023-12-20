@@ -165,4 +165,4 @@ user_data/*.ogg
 user_data/*.json
 user_data/*.png
 *.ipynb
-descartado.py
+descartado/*

@@ -35,8 +35,8 @@ class Reminders:
             if var_name != "time" and var_metadata["mute"] == "False":
                 var_names.append(var_name)
                 scores.append(self.get_score(user_id, var_name))
-        score_df = pd.DataFrame({"var_name":var_names, "score":scores})
-        score_df = score_df.sort_values("score", ascending=False, ignore_index=True)
+        score_df = pd.DataFrame({"var_name":var_names, "days_unused":scores})
+        score_df = score_df.sort_values("days_unused", ascending=False, ignore_index=True)
         return(score_df)
 
     def get_reminders(self, user_id):
