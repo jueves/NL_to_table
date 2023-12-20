@@ -45,7 +45,7 @@ class Reminders:
        '''
        lastuse_df = self.get_score_df(user_id)
        
-       last_score = lastuse_df.score[0]
+       last_score = lastuse_df.days_unused[0]
        last_var_name = lastuse_df.var_name[0]
        
        if  last_score > 365:
