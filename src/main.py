@@ -59,13 +59,13 @@ simple_markup = InlineKeyboardMarkup()
 update_markup = InlineKeyboardMarkup()
 update_markup.row_width = 2
 update_markup.add(InlineKeyboardButton("Todo correcto", callback_data="cb_correct"),
-                   InlineKeyboardButton("Hay errores", callback_data="cb_errors"))
+                  InlineKeyboardButton("Hay errores", callback_data="cb_errors"))
 
 # load_markup
 load_markup = InlineKeyboardMarkup()
 load_markup.row_width = 2
 load_markup.add(InlineKeyboardButton("Cargar datos", callback_data="cb_load"),
-                   InlineKeyboardButton("Cancelar", callback_data="cb_cancel"))
+                InlineKeyboardButton("Cancelar", callback_data="cb_cancel"))
 
 # del_markup
 del_markup = InlineKeyboardMarkup()
@@ -107,7 +107,6 @@ def callback_query(call):
                                   "user_data/dummy_data.csv")
         bot.answer_callback_query(call.id, "Datos de ejemplo cargados.")
     elif call.data == "cb_cancel":
-        bot.edit_message_reply_markup(inline_message_id=call.message.chat.id, reply_markup=simple_markup)
         bot.answer_callback_query(call.id, "Operación cancelada.")
         
     elif call.data == "cb_del":
@@ -119,8 +118,11 @@ def callback_query(call):
                   " para el penúltimo usa <code>/eliminar 1</code>, para el anterior"
                   " a este <code>/eliminar 2</code> y así sucesivamente.\n"
                   "También puedes dejar una solicitud de eliminación usando /borrado_admin"
-                  "seguido de un comentario descriptivo.")
+                  " seguido de un comentario descriptivo.")
         bot.send_message(call.from_user.id, answer, parse_mode="html")
+
+    # Remove the buttons to prevent new actions
+    bot.edit_message_reply_markup(call.message.chat.id, call.message.message_id, reply_markup=None)
 
 @bot.message_handler(content_types=['voice'])
 def voice_processing(message):
