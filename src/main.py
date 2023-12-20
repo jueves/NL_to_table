@@ -67,11 +67,18 @@ load_markup.row_width = 2
 load_markup.add(InlineKeyboardButton("Cargar datos", callback_data="cb_load"),
                    InlineKeyboardButton("Cancelar", callback_data="cb_cancel"))
 
+# del_markup
+del_markup = InlineKeyboardMarkup()
+del_markup.row_width = 2
+del_markup.add(InlineKeyboardButton("Borrar registro", callback_data="cb_del"),
+               InlineKeyboardButton("Mostrar otro", callback_data="cb_keep"),
+               InlineKeyboardButton("Cancelar", callback_data="cb_cancel"))
 
 # Set Telegram commands dic
 cmd = {"help": ["/help", "/ayuda", "/h"],
        "lastuse": ["/lastuse", "/ultimo_uso"],
        "del": ["/del", "/eliminar", "/borrar"],
+       "admin_del": ["/admin_del", "/borrado_admin"],
        "example": ["/example", "/ejemplo"],
        "getdata": ["/getdata", "/descargar"],
        "getconf": ["/getconf", "/configurar"],
@@ -100,7 +107,20 @@ def callback_query(call):
                                   "user_data/dummy_data.csv")
         bot.answer_callback_query(call.id, "Datos de ejemplo cargados.")
     elif call.data == "cb_cancel":
-        bot.answer_callback_query(call.id, "No se han cargado los datos.")
+        bot.edit_message_reply_markup(inline_message_id=call.message.chat.id, reply_markup=simple_markup)
+        bot.answer_callback_query(call.id, "Operación cancelada.")
+        
+    elif call.data == "cb_del":
+        db.delete_using_call(call)
+        bot.answer_callback_query(call.id, "Respuesta a la solicitud de borrado.")
+
+    elif call.data == "cb_keep":
+        answer = ("Para elegir el último registro, usa <code>/eliminar</code>,"
+                  " para el penúltimo usa <code>/eliminar 1</code>, para el anterior"
+                  " a este <code>/eliminar 2</code> y así sucesivamente.\n"
+                  "También puedes dejar una solicitud de eliminación usando /borrado_admin"
+                  "seguido de un comentario descriptivo.")
+        bot.send_message(call.from_user.id, answer, parse_mode="html")
 
 @bot.message_handler(content_types=['voice'])
 def voice_processing(message):
@@ -129,6 +149,9 @@ def voice_processing(message):
 @bot.message_handler(content_types=['document'])
 def document_processing(message):
     '''
+    Gets a message with a file.
+    Validates file structure matchs configuration file.
+    Sets configuration for the user.
     '''
     if message.document.file_name[-19:] == "data_structure.json":
         try:
@@ -161,8 +184,10 @@ def echo_all(message):
         elif message.text in cmd["lastuse"]:
             answer = "<code>" + reminder.get_score_df(message.from_user.id).to_markdown(index=False) + "</code>"
         elif message.text.split()[0] in cmd["del"]:
-            request_text = db.del_request(message)
-            answer = "Se ha registrado tu solicitud de borrado. Tu comentario es: " + request_text
+            markup = del_markup
+            answer = text2table.get_deletion_proposal(message)
+        elif message.text.split()[0] in cmd["admin_del"]:
+            answer = db.admin_del_request(message)
         elif message.text in cmd["getdata"]:
             answer = reports.send_data(message)
         elif message.text in cmd["example"]:
@@ -183,7 +208,8 @@ def echo_all(message):
             answer = f"Versión: {VERSION}"
         else:
             markup = update_markup
-            answer = "<code>" + text2table.get_table(message) + reminder.get_reminders(message.from_user.id) + "</code>"
+            answer = ("<code>" + text2table.get_table(message) + "</code>" +
+                      reminder.get_reminders(message.from_user.id))
     except Exception as e:
         answer = f"<b>Algo ha salido mal:</b>\n{e}"
     bot.send_message(message.chat.id, answer, reply_markup=markup, parse_mode="html")

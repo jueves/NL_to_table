@@ -25,8 +25,8 @@ You can get your config file with the `/getconf` command. You will be sent instr
 3. If you aprove the message your data will be saved. If you ask for a correction nothing will be saved and you will get a new propossal.
 
 ## Delete last log
-To create a deletion requests, use the `/del` command followed by a comment. For example: `/del That last allergy measure of 3 wasn't real, it was a test.`  
-This will get logged in the "delrequests" collection in the database to be reviewed by the admin.  
+To delete the last record, use the `/del` command. If you want to delete the record before that, you have to use `/del 1`, for the previous one `/del 2`, etc... You will be shown the data to remove and asked for confirmation.
+If you have problems with this you can always send a deletetion request to the admin using `/admin_del` followed by a comment describing the problem.
 
 ## Check available variables
 You can use the command `/vars` to get a list of all available variables.

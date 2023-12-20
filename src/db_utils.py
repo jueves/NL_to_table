@@ -1,7 +1,8 @@
 import os
 import pymongo
+from bson.objectid import ObjectId
 from datetime import datetime
-import pandas as pd
+import re
 
 MONGO_SERVER = "mongo"
 MONGO_USER = os.environ.get("MONGO_USER")
@@ -35,15 +36,15 @@ class MongoManagerPerUser:
             document.update({"user_id":user_id})
         self._db[collection].insert_many(records)
 
-    def find_one(self, collection, user_id, query={}, sort=None, projection=None):
+    def find_one(self, collection, user_id, query={}, sort=[('_id', -1)], projection=None, skip=0):
         '''
         pymongo find_one method, forcing filtering by user_id
         '''
         query['user_id'] = user_id
-        answer = self._db[collection].find_one(query, sort=sort, projection=projection)
+        answer = self._db[collection].find_one(query, sort=sort, projection=projection, skip=skip)
         return(answer)
     
-    def find(self, collection, user_id, query={}, sort=None, projection=None):
+    def find(self, collection, user_id, query={}, sort=[('_id', -1)], projection=None):
         '''
         pymongo find method, forcing filtering by user_id
         '''
@@ -52,8 +53,19 @@ class MongoManagerPerUser:
         return(answer)
     
     def count_documents(self, collection, user_id):
+        '''
+        pymongo count_documents method, forcing filtering by user_id
+        '''
         count = self._db[collection].count_documents({"user_id":user_id})
         return(count)
+    
+    def delete_one(self, collection, user_id, query):
+        '''
+        pymongo delete_one method, forcing filtering by user_id
+        '''
+        query['user_id'] = user_id
+        answer = self._db[collection].delete_one(query)
+        return(answer)
     
     def update_user_field(self, user_id, field, value):
         '''
@@ -63,7 +75,7 @@ class MongoManagerPerUser:
             self._db["users"].update_many({ "user_id": user_id },
                                         { "$set": { field: value }})
 
-    def del_request(self, message):
+    def admin_del_request(self, message):
         '''
         Gets a Telegram message object and logs it to a deletion requests file.
         '''
@@ -72,3 +84,13 @@ class MongoManagerPerUser:
         self.insert_one(collection="delrequests", user_id=message.from_user.id,
                         records={"date": request_date, "text": request_text})
         return(request_text)
+    
+    def delete_using_call(self, call):
+        '''
+        Deletes record from "personal" collection in the database.
+        '''
+        user_id = call.from_user.id
+        message_text = call.message.text
+        record_id_str = re.findall(r"Record_id:\s([0-9a-fA-F]+)", message_text)[-1]
+        record_id = ObjectId(record_id_str)
+        self.delete_one("personal", user_id, {"_id": record_id})

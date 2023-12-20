@@ -134,7 +134,7 @@ class Text2Table:
         else:
             # For simplicity, if multiple observations are being loaded at once,
             # we set current datetime as lastuse datetime.
-            # Currently (v0.9.2) only dummy data is loaded in bulk.
+            # Currently (v1.1.2) only dummy data is loaded in bulk.
             lastuse_time = datetime.now()
 
         # Set new var time
@@ -160,3 +160,22 @@ class Text2Table:
         # Insert data        
         self.db.insert_one(collection="lastuse", user_id=user_id,
                            records=lastuse)
+        
+    def get_deletion_proposal(self, message):
+        '''
+        Gets user_id and skip=n from message.
+        Returns n-last record in the "personal" collection for a certain user.
+        '''
+        user_id = message.from_user.id
+        try:
+            skip = int(message.text.split()[1])
+        except:
+            skip = 0
+        cursor = self.db.find_one("personal", user_id, skip=skip)
+        df = pd.DataFrame([cursor])
+
+        table_md = self.df_to_markdown(df.drop(columns="_id"))
+        
+        answer = "<code>{table}\nRecord_id: {record_id}</code>".format(table=table_md,
+                                                                       record_id=df["_id"][0])
+        return(answer)
