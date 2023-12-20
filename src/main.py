@@ -53,8 +53,6 @@ reports = Reporter(db, bot)
 user_manager = UserManager(db, bot)
 
 # Create Telegram message markups
-simple_markup = InlineKeyboardMarkup()
-
 # update_markup
 update_markup = InlineKeyboardMarkup()
 update_markup.row_width = 2
@@ -91,7 +89,7 @@ cmd = {"help": ["/help", "/ayuda", "/h"],
 @bot.callback_query_handler(func=lambda call: True)
 def callback_query(call):
     '''
-    Manages callback for data validation buttons
+    Manages callback for confirmation buttons
     '''
     if call.data == "cb_correct":
         text2table.update_dataset(user_id=call.from_user.id)
@@ -145,7 +143,7 @@ def voice_processing(message):
         markup = update_markup
     except Exception as e:
         answer = f"<b>Algo ha salido mal:</b>\n{e}"
-        markup = simple_markup
+        markup = None
     bot.send_message(message.chat.id, answer, reply_markup=markup, parse_mode="html")
 
 @bot.message_handler(content_types=['document'])
@@ -175,7 +173,7 @@ def echo_all(message):
     '''
     Takes all incoming messages and returns answers.
     '''
-    markup = simple_markup
+    markup = None
     try:
         if not user_manager.user_exists(message.from_user.id):
                 user_manager.add_user(message.from_user.id)
@@ -217,3 +215,4 @@ def echo_all(message):
     bot.send_message(message.chat.id, answer, reply_markup=markup, parse_mode="html")
 
 bot.infinity_polling()
+    
