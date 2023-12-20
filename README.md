@@ -1,4 +1,6 @@
 # NL_to_table
+**TL;DR:** You can just try it out at [@cuadriculado_bot](https://t.me/cuadriculado_bot)
+
 Natural language to table converter.
 
 This is a Telegram Bot that converts text and voice to tables using Whisper and ChatGPT. The table format is specified in `data_structure.json`. This file serves both to build the prompts and to assist on data operations.
@@ -8,7 +10,7 @@ All info messages are in Spanish, but your data and variables can be in any lang
 # Installation
 1. Install Docker on your machine.
 2. Set your own `.env` file from `.env_example`.
-      - `TELEGRAM_KEY` Your Telegram Bot Key. You can get it texting to [@BotFather](https://web.telegram.org/k/#@BotFather) on Telegram.
+      - `TELEGRAM_KEY` Your Telegram Bot Key. You can get it texting to [@BotFather](https://t.me/BotFather) on Telegram.
       - `CHATGPT_KEY` Your ChatGPT API key. You can get it [here](https://platform.openai.com/account/api-keys).
       - `WHISPER_TYPE` The language model to use. Be aware that if the model is too large for your hardware the app will crash.
       - `WHISPER_LANG` Whisper will assume all audio comes in this language. 
