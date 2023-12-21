@@ -11,7 +11,7 @@ from user_manager import UserManager
 
 # Set constants
 TELEGRAM_KEY = os.environ.get("TELEGRAM_KEY")
-CHATGPT_KEY = os.environ.get("CHATGPT_KEY")
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 TELEGRAM_USER_ID = os.environ.get("TELEGRAM_USER_ID")
 WHISPER_TYPE = os.environ.get("WHISPER_TYPE")
 WHISPER_LANG= os.environ.get("WHISPER_LANG")
