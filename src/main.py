@@ -38,7 +38,7 @@ text2table = Text2Table(db)
 reminder = Reminders(db)
 
 # Setup chatGPT
-openai.api_key = CHATGPT_KEY
+openai.api_key = OPENAI_API_KEY
 
 # Setup Whisper
 whisper_model = whisper.load_model(WHISPER_TYPE)
