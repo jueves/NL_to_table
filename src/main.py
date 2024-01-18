@@ -2,7 +2,7 @@ import os
 import telebot
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 import openai
-import whisper
+from audio_utils import Whisper4Bot
 from text2table import Text2Table
 from reminders import Reminders
 from reports import Reporter
@@ -13,8 +13,7 @@ from user_manager import UserManager
 TELEGRAM_KEY = os.environ.get("TELEGRAM_KEY")
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 TELEGRAM_USER_ID = os.environ.get("TELEGRAM_USER_ID")
-WHISPER_TYPE = os.environ.get("WHISPER_TYPE")
-WHISPER_LANG= os.environ.get("WHISPER_LANG")
+
 with open("version.txt", "r", encoding="utf8") as f:
     VERSION = f.read()
 print("######### VERSION: ", VERSION)
@@ -40,17 +39,17 @@ reminder = Reminders(db)
 # Setup chatGPT
 openai.api_key = OPENAI_API_KEY
 
-# Setup Whisper
-whisper_model = whisper.load_model(WHISPER_TYPE)
-
 # Setup Telegram bot
 bot = telebot.TeleBot(TELEGRAM_KEY)
 
 # Setup reports
 reports = Reporter(db, bot)
 
-# Setyo user_manager
+# Setup user_manager
 user_manager = UserManager(db, bot)
+
+# Setup audio2text
+audio2text = Whisper4Bot(bot)
 
 # Create Telegram message markups
 # update_markup
@@ -127,20 +126,17 @@ def voice_processing(message):
     '''
     Takes a voice note describing data values and answers with a table format propossal.
     '''
-    bot.reply_to(message, "Procesando audio...")
     try:
-        file_info = bot.get_file(message.voice.file_id)
-        downloaded_file = bot.download_file(file_info.file_path)
-        audio_file = f'user_data/{message.from_user.id}_voice.ogg'
-        with open(audio_file, 'wb') as new_file:
-            new_file.write(downloaded_file)
-        transcription = whisper_model.transcribe(audio_file, language=WHISPER_LANG)
-        message.text = transcription["text"]
-        print("AUDIO TRANSCRIPTION:\n" + transcription["text"])
-        answer = "<code>" + text2table.get_table(message)
-        answer += "\nTRANSCRIPCIÓN DE AUDIO:\n" + transcription["text"]
-        answer += reminder.get_reminders(user_id=message.from_user.id)  + "</code>"
-        markup = update_markup
+        is_available, transcription_text =  audio2text.transcribe(message)
+        if is_available:
+            message.text = transcription_text
+            answer = "<code>" + text2table.get_table(message)
+            answer += "\nTRANSCRIPCIÓN DE AUDIO:\n" + transcription_text
+            answer += reminder.get_reminders(user_id=message.from_user.id)  + "</code>"
+            markup = update_markup
+        else:
+            answer = "El modelo Whisper está ocupado, inténtelo de nuevo en unos minutos."
+            markup = None
     except Exception as e:
         answer = f"<b>Algo ha salido mal:</b>\n{e}"
         markup = None

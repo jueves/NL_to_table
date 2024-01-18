@@ -1,8 +1,6 @@
 FROM python:3.11
 
-RUN pip install openai==0.28 openai-whisper pyTelegramBotAPI
-
-RUN apt-get update && apt-get install -y ffmpeg
+RUN pip install openai==0.28 faster-whisper pyTelegramBotAPI
 
 RUN pip install pandas tabulate pymongo seaborn
 
