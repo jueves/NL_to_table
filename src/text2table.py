@@ -1,8 +1,11 @@
 from io import StringIO
 from datetime import datetime
 import pandas as pd
-import openai
+from openai import OpenAI
 from sanity_check import sanity_check
+import os
+
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 
 class Text2Table:
     '''
@@ -13,6 +16,7 @@ class Text2Table:
         self.db = db
         self.tmp_data = {}
         self.messages = {}
+        self.client = OpenAI()
     
     def text_to_csv(self, message):
         '''
@@ -27,7 +31,7 @@ class Text2Table:
         text_input = message.text + "\nCurrent time is " + timestr
         self.messages[message.from_user.id] = [ {"role": "system", "content": prompt_header} ]
         self.messages[message.from_user.id].append({"role": "user", "content": text_input})
-        chat = openai.ChatCompletion.create(model="gpt-3.5-turbo", temperature=0, messages=self.messages[message.from_user.id])
+        chat = self.client.chat.completions.create(model="gpt-3.5-turbo", temperature=0, messages=self.messages[message.from_user.id])
         
         reply = chat.choices[0].message.content
         return(text_input, reply)
@@ -95,8 +99,9 @@ class Text2Table:
                           Respóndeme únicamente con la tabla corregida, sin incluir
                           ningún otro texto antes o despues.'''.format(critique=critique)
                          })
-        chat = openai.ChatCompletion.create(model="gpt-3.5-turbo", temperature=1, messages=messages)
+        chat = self.client.chat.completions.create(model="gpt-3.5-turbo", temperature=1, messages=messages)
         new_csv = chat.choices[0].message.content
+        print(new_csv)
         return(new_csv)
 
     def update_dataset(self, user_id, filename=""):
