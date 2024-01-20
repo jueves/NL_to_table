@@ -36,7 +36,7 @@ class Text2Table:
         reply = chat.choices[0].message.content
         return(text_input, reply)
 
-    def csv2answer(self, text_input, csv_data, user_id):
+    def csv2answer(self, csv_data, user_id, text_input=None, is_correction=False):
         '''
         Gets a string of csv data and a user id.
         Converts string to dataframe
@@ -57,6 +57,8 @@ class Text2Table:
             answer = self.df_to_markdown(new_data) + sanity_check(new_data, data_structure)
             
             # Add prompt and save data
+            if is_correction:
+                text_input = self.tmp_data[user_id]["prompt"]
             new_data["prompt"] = text_input
             self.tmp_data[user_id] = new_data
         else:
@@ -83,8 +85,9 @@ class Text2Table:
         Returns answer text with information about the process.
         '''
         text_input, csv_str = self.text_to_csv(message)
-        answer = self.csv2answer(text_input, csv_str,
-                                 message.from_user.id)
+        answer = self.csv2answer(text_input=text_input,
+                                 csv_data=csv_str,
+                                 user_id=message.from_user.id)
         return(answer)
 
     def get_correction(self, user_id, critique=""):
@@ -101,7 +104,6 @@ class Text2Table:
                          })
         chat = self.client.chat.completions.create(model="gpt-3.5-turbo", temperature=1, messages=messages)
         new_csv = chat.choices[0].message.content
-        print(new_csv)
         return(new_csv)
 
     def update_dataset(self, user_id, filename=""):

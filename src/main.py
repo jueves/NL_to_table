@@ -91,7 +91,9 @@ def callback_query(call):
     
     elif call.data == "cb_errors":
         new_csv = text2table.get_correction(call.from_user.id)
-        answer = "<code>" + text2table.csv2answer(new_csv, call.from_user.id) + "</code>"
+        answer = "<code>" + text2table.csv2answer(csv_data=new_csv,
+                                                  user_id=call.from_user.id,
+                                                  is_correction=True) + "</code>"
         bot.send_message(call.from_user.id, answer,                                                                                                                                                                                                                                                                                                                 reply_markup=update_markup,
                          parse_mode="html")
     elif call.data == "cb_load":
