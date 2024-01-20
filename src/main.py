@@ -164,7 +164,6 @@ def echo_all(message):
     '''
     Takes all incoming messages and returns answers.
     '''
-    ic()
     markup = None
     try:
         if not user_manager.user_exists(message.from_user.id):
