@@ -64,10 +64,10 @@ class Reporter:
             my_order = list(counts[:max_num_labels].index)
 
         counts = data[var_name].value_counts()
-
+        
         # Create "other" category
         if len(counts) > max_num_labels:
-            other_values = counts[max_num_labels:].index
+            other_values = list(counts.index)[max_num_labels:]
             data[var_name] = ["Otros" if value in other_values else value for value in data[var_name]]
             my_order += ["Otros"]
         count_plot = sns.countplot(y=var_name, data = data, order=my_order)
