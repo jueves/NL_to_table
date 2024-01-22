@@ -1,6 +1,7 @@
 {
     "weight": {
         "description": "A person's weight in kilograms.",
+        "alias": "peso",
         "type": "Numeric",
         "range": [
             20,
@@ -17,6 +18,7 @@
     },
     "waist": {
         "description": "Abdominal perimeter in cm",
+        "alias": "cintura",
         "type": "Numeric",
         "range": [
             60,
@@ -33,6 +35,7 @@
     },
     "asthma": {
         "description": "Asthma crisis severity in a 0 to 5 scale.",
+        "alias": "asma",
         "type": "Numeric",
         "range": [
             0,
@@ -49,6 +52,7 @@
     },
     "allergy": {
         "description": "Allergy crisis severity in a 0 to 5 scale.",
+        "alias": "alergia",
         "type": "Numeric",
         "range": [
             0,
@@ -65,10 +69,11 @@
     },
     "food": {
         "description": "Food eaten in that moment. Could be one or more foods. Do not include caffeine drinks in the food category.",
+        "alias": "comida",
         "type": "String",
         "range": [],
         "example": [
-            "Papas con sardinas",
+            "Tostadas con tomate",
             "Pasta con verdura",
             "Garbanzos de lata",
             "Ensalada con pollo"
@@ -78,6 +83,7 @@
     },
     "energy": {
         "description": "Energy level in a 0 to 5 scale, being 0 falling sleep and 5 extraordinary exitement.",
+        "alias": "energía",
         "type": "Numeric",
         "range": [
             0,
@@ -94,6 +100,7 @@
     },
     "sleep": {
         "description": "Number of hours slept in the previous night.",
+        "alias": "sueño",
         "type": "Numeric",
         "range": [
             0,
@@ -110,6 +117,7 @@
     },
     "nap": {
         "description": "Number of minutes slept at the current time.",
+        "alias": "siesta",
         "type": "Numeric",
         "range": [
             0,
@@ -126,6 +134,7 @@
     },
     "caffeine": {
         "description": "Amount of caffeine ingested in diverse units.",
+        "alias": "cafeína",
         "type": "String",
         "range": [],
         "example": [
@@ -139,6 +148,7 @@
     },
     "water": {
         "description": "Amount of water drank in liters. If a container is given, convert it to liters. For example, one glass of water is 0.25 liters, two glasses of water 0.6 liters.",
+        "alias": "agua",
         "type": "Numeric",
         "range": [
             0,
@@ -168,6 +178,7 @@
     },
     "antihistaminic": {
         "description": "Administration of anhistaminic.",
+        "alias": "antihistamínico",
         "type": "Boolean",
         "range": [],
         "example": [

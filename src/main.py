@@ -124,7 +124,8 @@ def voice_processing(message):
     Takes a voice note describing data values and answers with a table format propossal.
     '''
     try:
-        is_available, transcription_text =  audio2text.transcribe(message)
+        whisper_prompt = db.find_one("users", message.from_user.id)["whisper_prompt"]
+        is_available, transcription_text =  audio2text.transcribe(message, whisper_prompt)
         if is_available:
             message.text = transcription_text
             answer = "<code>" + text2table.get_table(message)

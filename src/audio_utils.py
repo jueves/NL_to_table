@@ -1,6 +1,8 @@
 from faster_whisper import WhisperModel
 import os
 
+
+
 DEFAULT_MODEL = os.environ.get("WHISPER_MODEL")
 WHISPER_LANG = os.environ.get("WHISPER_LANG")
 
@@ -11,18 +13,20 @@ class Whisper4Bot:
         self.model = WhisperModel(default_model, device="CPU", compute_type="int8")
         self.available = True
    
-    def transcribe(self, message):
+    def transcribe(self, message, whisper_prompt):
         '''
         Gets a message with an audio file.
-        Returns audio transcription.
+        Returns a duple with model availability (boolean) and audio
+        transcription (str) in case the model is available.
         '''
         # Dowload audio file if needed
-        file_name = self.get_audio_filename(message)
+        file_name = self.get_audio_filename(message)       
         answer = None
         if self.available:
             self.available = False
             self.bot.reply_to(message, "Procesando audio...")
-            segments, _ = self.model.transcribe(audio=file_name, language=WHISPER_LANG, beam_size=5)
+            segments, _ = self.model.transcribe(audio=file_name, language=WHISPER_LANG,
+                                                beam_size=5, initial_prompt=whisper_prompt)
             text = ""
             for segment in segments:
                 text += segment.text

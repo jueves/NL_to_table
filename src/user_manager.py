@@ -45,7 +45,9 @@ class UserManager:
             newuser_doc = {"user_id":user_id,
                            "data_structure":data_structure,
                            "prompt_header":self.get_prompt_header(data_structure,
-                                                                  prompt_raw)}
+                                                                  prompt_raw),
+                           "whisper_prompt":self.get_whisper_prompt(data_structure)
+                           }
             self.db.insert_one("users", user_id, newuser_doc)
         else:
             raise RuntimeError("The user already exists.")
@@ -102,13 +104,36 @@ class UserManager:
             try:
                 with open(data_structure_filename, "r") as f:
                     data_structure = json.load(f)
+                whisper_prompt = self.get_whisper_prompt(data_structure)
                 self.db.update_user_field(user_id, "data_structure", data_structure)
+                self.db.update_user_field(user_id, "whisper_prompt", whisper_prompt)
                 answer = "Se ha cargado la configuración"
             except Exception as e:
                 answer = f"Error: Los datos no pudieron ser cargados.\n{e}"
         else:
             answer = sanity_report
         return(answer)
+    
+    def get_whisper_prompt(self, data_structure):
+        '''
+        Gets data structure.
+        Returns a string of example data inputs for primming Whisper.
+        '''
+        examples=4
+        whisper_prompt_list = []
+        for key, value in data_structure.items():
+            if key != "time":
+                for i in range(examples):
+                    key_value = ""
+                    if "alias" in value.keys():
+                        key_value += value["alias"]
+                    else:
+                        key_value += key
+                    key_value += f', {value["example"][i]}'
+                    whisper_prompt_list.append(key_value)
 
-   
+        whisper_prompt = ". ".join(whisper_prompt_list)
+        return(whisper_prompt)
+
+ 
         
