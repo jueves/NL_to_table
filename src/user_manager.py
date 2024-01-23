@@ -134,6 +134,3 @@ class UserManager:
 
         whisper_prompt = ". ".join(whisper_prompt_list)
         return(whisper_prompt)
-
- 
-        

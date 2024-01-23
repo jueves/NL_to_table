@@ -10,7 +10,6 @@ from user_manager import UserManager
 
 # Set constants
 TELEGRAM_KEY = os.environ.get("TELEGRAM_KEY")
-TELEGRAM_USER_ID = os.environ.get("TELEGRAM_USER_ID")
 
 with open("version.txt", "r", encoding="utf8") as f:
     VERSION = f.read()
