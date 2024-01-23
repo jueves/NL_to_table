@@ -13,7 +13,7 @@ All info messages are in Spanish, but your data and variables can be in any lang
       - `WHISPER_TYPE` The language model to use. Be aware that if the model is too large for your hardware the app will crash.
       - `WHISPER_LANG` Whisper will assume all audio comes in this language. 
 
-3. Run the bot using Docker Compose.
+3. Run the bot using Docker Compose. You can either clone the project and build the image with [docker-compose.yml](https://github.com/jueves/NL_to_table/blob/main/docker-compose.yml) or use a prebuild image from DockerHub running Docker Compose with [production.yml](https://github.com/jueves/NL_to_table/blob/main/docker/production.yml).
 
 # Configuration
 You can get your config file with the `/getconf` command. You will be sent instructions explaining the diferent fields to set. You can create and delete any variable you want as long as you define it with the proper structure. Once done, you can send it back to the bot and it will be set for your future data logs. This does not affect your old data.
