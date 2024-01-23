@@ -59,6 +59,12 @@ load_markup.row_width = 2
 load_markup.add(InlineKeyboardButton("Cargar datos", callback_data="cb_load"),
                 InlineKeyboardButton("Cancelar", callback_data="cb_cancel"))
 
+# unload_markup
+unload_markup = InlineKeyboardMarkup()
+unload_markup.row_width = 2
+unload_markup.add(InlineKeyboardButton("Borrar ejemplos", callback_data="cb_unload"),
+                  InlineKeyboardButton("Cancelar", callback_data="cb_cancel"))
+
 # del_markup
 del_markup = InlineKeyboardMarkup()
 del_markup.row_width = 2
@@ -77,7 +83,8 @@ cmd = {"help": ["/help", "/ayuda", "/h"],
        "lineal": ["/lineal"],
        "count": ["/count", "/frecuencia", "/frec"],
        "plot": ["/plot", "/grafico"],
-       "vars": ["/variables", "/vars"]
+       "vars": ["/variables", "/vars"],
+       "deldummy": ["/borrar_ejemplos", "/deldummy", "/delexamples"]
        }
 
 @bot.callback_query_handler(func=lambda call: True)
@@ -96,16 +103,34 @@ def callback_query(call):
                                                   is_correction=True) + "</code>"
         bot.send_message(call.from_user.id, answer,                                                                                                                                                                                                                                                                                                                 reply_markup=update_markup,
                          parse_mode="html")
+    
     elif call.data == "cb_load":
-        text2table.update_dataset(call.from_user.id,
-                                  "user_data/dummy_data.csv")
-        bot.answer_callback_query(call.id, "Datos de ejemplo cargados.")
+        try:
+            text2table.update_dataset(call.from_user.id,
+                                      "user_data/dummy_data.csv")
+            answer = "Datos de ejemplo cargados."
+        except Exception as e:
+            answer = f'<b>No se han podido cargar los ejemplos</b>\n{e}'
+        bot.send_message(call.from_user.id, answer, parse_mode="html")
+    
+    elif call.data == "cb_unload":
+        try:
+            amount_deleted = db.unload_user_examples(call.from_user.id)
+            answer = f'Borrados {amount_deleted} registros de ejemplo.'
+        except Exception as e:
+            answer = f'<b>Error al borrar los ejemplos</b>\n{e}'
+        bot.send_message(call.from_user.id, answer, parse_mode="html")
+
     elif call.data == "cb_cancel":
         bot.answer_callback_query(call.id, "Operación cancelada.")
         
     elif call.data == "cb_del":
-        db.delete_using_call(call)
-        bot.answer_callback_query(call.id, "Respuesta a la solicitud de borrado.")
+        try:
+            db.delete_using_call(call)
+            answer = "Registro borrado correctamente."
+        except Exception as e:
+            answer = f'<b>Error en la solicitud de borrado</b>\n{e}'
+        bot.send_message(call.from_user.id, answer, parse_mode="html")
 
     elif call.data == "cb_keep":
         answer = ("Para elegir el último registro, usa <code>/eliminar</code>,"
@@ -188,6 +213,9 @@ def echo_all(message):
         elif message.text in cmd["example"]:
             markup = load_markup
             answer = "¿Desea cargar datos ficticios a modo de ejemplo?"
+        elif message.text in cmd["deldummy"]:
+            markup = unload_markup
+            answer = "¿Desea eliminar los datos ficticios de ejemplo?"
         elif message.text in cmd["getconf"]:
             user_manager.send_data_structure(message)
             answer = config_instructions

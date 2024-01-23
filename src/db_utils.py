@@ -67,6 +67,15 @@ class MongoManagerPerUser:
         answer = self._db[collection].delete_one(query)
         return(answer)
     
+    def delete_many(self, collection, user_id, query):
+        '''
+        pymongo delete_many method, forcing filtering by user_id
+        '''
+        query['user_id'] = user_id
+        answer = self._db[collection].delete_many(query)
+        return(answer)
+        
+    
     def update_user_field(self, user_id, field, value):
         '''
         Allows to update every field for a user except for the 'user_id' field.
@@ -88,9 +97,24 @@ class MongoManagerPerUser:
     def delete_using_call(self, call):
         '''
         Deletes record from "personal" collection in the database.
+        Gets the id of the record to be deleted from the end of the message text
+        in the call.
         '''
         user_id = call.from_user.id
         message_text = call.message.text
         record_id_str = re.findall(r"Record_id:\s([0-9a-fA-F]+)", message_text)[-1]
         record_id = ObjectId(record_id_str)
         self.delete_one("personal", user_id, {"_id": record_id})
+
+    def unload_user_examples(self, user_id):
+        '''
+        Deletes user_id's example data.
+        Returns the amount of deleted documents.
+        Raise error if transaction not acknowledged.
+        '''
+        query = {"isexample":True}
+        delete_result = self.delete_many("personal", user_id, query)
+        if not delete_result.acknowledged:
+            raise ValueError(f'Delete many operation not acknowledged.\n'
+                             f'{delete_result.deleted_count} records where deleted.')
+        return(delete_result.deleted_count)
