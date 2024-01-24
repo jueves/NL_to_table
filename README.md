@@ -1,4 +1,8 @@
 # NL_to_table
+<a href="https://t.me/cuadriculado_bot">
+  <img align="right" alt="screenshot" width=300 src=https://user.fm/files/v2-dab74f4abda8606e73c20fb1cdd73c96/nl_to_table_screenshot.jpg>
+</a>
+
 _**TL;DR:** Bot that converts natural language to table. [Try me!](https://t.me/cuadriculado_bot)_
 
 This is a Telegram Bot that converts text and voice to tables using Whisper and ChatGPT. The table format is specified in `data_structure.json`. This file serves both to build the prompts and to assist on data operations.
