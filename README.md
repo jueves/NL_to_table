@@ -6,7 +6,7 @@ This is a Telegram Bot that converts text and voice to tables using Whisper and 
 All info messages are in Spanish, but your data and variables can be in any language. ChatGPT will convert the variable names to whatever language is describing data in `data_structure.json`.
 
 <a href="https://t.me/cuadriculado_bot">
-  <img src="https://user.fm/files/v2-289cafe11637f40dc480d218d7814927/NL_to_table_screenshot_L.png" alt="Screenshot">
+  <img src="https://user.fm/files/v2-028fb1e7797b8f3bcf3df93d9d7760c7/screenshot3.png" alt="Screenshot">
 </a>
 
 # Installation
