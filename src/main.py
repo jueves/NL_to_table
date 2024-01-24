@@ -49,7 +49,7 @@ audio2text = Whisper4Bot(bot)
 # update_markup
 update_markup = InlineKeyboardMarkup()
 update_markup.row_width = 2
-update_markup.add(InlineKeyboardButton("Todo correcto", callback_data="cb_correct"),
+update_markup.add(InlineKeyboardButton("Guardar datos", callback_data="cb_correct"),
                   InlineKeyboardButton("Hay errores", callback_data="cb_errors"))
 
 # load_markup
@@ -93,7 +93,7 @@ def callback_query(call):
     '''
     if call.data == "cb_correct":
         text2table.update_dataset(user_id=call.from_user.id)
-        bot.answer_callback_query(call.id, "Datos guardados.")
+        bot.answer_callback_query(call.id, "Datos guardados")
     
     elif call.data == "cb_errors":
         new_csv = text2table.get_correction(call.from_user.id)
@@ -121,7 +121,7 @@ def callback_query(call):
         bot.send_message(call.from_user.id, answer, parse_mode="html")
 
     elif call.data == "cb_cancel":
-        bot.answer_callback_query(call.id, "Operación cancelada.")
+        bot.answer_callback_query(call.id, "Operación cancelada")
         
     elif call.data == "cb_del":
         try:
