@@ -3,7 +3,7 @@ version: '3.1'
 services:
 
   mongo:
-    image: mongo
+    image: mongo:7
     restart: always
     ports:
       - 27017:27017
@@ -14,7 +14,7 @@ services:
       - db-data-test:/data/db
 
   mongo-express:
-    image: mongo-express:1.0.0-alpha
+    image: mongo-express:1
     restart: always
     ports:
       - 8085:8081
