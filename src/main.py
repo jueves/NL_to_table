@@ -13,7 +13,7 @@ TELEGRAM_KEY = os.environ.get("TELEGRAM_KEY")
 
 with open("version.txt", "r", encoding="utf8") as f:
     VERSION = f.read()
-print("######### VERSION: ", VERSION)
+print("######### VERSION: ", VERSION, flush=True)
 
 # Load text messages
 with open("text/start.txt", "r", encoding="utf-8") as f:
