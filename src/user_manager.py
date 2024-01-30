@@ -116,21 +116,37 @@ class UserManager:
     
     def get_whisper_prompt(self, data_structure):
         '''
-        Gets data structure.
+        Takes data structure.
         Returns a string of example data inputs for primming Whisper.
+        Output structure: "var1_name, var1_value. var2_name, var2_value."
         '''
-        examples=4
+        examples=4   # If set to 0 only variable names are returned.
         whisper_prompt_list = []
-        for key, value in data_structure.items():
-            if key != "time":
-                for i in range(examples):
-                    key_value = ""
+        if examples == 0:
+            for key, value in data_structure.items():
+                if key != "time":
                     if "alias" in value.keys():
-                        key_value += value["alias"]
+                        key_name = value["alias"]
                     else:
-                        key_value += key
-                    key_value += f', {value["example"][i]}'
-                    whisper_prompt_list.append(key_value)
+                        key_name = key
+                    whisper_prompt_list.append(key_name)
+        else:
+            # In order to obtain a better order, iterate first on range, then on dict.
+            # Otherwise all examples of the same variable are next to each other, producing
+            # poor Whisper transcriptions.
+            for example_number in range(examples):
+                for key, value in data_structure.items():
+                    if key != "time":
+                        if "alias" in value.keys():
+                            key_name = value["alias"]
+                        else:
+                            key_name = key
+                        try:
+                            key_and_value = key_name + f', {value["example"][example_number]}'
+                            whisper_prompt_list.append(key_and_value)
+                        except IndexError:
+                            print(f"Index Error: The variable \"{key}\" doesn't have an"
+                                   f" example with index {example_number}.", flush=True)
 
         whisper_prompt = ". ".join(whisper_prompt_list)
         return(whisper_prompt)
