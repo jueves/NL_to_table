@@ -83,7 +83,8 @@ cmd = {"help": ["/help", "/ayuda", "/h"],
        "count": ["/count", "/frecuencia", "/frec"],
        "plot": ["/plot", "/grafico"],
        "vars": ["/variables", "/vars"],
-       "deldummy": ["/borrar_ejemplos", "/deldummy", "/delexamples"]
+       "deldummy": ["/borrar_ejemplos", "/deldummy", "/delexamples"],
+       "newprompt": ["/newprompt"]
        }
 
 @bot.callback_query_handler(func=lambda call: True)
@@ -228,6 +229,8 @@ def echo_all(message):
             answer = reports.get_variables(message)
         elif message.text == "/version":
             answer = f"Versión: {VERSION}"
+        elif message.text.split()[0] in cmd["newprompt"]:
+            answer = user_manager.set_whisper_prompt(message)
         else:
             markup = update_markup
             answer = ("<code>" + text2table.get_table(message) + "</code>" +
