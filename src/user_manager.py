@@ -114,13 +114,13 @@ class UserManager:
             answer = sanity_report
         return(answer)
     
-    def get_whisper_prompt(self, data_structure):
+    def get_whisper_prompt(self, data_structure, examples=4):
         '''
         Takes data structure.
         Returns a string of example data inputs for primming Whisper.
         Output structure: "var1_name, var1_value. var2_name, var2_value."
         '''
-        examples=4   # If set to 0 only variable names are returned.
+        #examples=4   # If set to 0 only variable names are returned.
         whisper_prompt_list = []
         if examples == 0:
             for key, value in data_structure.items():
@@ -150,3 +150,15 @@ class UserManager:
 
         whisper_prompt = ". ".join(whisper_prompt_list)
         return(whisper_prompt)
+
+    def set_whisper_prompt(self, message):
+        num_examples = int(message.text.split()[1])
+        try:
+            data_structure = self.db.find_one("users", message.from_user.id)["data_structure"]
+            whisper_prompt = self.get_whisper_prompt(data_structure, num_examples)
+            self.db.update_user_field(message.from_user.id, "whisper_prompt", whisper_prompt)
+            answer = f"Nuevo prompt de whisper:\n{whisper_prompt}"
+        except Exception as e:
+            answer = f"Error en set_whisper_pompt()\n {e}"
+        return(answer)
+
