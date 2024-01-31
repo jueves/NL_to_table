@@ -30,7 +30,7 @@ class Whisper4Bot:
             text = ""
             for segment in segments:
                 text += segment.text
-            print("AUDIO TRANSCRIPTION:\n" + text)
+            print("AUDIO TRANSCRIPTION:\n" + text + "\n\nWHISPER PROMPT:\n" + whisper_prompt)
             answer = text
             self.available = True
         return(self.available, answer)
