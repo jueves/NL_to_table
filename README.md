@@ -45,7 +45,7 @@ Variables muted in `data_structure.json` are excluded from reminders.
 You can download all your data in a csv file using the command `/download`
 
 ## Dummy data
-You can load dummy data in order to test the app using the `/example` command. To remove dummy data, use the `/deldummy`command.`
+You can load dummy data in order to test the app using the `/example` command. To remove dummy data, use the `/deldummy` command.
 
 ## Plots
 You have two diferent plots you can use for quick basic exploration:
